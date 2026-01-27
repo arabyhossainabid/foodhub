@@ -135,7 +135,7 @@ export default function CartPage() {
               Order Summary
             </h3>
 
-            <div className="space-y-4 mb-8">
+            <div className="space-y-4 mb-10">
               <div className="flex justify-between text-gray-400 font-medium">
                 <span>Items ({cart.length})</span>
                 <span className="text-white">{formatCurrency(totalPrice)}</span>
@@ -155,26 +155,16 @@ export default function CartPage() {
             </div>
 
             <div className="space-y-6">
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-gray-500 uppercase tracking-widest ml-1">Delivery Address</label>
-                <textarea
-                  placeholder="Enter your full address..."
-                  className="w-full bg-gray-800 border-none rounded-2xl p-4 text-sm focus:ring-1 focus:ring-[#FF5200] outline-none min-h-[100px] resize-none text-white placeholder:text-gray-600"
-                  value={address}
-                  onChange={(e) => setAddress(e.target.value)}
-                />
-              </div>
-
-              <Button
-                className="w-full h-14 rounded-2xl text-lg flex items-center justify-center"
-                onClick={handleCheckout}
-                isLoading={isLoading}
-              >
-                Confirm Order
-              </Button>
+              <Link href="/checkout">
+                <Button
+                  className="w-full h-14 rounded-2xl text-lg flex items-center justify-center font-black"
+                >
+                  Proceed to Checkout <Plus size={20} className="ml-2 rotate-45" />
+                </Button>
+              </Link>
 
               <p className="text-[10px] text-center text-gray-500 font-bold uppercase tracking-widest">
-                Secure Checkout Guaranteed
+                Almost there! Next step: Review & Pay
               </p>
             </div>
           </Card>

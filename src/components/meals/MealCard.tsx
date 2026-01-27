@@ -52,7 +52,9 @@ export function MealCard({ meal }: MealCardProps) {
         <div className="flex items-center justify-between pt-2">
           <div className="flex flex-col">
             <span className="text-[10px] uppercase tracking-wider text-gray-400 font-bold">Provider</span>
-            <span className="text-xs font-bold text-gray-700">{meal.provider?.user.name || "FoodHub Kitchen"}</span>
+            <Link href={`/providers/${meal.providerId}`} className="hover:text-[#FF5200] transition-colors">
+              <span className="text-xs font-bold text-gray-700">{meal.provider?.shopName || meal.provider?.user.name || "FoodHub Kitchen"}</span>
+            </Link>
           </div>
           <Button
             size="sm"

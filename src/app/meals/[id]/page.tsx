@@ -129,7 +129,9 @@ export default function MealDetailsPage() {
               </div>
               <div>
                 <p className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Provided By</p>
-                <p className="text-xl font-bold text-gray-900">{meal.provider?.user.name || "FoodHub Kitchen"}</p>
+                <Link href={`/providers/${meal.providerId}`} className="hover:text-[#FF5200] transition-colors">
+                  <p className="text-xl font-bold text-gray-900">{meal.provider?.shopName || meal.provider?.user.name || "FoodHub Kitchen"}</p>
+                </Link>
               </div>
             </div>
           </Card>

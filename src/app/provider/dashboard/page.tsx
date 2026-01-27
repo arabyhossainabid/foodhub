@@ -37,8 +37,8 @@ export default function ProviderDashboard() {
         setStats({
           totalMeals: meals.length,
           totalOrders: orders.length,
-          avgRating: meals.reduce((acc: number, m: any) => acc + (m.averageRating || 0), 0) / (meals.length || 1),
-          earnings: orders.reduce((acc: number, o: any) => o.status === 'DELIVERED' ? acc + o.totalAmount : acc, 0)
+          avgRating: meals.reduce((acc: number, m: any) => acc + (Number(m.averageRating) || 0), 0) / (meals.length || 1),
+          earnings: orders.reduce((acc: number, o: any) => o.status === 'DELIVERED' ? acc + Number(o.totalAmount) : acc, 0)
         });
       } catch (error) {
         console.error("Failed to fetch provider stats");

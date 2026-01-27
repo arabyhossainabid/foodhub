@@ -20,13 +20,14 @@ const registerSchema = z.object({
   role: z.enum(["CUSTOMER", "PROVIDER"]),
   shopName: z.string().optional(),
   address: z.string().optional(),
+  cuisine: z.string().optional(),
 }).refine(data => {
   if (data.role === "PROVIDER") {
-    return !!data.shopName && !!data.address;
+    return !!data.shopName && !!data.address && !!data.cuisine;
   }
   return true;
 }, {
-  message: "Shop Name and Address are required for Providers",
+  message: "Shop Name, Address, and Cuisine are required for Providers",
   path: ["shopName"],
 });
 
@@ -36,11 +37,16 @@ export default function RegisterPage() {
   const { login } = useAuth();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedRole, setSelectedRole] = useState<"CUSTOMER" | "PROVIDER">("CUSTOMER");
+
+  // Get role from URL if present
+  const searchParams = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
+  const initialRole = searchParams?.get("role") === "PROVIDER" ? "PROVIDER" : "CUSTOMER";
+
+  const [selectedRole, setSelectedRole] = useState<"CUSTOMER" | "PROVIDER">(initialRole);
 
   const { register, handleSubmit, formState: { errors }, setValue } = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
-    defaultValues: { role: "CUSTOMER" },
+    defaultValues: { role: initialRole },
   });
 
   const handleRoleChange = (role: "CUSTOMER" | "PROVIDER") => {
@@ -51,7 +57,25 @@ export default function RegisterPage() {
   const onSubmit = async (data: RegisterFormValues) => {
     setIsLoading(true);
     try {
-      await api.post("/auth/register", data);
+      const payload = {
+        name: data.name,
+        email: data.email,
+        password: data.password,
+        role: data.role,
+        ...(data.role === "PROVIDER" ? {
+          shopName: data.shopName,
+          address: data.address,
+          cuisine: data.cuisine,
+          // Support both flattened and nested for maximum compatibility
+          providerProfile: {
+            shopName: data.shopName,
+            address: data.address,
+            cuisine: data.cuisine
+          }
+        } : {})
+      };
+
+      await api.post("/auth/register", payload);
       toast.success("Account created successfully! Please login.");
       router.push("/login");
     } catch (error: any) {
@@ -139,6 +163,13 @@ export default function RegisterPage() {
                       {...register("address")}
                     />
                     {errors.address && <p className="text-xs text-red-500 font-medium">{errors.address.message}</p>}
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium leading-none">Cuisine Type</label>
+                    <Input
+                      placeholder="Italian, Bangladeshi, Fast Food..."
+                      {...register("cuisine")}
+                    />
                   </div>
                 </div>
               )}

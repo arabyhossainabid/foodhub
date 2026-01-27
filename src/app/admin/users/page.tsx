@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "react-hot-toast";
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 
 const adminNavItems = [
   { title: "Dashboard", href: "/admin/dashboard", icon: <LayoutDashboard size={20} /> },
@@ -73,75 +74,76 @@ export default function AdminUsersPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {loading ? (
-            <div className="space-y-4">
-              {[1, 2, 3, 4].map(i => <div key={i} className="h-24 bg-gray-100 animate-pulse rounded-2xl"></div>)}
+            <div className="lg:col-span-2 space-y-4">
+              {[1, 2, 3, 4].map(i => <div key={i} className="h-32 bg-gray-100 animate-pulse rounded-[2rem]"></div>)}
             </div>
           ) : filteredUsers.length > 0 ? (
-            filteredUsers.map((user) => (
-              <Card key={user.id} className="border-none shadow-sm hover:shadow-md transition-all duration-300 bg-white group border border-gray-100 overflow-hidden">
-                <CardContent className="p-4 flex flex-col md:flex-row items-center gap-6">
-                  <div className="h-14 w-14 bg-gray-50 rounded-2xl flex items-center justify-center text-gray-400 group-hover:bg-[#FF5200] group-hover:text-white transition-colors duration-500">
-                    <UserIcon size={24} />
-                  </div>
-
-                  <div className="grow grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
-                    <div className="space-y-1">
-                      <p className="text-sm font-black text-gray-900">{user.name}</p>
-                      <div className="flex items-center text-xs text-gray-400 font-bold tracking-tight">
-                        <Mail size={12} className="mr-1.5" /> {user.email}
+            filteredUsers.map((user, idx) => (
+              <motion.div
+                key={user.id}
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: idx * 0.05 }}
+              >
+                <Card className="premium-card group overflow-hidden border-none shadow-sm h-full">
+                  <CardContent className="p-8 space-y-6">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-4">
+                        <div className="h-16 w-16 bg-gray-50 rounded-2xl flex items-center justify-center text-gray-400 group-hover:bg-[#FF5200] group-hover:text-white transition-all duration-500 shadow-sm overflow-hidden">
+                          <UserIcon size={28} />
+                        </div>
+                        <div>
+                          <h3 className="text-xl font-black text-gray-900 leading-tight">{user.name}</h3>
+                          <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Joined Jan 2026</p>
+                        </div>
                       </div>
-                    </div>
-                    <div className="space-y-1">
-                      <p className="text-xs font-black uppercase text-gray-400 tracking-widest">Role</p>
                       <span className={cn(
-                        "text-[10px] px-2.5 py-1 rounded-full font-black uppercase tracking-widest",
-                        user.role === 'ADMIN' ? "bg-purple-100 text-purple-700" :
-                          user.role === 'PROVIDER' ? "bg-blue-100 text-blue-700" : "bg-gray-100 text-gray-700"
-                      )}>
-                        {user.role}
-                      </span>
-                    </div>
-                    <div className="space-y-1">
-                      <p className="text-xs font-black uppercase text-gray-400 tracking-widest">Status</p>
-                      <span className={cn(
-                        "text-[10px] px-2.5 py-1 rounded-full font-black uppercase tracking-widest",
+                        "text-[10px] px-3 py-1 rounded-full font-black uppercase tracking-widest shadow-sm",
                         user.isActive ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
                       )}>
-                        {user.isActive ? "Active" : "Suspended"}
+                        {user.isActive ? "Active Account" : "Access Revoked"}
                       </span>
                     </div>
-                  </div>
 
-                  <div className="shrink-0 pt-4 md:pt-0 border-t md:border-t-0 border-gray-50 w-full md:w-auto flex justify-end">
-                    {user.role !== 'ADMIN' && (
-                      user.isActive ? (
+                    <div className="grid grid-cols-2 gap-6 pt-4 border-t border-gray-50">
+                      <div className="space-y-1">
+                        <p className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Email Address</p>
+                        <div className="flex items-center text-sm font-bold text-gray-700">
+                          <Mail size={14} className="mr-2 text-[#FF5200]" /> {user.email}
+                        </div>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Platform Role</p>
+                        <div className="flex items-center text-sm font-bold text-gray-700">
+                          <ShieldCheck size={14} className="mr-2 text-[#FF5200]" /> {user.role}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="pt-4 flex items-center justify-between">
+                      <div className="flex -space-x-2">
+                        {[1, 2, 3].map(i => <div key={i} className="h-8 w-8 rounded-full border-2 border-white bg-gray-100 flex items-center justify-center text-[8px] font-black">U{i}</div>)}
+                      </div>
+                      {user.role !== 'ADMIN' && (
                         <Button
                           size="sm"
-                          variant="destructive"
-                          onClick={() => toggleStatus(user.id, false)}
+                          variant={user.isActive ? "destructive" : "default"}
+                          className={cn("rounded-xl font-black px-6", !user.isActive && "bg-green-600 hover:bg-green-700 shadow-lg shadow-green-500/20")}
+                          onClick={() => toggleStatus(user.id, user.isActive)}
                         >
-                          Suspend
+                          {user.isActive ? "Revoke Access" : "Grant Access"}
                         </Button>
-                      ) : (
-                        <Button
-                          size="sm"
-                          variant="default"
-                          className="bg-green-600 hover:bg-green-700"
-                          onClick={() => toggleStatus(user.id, true)}
-                        >
-                          Activate
-                        </Button>
-                      )
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
             ))
           ) : (
-            <div className="py-24 text-center bg-white rounded-3xl border border-gray-100 border-dashed">
-              <p className="text-gray-500 font-bold">No users found matching your search.</p>
+            <div className="lg:col-span-2 py-32 text-center bg-white rounded-[3rem] border-2 border-gray-50 border-dashed">
+              <p className="text-gray-500 font-bold text-lg tracking-tight">System holds no records for your search.</p>
             </div>
           )}
         </div>

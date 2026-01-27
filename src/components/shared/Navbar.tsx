@@ -1,12 +1,12 @@
 "use client";
 
-import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
 import { Button } from "@/components/ui/button";
 import { ShoppingBag, User, LogOut, Menu, UtensilsCrossed } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 export function Navbar() {
   const { user, logout } = useAuth();
@@ -26,14 +26,14 @@ export function Navbar() {
   }
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b border-gray-100 bg-white/80 backdrop-blur-md">
+    <nav className="sticky top-0 z-50 w-full glass border-b border-gray-100/50">
       <div className="container mx-auto px-4 h-20 flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="flex items-center space-x-2">
-          <div className="h-10 w-10 bg-[#FF5200] rounded-xl flex items-center justify-center text-white shadow-lg shadow-orange-500/30">
+        <Link href="/" className="flex items-center space-x-2 group">
+          <div className="h-10 w-10 bg-[#FF5200] rounded-xl flex items-center justify-center text-white shadow-lg shadow-orange-500/30 group-hover:rotate-12 transition-transform duration-500">
             <UtensilsCrossed size={24} />
           </div>
-          <span className="text-2xl font-extra-bold tracking-tight text-[#1C1C1C]">
+          <span className="text-2xl font-black tracking-tight text-[#1C1C1C]">
             Food<span className="text-[#FF5200]">Hub</span>
           </span>
         </Link>
@@ -44,9 +44,10 @@ export function Navbar() {
             <Link
               key={link.href}
               href={link.href}
-              className="text-sm font-semibold text-gray-600 hover:text-[#FF5200] transition-colors"
+              className="text-sm font-bold text-gray-500 hover:text-[#FF5200] transition-colors relative group"
             >
               {link.name}
+              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#FF5200] transition-all duration-300 group-hover:w-full"></span>
             </Link>
           ))}
         </div>
@@ -56,21 +57,26 @@ export function Navbar() {
           {user ? (
             <>
               <Link href="/cart">
-                <Button variant="ghost" size="icon" className="relative">
-                  <ShoppingBag size={20} />
+                <Button variant="ghost" size="icon" className="relative hover:bg-orange-50 rounded-xl">
+                  <ShoppingBag size={20} className="text-gray-600" />
                   {totalItems > 0 && (
-                    <span className="absolute -top-1 -right-1 h-5 w-5 bg-[#FF5200] text-white text-[10px] flex items-center justify-center rounded-full border-2 border-white font-bold">
+                    <span className="absolute -top-1 -right-1 h-5 w-5 bg-[#FF5200] text-white text-[10px] flex items-center justify-center rounded-full border-2 border-white font-bold animate-in zoom-in">
                       {totalItems}
                     </span>
                   )}
                 </Button>
               </Link>
               <Link href="/profile">
-                <Button variant="ghost" size="icon">
-                  <User size={20} />
+                <Button variant="ghost" size="icon" className="hover:bg-orange-50 rounded-xl">
+                  <User size={20} className="text-gray-600" />
                 </Button>
               </Link>
-              <Button variant="outline" size="sm" onClick={logout} className="rounded-xl border-gray-200 text-gray-600 hover:border-red-500 hover:text-red-500">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={logout}
+                className="rounded-xl border-gray-200 text-gray-600 hover:border-red-500 hover:text-red-500 hover:bg-red-50 font-bold transition-all"
+              >
                 <LogOut size={16} className="mr-2" />
                 Logout
               </Button>
@@ -78,10 +84,10 @@ export function Navbar() {
           ) : (
             <>
               <Link href="/login">
-                <Button variant="ghost" size="sm" className="font-bold">Login</Button>
+                <Button variant="ghost" size="sm" className="font-bold text-gray-600 hover:text-[#FF5200]">Login</Button>
               </Link>
               <Link href="/register">
-                <Button size="sm" className="rounded-xl">Register</Button>
+                <Button size="sm" className="rounded-xl shadow-lg shadow-orange-500/30">Register</Button>
               </Link>
             </>
           )}
@@ -139,6 +145,6 @@ export function Navbar() {
           </div>
         </div>
       </div>
-    </nav >
+    </nav>
   );
 }
