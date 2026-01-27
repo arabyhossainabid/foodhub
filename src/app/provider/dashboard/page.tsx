@@ -1,6 +1,5 @@
 "use client";
 
-import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { LayoutDashboard, Utensils, ShoppingCart, Star, Clock, ArrowUpRight, ArrowDownRight, Package } from "lucide-react";
 import { useEffect, useState } from "react";
 import api from "@/lib/axios";
@@ -8,11 +7,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatCurrency } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { ManagementPage } from "@/components/dashboard/ManagementPage";
 
 const providerNavItems = [
   { title: "Dashboard", href: "/provider/dashboard", icon: <LayoutDashboard size={20} /> },
   { title: "Manage Menu", href: "/provider/menu", icon: <Utensils size={20} /> },
   { title: "Order List", href: "/provider/orders", icon: <ShoppingCart size={20} /> },
+  { title: "Customer Reviews", href: "/provider/reviews", icon: <Star size={20} /> },
 ];
 
 export default function ProviderDashboard() {
@@ -28,109 +29,98 @@ function ProviderDashboardContent() {
   const [stats, setStats] = useState({
     totalMeals: 0,
     totalOrders: 0,
-    avgRating: 0,
-    earnings: 0
+    averageRating: 0,
+    earnings: 0,
+    totalReviews: 0,
+    fiveStars: 0,
+    fourStars: 0,
+    threeStars: 0,
+    twoStars: 0,
+    oneStars: 0,
   });
+
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchStats = async () => {
+      setIsLoading(true);
       try {
         const [mealsRes, ordersRes] = await Promise.all([
-          api.get("/provider/meals"), // You might need a specific stats endpoint or calculate from these
+          api.get("/provider/meals"),
           api.get("/provider/orders")
         ]);
 
         const meals = mealsRes.data.data;
         const orders = ordersRes.data.data;
 
+        const reviewPromises = meals.map((meal: any) =>
+          api.get(`/reviews/meal/${meal.id}`).catch(() => ({ data: { data: [] } }))
+        );
+        const reviewsResponses = await Promise.all(reviewPromises);
+        const allReviews = reviewsResponses.flatMap((res) => res.data.data);
+
+        const totalReviews = allReviews.length;
+        const averageRating = totalReviews > 0
+          ? allReviews.reduce((acc: number, r: any) => acc + r.rating, 0) / totalReviews
+          : 0;
+
         setStats({
           totalMeals: meals.length,
           totalOrders: orders.length,
-          avgRating: meals.reduce((acc: number, m: any) => acc + (Number(m.averageRating) || 0), 0) / (meals.length || 1),
-          earnings: orders.reduce((acc: number, o: any) => o.status === 'DELIVERED' ? acc + Number(o.totalAmount) : acc, 0)
+          averageRating,
+          earnings: orders.reduce((acc: number, o: any) => o.status === 'DELIVERED' ? acc + Number(o.totalAmount) : acc, 0),
+          totalReviews,
+          fiveStars: allReviews.filter((r: any) => r.rating === 5).length,
+          fourStars: allReviews.filter((r: any) => r.rating === 4).length,
+          threeStars: allReviews.filter((r: any) => r.rating === 3).length,
+          twoStars: allReviews.filter((r: any) => r.rating === 2).length,
+          oneStars: allReviews.filter((r: any) => r.rating === 1).length,
         });
-      } catch (error) {
-        console.error("Failed to fetch provider stats");
+      } finally {
+        setIsLoading(false);
       }
     };
     fetchStats();
   }, []);
 
   return (
-    <DashboardLayout items={providerNavItems}>
-      <div className="space-y-10" data-aos="fade-up">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
-          <div>
-            <h1 className="text-4xl font-extra-bold text-gray-900 tracking-tight">Provider Hub</h1>
-            <p className="text-gray-500 font-medium">Monitoring your shop&apos;s performance and orders.</p>
-          </div>
-          <div className="bg-white px-4 py-2 rounded-2xl border border-gray-100 flex items-center space-x-3 shadow-sm">
-            <div className="h-8 w-8 bg-green-500/10 rounded-full flex items-center justify-center text-green-600">
-              <Clock size={16} />
-            </div>
-            <span className="text-sm font-bold text-gray-700 uppercase tracking-tighter">Kitchen: <span className="text-green-600">Open</span></span>
-          </div>
+    <ManagementPage
+      title="Provider Dashboard"
+      description="Monitor your shop's performance and orders."
+      items={providerNavItems}
+      loading={isLoading}
+      action={
+        <div className="bg-white px-3 py-1.5 rounded-md border border-gray-100 flex items-center space-x-2 shadow-sm">
+          <div className="h-2 w-2 bg-green-500 rounded-full animate-pulse"></div>
+          <span className="text-xs font-bold text-gray-700 uppercase tracking-tight">Kitchen Open</span>
         </div>
-
+      }
+    >
+      <div className="space-y-10">
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {[
-            { title: "Total Earnings", value: formatCurrency(stats.earnings), icon: <ArrowUpRight className="text-green-500" />, sub: "Lifetime Earnings" },
-            { title: "Active Meals", value: stats.totalMeals, icon: <Utensils className="text-[#FF5200]" />, sub: "Items in menu" },
-            { title: "New Orders", value: stats.totalOrders, icon: <Package className="text-blue-500" />, sub: "Pending processing" },
-            { title: "Store Rating", value: stats.avgRating.toFixed(1), icon: <Star className="text-orange-500" fill="currentColor" />, sub: "Based on reviews" },
+            { title: "Total Earnings", value: formatCurrency(stats.earnings), icon: <ArrowUpRight size={20} className="text-green-500" />, sub: "Lifetime" },
+            { title: "Active Meals", value: stats.totalMeals, icon: <Utensils size={20} className="text-orange-500" />, sub: "In menu" },
+            { title: "Orders", value: stats.totalOrders, icon: <Package size={20} className="text-blue-500" />, sub: "Total count" },
+            { title: "Average Rating", value: stats.averageRating.toFixed(1), icon: <Star size={20} className="text-yellow-500" fill="currentColor" />, sub: `Based on ${stats.totalReviews} reviews` },
           ].map((stat, i) => (
-            <Card key={i} className="border-none shadow-xl shadow-gray-200/40 overflow-hidden relative">
-              <CardContent className="p-8">
-                <div className="flex justify-between items-start mb-6">
-                  <div className="h-12 w-12 bg-gray-50 rounded-2xl flex items-center justify-center">
+            <Card key={i} className="border border-gray-100 shadow-sm rounded-md">
+              <CardContent className="p-6">
+                <div className="flex justify-between items-start mb-4">
+                  <div className="h-10 w-10 bg-gray-50 rounded-md flex items-center justify-center">
                     {stat.icon}
                   </div>
-                  <span className="text-[10px] font-black uppercase tracking-widest text-gray-300">Stat {i + 1}</span>
                 </div>
-                <div className="space-y-1">
-                  <h3 className="text-3xl font-black text-gray-900 tracking-tight">{stat.value}</h3>
-                  <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">{stat.title}</p>
+                <div className="space-y-0.5">
+                  <h3 className="text-2xl font-bold text-gray-900">{stat.value}</h3>
+                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-tight">{stat.title}</p>
                 </div>
               </CardContent>
-              <div className="absolute bottom-0 left-0 w-full h-1 bg-gray-50 group-hover:bg-[#FF5200] transition-all"></div>
             </Card>
           ))}
         </div>
-
-        {/* Recent Activities Section - Placeholder */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <Card className="border-none shadow-xl shadow-gray-200/40">
-            <CardHeader className="border-b border-gray-50 flex flex-row items-center justify-between pb-6">
-              <CardTitle className="text-xl font-bold">Recent Orders</CardTitle>
-              <button className="text-xs font-bold text-[#FF5200] hover:underline">View All</button>
-            </CardHeader>
-            <CardContent className="pt-6">
-              <div className="flex flex-col items-center justify-center py-12 text-center space-y-4">
-                <div className="h-16 w-16 bg-gray-50 rounded-full flex items-center justify-center text-gray-300">
-                  <ShoppingCart size={32} />
-                </div>
-                <p className="text-gray-500 font-medium">New orders will appear here.</p>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-none shadow-xl shadow-gray-200/40">
-            <CardHeader className="border-b border-gray-50 flex flex-row items-center justify-between pb-6">
-              <CardTitle className="text-xl font-bold">Menu Highlights</CardTitle>
-              <button className="text-xs font-bold text-[#FF5200] hover:underline">Manage Items</button>
-            </CardHeader>
-            <CardContent className="pt-6">
-              <div className="flex flex-col items-center justify-center py-12 text-center space-y-4">
-                <div className="h-16 w-16 bg-gray-50 rounded-full flex items-center justify-center text-gray-300 transition-colors">
-                  <Utensils size={32} />
-                </div>
-                <p className="text-gray-500 font-medium">Top performing meals will show up here.</p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
       </div>
-    </DashboardLayout>
+    </ManagementPage>
   );
 }

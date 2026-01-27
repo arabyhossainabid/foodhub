@@ -11,6 +11,7 @@ import { useAuth } from "@/context/AuthContext";
 import api from "@/lib/axios";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
+import { FullPageLoader } from "@/components/shared/FullPageLoader";
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -41,12 +42,13 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center px-4 bg-gray-50/50">
-      <div className="w-full max-w-md" data-aos="fade-up">
-        <Card className="shadow-2xl shadow-gray-200/50 overflow-hidden border-none">
-          <CardHeader className="text-center pt-10 pb-6 bg-[#1C1C1C] text-white">
+    <div className="min-h-[80vh] flex items-center justify-center px-4 bg-gray-50">
+      {isLoading && <FullPageLoader message="Signing you in..." transparent />}
+      <div className="w-full max-w-md">
+        <Card className="shadow-xl border-gray-100">
+          <CardHeader className="text-center pt-10 pb-6">
             <CardTitle className="text-3xl font-bold">Welcome Back</CardTitle>
-            <CardDescription className="text-gray-400">
+            <CardDescription className="text-gray-500">
               Sign in to your FoodHub account
             </CardDescription>
           </CardHeader>
@@ -86,7 +88,7 @@ export default function LoginPage() {
 
             <Button
               variant="outline"
-              className="w-full rounded-xl border-gray-200 text-gray-700 hover:bg-gray-50"
+              className="w-full rounded-md border-gray-200 text-gray-700 hover:bg-gray-50"
               onClick={() => window.location.href = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/auth/google`}
             >
               <img src="https://www.google.com/favicon.ico" className="w-4 h-4 mr-2" alt="Google" />

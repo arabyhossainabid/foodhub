@@ -16,14 +16,14 @@ export function MealCard({ meal }: MealCardProps) {
   const { addToCart } = useCart();
 
   return (
-    <Card className="group overflow-hidden border-none shadow-xl shadow-gray-200/50 hover:translate-y-[-8px] transition-all duration-500 bg-white">
+    <Card className="group overflow-hidden border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 bg-white">
       <div className="relative h-56 overflow-hidden">
         <img
           src={meal.image || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=1760&auto=format&fit=crop"}
           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
           alt={meal.title}
         />
-        <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-xl font-bold text-[#FF5200] text-sm shadow-sm ring-1 ring-black/5">
+        <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-md font-bold text-[#FF5200] text-sm shadow-sm ring-1 ring-black/5">
           {formatCurrency(meal.price)}
         </div>
       </div>
@@ -52,13 +52,13 @@ export function MealCard({ meal }: MealCardProps) {
         <div className="flex items-center justify-between pt-2">
           <div className="flex flex-col">
             <span className="text-[10px] uppercase tracking-wider text-gray-400 font-bold">Provider</span>
-            <Link href={`/providers/${meal.providerId}`} className="hover:text-[#FF5200] transition-colors">
-              <span className="text-xs font-bold text-gray-700">{meal.provider?.shopName || meal.provider?.user.name || "FoodHub Kitchen"}</span>
+            <Link href={`/providers/${meal.providerId}`}>
+              <span className="text-xs font-bold text-gray-700 hover:text-[#FF5200] transition-colors">{meal.provider?.shopName || meal.provider?.user.name || "FoodHub Kitchen"}</span>
             </Link>
           </div>
           <Button
             size="sm"
-            className="rounded-xl h-10 w-10 p-0"
+            className="rounded-md h-10 w-10 p-0"
             onClick={() => addToCart(meal)}
             title="Add to Cart"
           >

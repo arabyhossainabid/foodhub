@@ -5,19 +5,33 @@ import api from "@/lib/axios";
 import { Meal, Review } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Star, Clock, ShieldCheck, ShoppingBag, ArrowLeft, Utensils, Calendar } from "lucide-react";
+import { Star, Clock, ShieldCheck, ShoppingBag, ArrowLeft, Utensils, Calendar, MessageSquare } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import { useCart } from "@/context/CartContext";
+import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { toast } from "react-hot-toast";
+import { ReviewModal } from "@/components/reviews/ReviewModal";
+import { FullPageLoader } from "@/components/shared/FullPageLoader";
 
 export default function MealDetailsPage() {
   const { id } = useParams();
   const [meal, setMeal] = useState<Meal | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const { addToCart } = useCart();
+  const { user } = useAuth();
+
+  const fetchReviews = async () => {
+    try {
+      const reviewRes = await api.get(`/reviews/meal/${id}`);
+      setReviews(reviewRes.data.data);
+    } catch (error) {
+      console.error("Failed to load reviews");
+    }
+  };
 
   useEffect(() => {
     const fetchMealData = async () => {
@@ -39,11 +53,7 @@ export default function MealDetailsPage() {
   }, [id]);
 
   if (loading) {
-    return (
-      <div className="container mx-auto px-4 py-24 flex items-center justify-center">
-        <div className="h-12 w-12 border-4 border-[#FF5200] border-t-transparent animate-spin rounded-full"></div>
-      </div>
-    );
+    return <FullPageLoader transparent />;
   }
 
   if (!meal) {
@@ -65,7 +75,7 @@ export default function MealDetailsPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
         {/* Left: Image */}
-        <div className="space-y-6" data-aos="fade-right">
+        <div className="space-y-6">
           <div className="aspect-square rounded-[3rem] overflow-hidden shadow-2xl shadow-gray-200/50 relative">
             <img
               src={meal.image || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=1760&auto=format&fit=crop"}
@@ -74,14 +84,14 @@ export default function MealDetailsPage() {
             />
             {!meal.isAvailable && (
               <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center">
-                <span className="bg-red-500 text-white px-8 py-3 rounded-2xl font-black uppercase tracking-widest text-xl">Unavailable</span>
+                <span className="bg-red-500 text-white px-8 py-3 rounded-md font-black uppercase tracking-widest text-xl">Unavailable</span>
               </div>
             )}
           </div>
 
           <div className="grid grid-cols-3 gap-4">
             {[1, 2, 3].map(i => (
-              <div key={i} className="aspect-square rounded-3xl bg-gray-100 overflow-hidden cursor-pointer hover:ring-4 ring-[#FF5200] transition-all">
+              <div key={i} className="aspect-square rounded-md bg-gray-100 overflow-hidden cursor-pointer hover:ring-4 ring-[#FF5200] transition-all">
                 <img src={meal.image || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=1760&auto=format&fit=crop"} className="w-full h-full object-cover opacity-50" alt="Thumbnail" />
               </div>
             ))}
@@ -89,12 +99,12 @@ export default function MealDetailsPage() {
         </div>
 
         {/* Right: Info */}
-        <div className="space-y-10" data-aos="fade-left">
+        <div className="space-y-10">
           <div className="space-y-4">
             <span className="text-xs font-black uppercase tracking-[0.3em] text-[#FF5200]">{meal.category?.name || "Delicious Meal"}</span>
             <h1 className="text-5xl md:text-6xl font-black text-gray-900 leading-tight">{meal.title}</h1>
             <div className="flex items-center space-x-6">
-              <div className="flex items-center text-orange-500 bg-orange-50 px-3 py-1.5 rounded-xl font-bold">
+              <div className="flex items-center text-orange-500 bg-orange-50 px-3 py-1.5 rounded-md font-bold">
                 <Star size={18} fill="currentColor" className="mr-1.5" />
                 <span>{meal.averageRating || 0} ({reviews.length} Reviews)</span>
               </div>
@@ -114,7 +124,7 @@ export default function MealDetailsPage() {
             </div>
             <Button
               size="lg"
-              className="w-full h-16 rounded-2xl text-xl shadow-xl shadow-orange-500/20"
+              className="w-full h-16 rounded-md text-xl shadow-xl shadow-orange-500/20"
               onClick={() => addToCart(meal)}
               disabled={!meal.isAvailable}
             >
@@ -122,15 +132,15 @@ export default function MealDetailsPage() {
             </Button>
           </div>
 
-          <Card className="border-none bg-gray-50 rounded-3xl p-6">
+          <Card className="border-none bg-gray-50 rounded-md p-6">
             <div className="flex items-center space-x-4">
-              <div className="h-14 w-14 bg-white rounded-2xl flex items-center justify-center text-[#FF5200] shadow-sm">
+              <div className="h-14 w-14 bg-white rounded-md flex items-center justify-center text-[#FF5200] shadow-sm">
                 <Utensils size={28} />
               </div>
               <div>
                 <p className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Provided By</p>
-                <Link href={`/providers/${meal.providerId}`} className="hover:text-[#FF5200] transition-colors">
-                  <p className="text-xl font-bold text-gray-900">{meal.provider?.shopName || meal.provider?.user.name || "FoodHub Kitchen"}</p>
+                <Link href={`/providers/${meal.providerId}`}>
+                  <p className="text-xl font-bold text-gray-900 hover:text-[#FF5200] transition-colors">{meal.provider?.shopName || meal.provider?.user.name || "FoodHub Kitchen"}</p>
                 </Link>
               </div>
             </div>
@@ -143,6 +153,15 @@ export default function MealDetailsPage() {
         <div className="flex flex-col md:flex-row justify-between items-end gap-6 border-b border-gray-100 pb-8">
           <h2 className="text-4xl font-black text-gray-900">Guest Reviews</h2>
           <div className="flex items-center space-x-4">
+            {user && user.role === 'CUSTOMER' && (
+              <Button
+                onClick={() => setIsReviewModalOpen(true)}
+                className="rounded-md font-bold shadow-lg shadow-orange-500/20"
+              >
+                <MessageSquare size={18} className="mr-2" />
+                Leave a Review
+              </Button>
+            )}
             <span className="text-gray-400 font-bold">Total {reviews.length} feedback</span>
           </div>
         </div>
@@ -150,11 +169,11 @@ export default function MealDetailsPage() {
         {reviews.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {reviews.map((review, idx) => (
-              <Card key={review.id} className="border-none shadow-md p-8 bg-gray-50/50 rounded-4xl group hover:bg-white transition-all duration-500" data-aos="fade-up" data-aos-delay={idx * 100}>
+              <Card key={review.id} className="border border-gray-100 shadow-sm p-8 bg-white rounded-md transition-all duration-300">
                 <div className="space-y-6">
                   <div className="flex justify-between items-start">
                     <div className="flex items-center space-x-3">
-                      <div className="h-12 w-12 bg-[#FF5200] rounded-2xl flex items-center justify-center font-bold text-white shadow-lg shadow-orange-500/20">
+                      <div className="h-12 w-12 bg-[#FF5200] rounded-md flex items-center justify-center font-bold text-white shadow-lg shadow-orange-500/20">
                         {review.user?.name.charAt(0)}
                       </div>
                       <div>
@@ -168,7 +187,7 @@ export default function MealDetailsPage() {
                       ))}
                     </div>
                   </div>
-                  <p className="text-gray-600 leading-relaxed font-bold font-medium italic">&quot;{review.comment || "No comment provided."}&quot;</p>
+                  <p className="text-gray-600 leading-relaxed font-bold italic">&quot;{review.comment || "No comment provided."}&quot;</p>
                 </div>
               </Card>
             ))}
@@ -181,6 +200,17 @@ export default function MealDetailsPage() {
           </div>
         )}
       </div>
+
+      {/* Review Modal */}
+      {meal && (
+        <ReviewModal
+          mealId={meal.id}
+          mealTitle={meal.title}
+          isOpen={isReviewModalOpen}
+          onClose={() => setIsReviewModalOpen(false)}
+          onSuccess={fetchReviews}
+        />
+      )}
     </div>
   );
 }

@@ -9,8 +9,11 @@ import { Button } from "@/components/ui/button";
 import { Search, SlidersHorizontal, Utensils, X } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import { FullPageLoader } from "@/components/shared/FullPageLoader";
 
 import { Suspense } from "react";
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 function MealsContent() {
   const searchParams = useSearchParams();
@@ -51,6 +54,10 @@ function MealsContent() {
       }
     };
     fetchMeals();
+    // Refresh AOS once components are likely rendered
+    setTimeout(() => {
+      AOS.refresh();
+    }, 500);
   }, [searchTerm, selectedCat]);
 
   const toggleCategory = (id: string) => {
@@ -102,7 +109,7 @@ function MealsContent() {
                   <button
                     key={cat.id}
                     onClick={() => toggleCategory(cat.id)}
-                    className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-300 ${selectedCat === cat.id
+                    className={`w-full flex items-center justify-between px-4 py-3 rounded-md transition-all duration-300 ${selectedCat === cat.id
                       ? "bg-[#FF5200] text-white shadow-lg shadow-orange-500/20"
                       : "bg-gray-50 text-gray-600 hover:bg-gray-100"
                       }`}
@@ -119,7 +126,7 @@ function MealsContent() {
           </div>
 
           {/* Promo Card */}
-          <div className="bg-[#1C1C1C] rounded-3xl p-8 text-white space-y-4 relative overflow-hidden">
+          <div className="bg-[#1C1C1C] rounded-md p-8 text-white space-y-4 relative overflow-hidden">
             <div className="absolute -top-4 -right-4 w-24 h-24 bg-[#FF5200] rounded-full blur-2xl opacity-50"></div>
             <Utensils size={32} className="text-[#FF5200]" />
             <h4 className="text-xl font-bold font-extra-bold">Join as a Provider</h4>
@@ -141,19 +148,13 @@ function MealsContent() {
             </p>
           </div>
 
-          {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-              {[1, 2, 3, 4, 5, 6].map(i => (
-                <div key={i} className="h-80 bg-gray-100 animate-pulse rounded-3xl"></div>
-              ))}
-            </div>
-          ) : meals.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8" data-aos="fade-up">
+          {meals.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
               {meals.map((meal) => (
                 <MealCard key={meal.id} meal={meal} />
               ))}
             </div>
-          ) : (
+          ) : !loading && (
             <div className="flex flex-col items-center justify-center py-24 text-center space-y-4">
               <div className="h-20 w-20 bg-gray-100 rounded-full flex items-center justify-center text-gray-400">
                 <Utensils size={40} />
@@ -163,6 +164,8 @@ function MealsContent() {
               <Button onClick={() => { setSearchTerm(""); setSelectedCat(""); }} variant="outline">Clear All Filters</Button>
             </div>
           )}
+
+          {loading && <FullPageLoader transparent />}
         </main>
       </div>
     </div>
@@ -171,7 +174,7 @@ function MealsContent() {
 
 export default function MealsPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF5200]"></div></div>}>
+    <Suspense fallback={<FullPageLoader />}>
       <MealsContent />
     </Suspense>
   );

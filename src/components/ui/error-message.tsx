@@ -15,7 +15,7 @@ export function ErrorMessage({ message, className, variant = "error" }: ErrorMes
   return (
     <div
       className={cn(
-        "flex items-start gap-3 p-4 rounded-xl animate-in slide-in-from-top-2 duration-300",
+        "flex items-start gap-3 p-4 rounded-md animate-in slide-in-from-top-2 duration-300",
         variant === "error" && "bg-red-50 border border-red-200",
         variant === "warning" && "bg-yellow-50 border border-yellow-200",
         className

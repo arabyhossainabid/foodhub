@@ -34,9 +34,20 @@ api.interceptors.response.use(
 
     // Handle 401 Unauthorized - clear auth and redirect to login
     if (error.response?.status === 401 && typeof window !== "undefined") {
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-      window.location.href = "/login";
+      // Don't redirect if we are already on the login or register page to avoid loops
+      const publicPaths = ["/login", "/register", "/"];
+      const isPublicPath = publicPaths.includes(window.location.pathname);
+
+      if (!isPublicPath) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        window.location.href = "/login?message=Session expired. Please login again.";
+      }
+    }
+
+    // Handle 429 Too Many Requests
+    if (error.response?.status === 429) {
+      console.warn("Rate limited. Please slow down.");
     }
 
     return Promise.reject(error);

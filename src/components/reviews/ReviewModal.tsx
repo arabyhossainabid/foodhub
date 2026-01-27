@@ -19,7 +19,7 @@ type ReviewFormValues = z.infer<typeof reviewSchema>;
 
 interface ReviewModalProps {
   mealId: string;
-  orderId: string;
+  orderId?: string;
   mealTitle: string;
   isOpen: boolean;
   onClose: () => void;
@@ -41,7 +41,6 @@ export function ReviewModal({ mealId, orderId, mealTitle, isOpen, onClose, onSuc
     try {
       await api.post("/reviews", {
         mealId,
-        orderId,
         rating,
         comment: data.comment,
       });
@@ -92,13 +91,13 @@ export function ReviewModal({ mealId, orderId, mealTitle, isOpen, onClose, onSuc
             <label className="text-sm font-bold text-gray-700 ml-1">Your Feedback</label>
             <textarea
               {...register("comment")}
-              className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl p-4 text-base focus:border-[#FF5200] focus:bg-white outline-none transition-all min-h-[120px] resize-none"
+              className="w-full bg-gray-50 border-2 border-gray-100 rounded-md p-4 text-base focus:border-[#FF5200] focus:bg-white outline-none transition-all min-h-[120px] resize-none"
               placeholder="Tell us what you liked..."
             />
             {errors.comment && <p className="text-xs text-red-500">{errors.comment.message}</p>}
           </div>
 
-          <Button type="submit" className="w-full h-14 rounded-2xl text-lg" isLoading={isLoading}>
+          <Button type="submit" className="w-full h-14 rounded-md text-lg" isLoading={isLoading}>
             Submit Review
           </Button>
         </form>

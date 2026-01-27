@@ -23,12 +23,12 @@ export default function OrderSuccessPage() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-md" data-aos="fade-up" data-aos-delay="400">
         <Link href="/orders">
-          <Button variant="outline" size="lg" className="w-full rounded-2xl h-14 border-gray-200 text-gray-700">
+          <Button variant="outline" size="lg" className="w-full rounded-md h-14 border-gray-200 text-gray-700">
             <Package size={20} className="mr-2" /> View My Orders
           </Button>
         </Link>
         <Link href="/">
-          <Button size="lg" className="w-full rounded-2xl h-14">
+          <Button size="lg" className="w-full rounded-md h-14">
             <Home size={20} className="mr-2" /> Back to Home
           </Button>
         </Link>

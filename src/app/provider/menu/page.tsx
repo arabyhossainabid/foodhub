@@ -1,17 +1,6 @@
 "use client";
 
-import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
-import {
-  LayoutDashboard,
-  Utensils,
-  ShoppingCart,
-  Plus,
-  Edit,
-  Trash2,
-  ImageOff,
-  ChefHat,
-  ArrowRight
-} from "lucide-react";
+import { LayoutDashboard, Utensils, ShoppingCart, Plus, Edit, Trash2, ImageOff, ChefHat, Star } from "lucide-react";
 import { useEffect, useState } from "react";
 import api from "@/lib/axios";
 import { Category, Meal } from "@/types";
@@ -19,13 +8,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { formatCurrency, cn } from "@/lib/utils";
 import { toast } from "react-hot-toast";
-import { NewMealForm } from "@/components/provider/NewMealForm";
-import { motion, AnimatePresence } from "framer-motion";
+import { NewMealForm } from "@/components/meals/NewMealForm";
+import { ManagementPage } from "@/components/dashboard/ManagementPage";
 
 const providerNavItems = [
   { title: "Dashboard", href: "/provider/dashboard", icon: <LayoutDashboard size={20} /> },
   { title: "Manage Menu", href: "/provider/menu", icon: <Utensils size={20} /> },
   { title: "Order List", href: "/provider/orders", icon: <ShoppingCart size={20} /> },
+  { title: "Customer Reviews", href: "/provider/reviews", icon: <Star size={20} /> },
 ];
 
 export default function ProviderMenuPage() {
@@ -88,154 +78,117 @@ export default function ProviderMenuPage() {
   };
 
   return (
-    <DashboardLayout items={providerNavItems}>
-      <div className="space-y-12">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-          <div className="space-y-2">
-            <h1 className="text-5xl font-black text-gray-900 tracking-tighter">Kitchen <span className="text-gradient">Gallery</span></h1>
-            <p className="text-gray-500 font-medium">Curate and manage your culinary offerings for the world.</p>
+    <ManagementPage
+      title="Manage Menu"
+      description="Add and update your delicious meal offerings."
+      items={providerNavItems}
+      loading={loading}
+      action={
+        !isFormOpen && (
+          <Button
+            onClick={() => setIsFormOpen(true)}
+            className="rounded-md h-12 px-6 font-bold"
+          >
+            <Plus size={20} className="mr-2" />
+            Add New Dish
+          </Button>
+        )
+      }
+    >
+      {isFormOpen && (
+        <Card className="border border-gray-100 shadow-md p-8 mb-12">
+          <div className="flex items-center space-x-4 mb-8">
+            <div className="h-10 w-10 bg-orange-50 rounded-md flex items-center justify-center text-[#FF5200]">
+              <ChefHat size={20} />
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900">{editingMeal ? "Edit Meal" : "Add New Meal"}</h2>
           </div>
-          {!isFormOpen && (
-            <Button
-              onClick={() => setIsFormOpen(true)}
-              className="rounded-[1.5rem] h-14 px-8 font-black shadow-xl shadow-orange-500/20 group"
-            >
-              <Plus size={20} className="mr-2 group-hover:rotate-90 transition-transform duration-300" />
-              Add New Dish
-            </Button>
-          )}
-        </div>
 
-        <AnimatePresence mode="wait">
-          {isFormOpen ? (
-            <motion.div
-              key="form"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-            >
-              <Card className="premium-card p-10 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-[#FF5200]/5 rounded-full blur-[80px] -mr-32 -mt-32"></div>
-                <div className="relative z-10">
-                  <div className="flex items-center space-x-4 mb-10">
-                    <div className="h-12 w-12 bg-orange-50 rounded-2xl flex items-center justify-center text-[#FF5200]">
-                      <ChefHat size={24} />
-                    </div>
-                    <h2 className="text-3xl font-black tracking-tight">{editingMeal ? "Refine Your Dish" : "Create a Masterpiece"}</h2>
-                  </div>
+          <NewMealForm
+            initialData={editingMeal || undefined}
+            categories={categories}
+            onSubmit={handleCreateOrUpdate}
+            isLoading={isSubmitting}
+            onCancel={() => { setIsFormOpen(false); setEditingMeal(null); }}
+          />
+        </Card>
+      )}
 
-                  <NewMealForm
-                    initialData={editingMeal || undefined}
-                    categories={categories}
-                    onSubmit={handleCreateOrUpdate}
-                    isLoading={isSubmitting}
-                    onCancel={() => { setIsFormOpen(false); setEditingMeal(null); }}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {meals.length > 0 ? (
+          meals.map((meal) => (
+            <Card key={meal.id} className="border border-gray-100 shadow-sm hover:shadow-md transition-all overflow-hidden h-full flex flex-col">
+              <div className="relative h-48 overflow-hidden">
+                {meal.image ? (
+                  <img
+                    src={meal.image}
+                    alt={meal.title}
+                    className="w-full h-full object-cover"
                   />
-                </div>
-              </Card>
-            </motion.div>
-          ) : (
-            <motion.div
-              key="list"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-            >
-              {loading ? (
-                Array.from({ length: 6 }).map((_, i) => (
-                  <div key={i} className="h-[450px] bg-gray-100 animate-pulse rounded-[2.5rem]"></div>
-                ))
-              ) : meals.length > 0 ? (
-                meals.map((meal, idx) => (
-                  <motion.div
-                    key={meal.id}
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: idx * 0.05 }}
+                ) : (
+                  <div className="w-full h-full bg-gray-50 flex items-center justify-center text-gray-300">
+                    <ImageOff size={32} />
+                  </div>
+                )}
+                <div className="absolute top-2 right-2 flex space-x-2">
+                  <Button
+                    size="icon"
+                    variant="secondary"
+                    className="h-8 w-8 rounded-lg bg-white/90"
+                    onClick={() => { setEditingMeal(meal); setIsFormOpen(true); }}
                   >
-                    <Card className="premium-card group overflow-hidden border-none h-full flex flex-col">
-                      <div className="relative h-60 overflow-hidden">
-                        {meal.image ? (
-                          <img
-                            src={meal.image}
-                            alt={meal.title}
-                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                          />
-                        ) : (
-                          <div className="w-full h-full bg-gray-50 flex items-center justify-center text-gray-300">
-                            <ImageOff size={48} />
-                          </div>
-                        )}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    <Edit size={14} className="text-gray-700" />
+                  </Button>
+                  <Button
+                    size="icon"
+                    variant="destructive"
+                    className="h-8 w-8 rounded-lg shadow-md"
+                    onClick={() => handleDelete(meal.id)}
+                  >
+                    <Trash2 size={14} />
+                  </Button>
+                </div>
 
-                        <div className="absolute top-4 right-4 flex space-x-3 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
-                          <Button
-                            size="icon"
-                            variant="secondary"
-                            className="glass h-10 w-10 rounded-xl"
-                            onClick={() => { setEditingMeal(meal); setIsFormOpen(true); }}
-                          >
-                            <Edit size={18} className="text-gray-700" />
-                          </Button>
-                          <Button
-                            size="icon"
-                            variant="destructive"
-                            className="h-10 w-10 rounded-xl shadow-lg"
-                            onClick={() => handleDelete(meal.id)}
-                          >
-                            <Trash2 size={18} />
-                          </Button>
-                        </div>
+                <div className="absolute bottom-2 left-2 bg-white px-3 py-1.5 rounded-lg shadow-sm border border-gray-100">
+                  <span className="text-lg font-bold text-[#FF5200]">{formatCurrency(meal.price)}</span>
+                </div>
+              </div>
 
-                        <div className="absolute bottom-4 left-4 glass px-5 py-2.5 rounded-2xl shadow-xl">
-                          <span className="text-xl font-black text-[#FF5200]">{formatCurrency(meal.price)}</span>
-                        </div>
-                      </div>
-
-                      <CardContent className="p-8 grow space-y-6">
-                        <div className="space-y-2">
-                          <h3 className="text-2xl font-black text-gray-900 tracking-tight leading-none">{meal.title}</h3>
-                          <div className="flex items-center space-x-2">
-                            <span className="text-[10px] font-black text-[#FF5200] uppercase tracking-[0.2em]">{meal.category?.name || 'Signature'}</span>
-                            <div className="h-1 w-1 rounded-full bg-gray-300"></div>
-                            <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">{meal.isAvailable ? 'In Stock' : 'Sold Out'}</span>
-                          </div>
-                        </div>
-
-                        <p className="text-gray-500 text-sm font-medium line-clamp-3 leading-relaxed">{meal.description}</p>
-
-                        <div className="pt-6 flex items-center justify-between border-t border-gray-50 mt-auto">
-                          <div className="flex items-center -space-x-2">
-                            {[1, 2, 3].map(i => <div key={i} className="h-7 w-7 rounded-full border-2 border-white bg-gray-100 flex items-center justify-center text-[8px] font-black">S{i}</div>)}
-                          </div>
-                          <span className="text-[9px] font-black text-gray-300 tracking-widest uppercase">ID: {meal.id.slice(0, 8)}</span>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                ))
-              ) : (
-                <div className="lg:col-span-3 py-40 text-center bg-white rounded-[4rem] border-2 border-gray-50 border-dashed relative overflow-hidden group">
-                  <div className="absolute inset-0 bg-gray-50/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                  <div className="relative z-10 space-y-8">
-                    <div className="h-24 w-24 bg-gray-50 rounded-[2rem] flex items-center justify-center text-gray-200 mx-auto group-hover:scale-110 transition-transform duration-500">
-                      <ChefHat size={48} />
-                    </div>
-                    <div className="space-y-2">
-                      <h3 className="text-3xl font-black text-gray-900 tracking-tight">Your Kitchen is Silent</h3>
-                      <p className="text-gray-400 font-medium max-w-sm mx-auto">Upload your signature dishes and let the world experience your culinary art.</p>
-                    </div>
-                    <Button onClick={() => setIsFormOpen(true)} className="rounded-2xl h-14 px-10 font-black">
-                      Ignite the Stove <ArrowRight className="ml-2" />
-                    </Button>
+              <CardContent className="p-6 grow flex flex-col">
+                <div className="space-y-1 mb-4">
+                  <h3 className="text-xl font-bold text-gray-900 line-clamp-1">{meal.title}</h3>
+                  <div className="flex items-center space-x-2">
+                    <span className="text-[10px] font-bold text-[#FF5200] uppercase">{meal.category?.name || 'Category'}</span>
+                    <div className="h-1 w-1 rounded-full bg-gray-300"></div>
+                    <span className={cn("text-[10px] font-bold uppercase", meal.isAvailable ? "text-green-600" : "text-red-500")}>
+                      {meal.isAvailable ? 'Available' : 'Unavailable'}
+                    </span>
                   </div>
                 </div>
-              )}
-            </motion.div>
-          )}
-        </AnimatePresence>
+
+                <p className="text-gray-500 text-sm line-clamp-2 mb-4">{meal.description}</p>
+
+                <div className="pt-4 border-t border-gray-50 mt-auto flex justify-between items-center">
+                  <span className="text-[10px] font-bold text-gray-300 uppercase">ID: {meal.id.slice(0, 8)}</span>
+                </div>
+              </CardContent>
+            </Card>
+          ))
+        ) : (
+          <div className="lg:col-span-3 py-24 text-center bg-gray-50 rounded-md border-2 border-dashed border-gray-200">
+            <div className="h-20 w-20 bg-white rounded-full flex items-center justify-center text-gray-300 mx-auto mb-6 shadow-sm">
+              <ChefHat size={40} />
+            </div>
+            <div className="space-y-2 mb-8">
+              <h3 className="text-2xl font-bold text-gray-900">Your menu is empty</h3>
+              <p className="text-gray-500 max-w-sm mx-auto">Start adding your delicious items to the shop.</p>
+            </div>
+            <Button onClick={() => setIsFormOpen(true)} className="rounded-md h-12 px-8 font-bold">
+              Add Your First Dish
+            </Button>
+          </div>
+        )}
       </div>
-    </DashboardLayout>
+    </ManagementPage>
   );
 }

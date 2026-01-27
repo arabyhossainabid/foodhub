@@ -22,6 +22,7 @@ import {
 import Link from "next/link";
 import { toast } from "react-hot-toast";
 import { motion } from "framer-motion";
+import { FullPageLoader } from "@/components/shared/FullPageLoader";
 
 const statusConfig = {
   PLACED: { icon: <Clock size={24} />, color: "text-blue-600", bg: "bg-blue-50", label: "Order Placed", desc: "Your order has been received and is waiting for provider acceptance." },
@@ -51,11 +52,7 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
   }, [id]);
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FF5200]"></div>
-      </div>
-    );
+    return <FullPageLoader transparent />;
   }
 
   if (!order) {
@@ -79,7 +76,7 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
         </Link>
         <div className="flex flex-col md:flex-row md:items-center justify-between mt-4 gap-4">
           <h1 className="text-5xl font-black text-gray-900 tracking-tighter">Order <span className="text-gradient">#{order.id.slice(-6).toUpperCase()}</span></h1>
-          <div className={cn("px-6 py-2 rounded-2xl font-black text-sm uppercase tracking-widest shadow-sm", currentStatus.bg, currentStatus.color)}>
+          <div className={cn("px-6 py-2 rounded-md font-black text-sm uppercase tracking-widest shadow-sm", currentStatus.bg, currentStatus.color)}>
             {currentStatus.label}
           </div>
         </div>
@@ -88,20 +85,73 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
         {/* Left Side: Status & Items */}
         <div className="lg:col-span-2 space-y-8">
-          {/* Status Card */}
+          {/* Status Card with Timeline */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="premium-card p-10 flex items-start space-x-6 relative overflow-hidden"
+            className="premium-card p-10 space-y-8"
           >
-            <div className={cn("h-16 w-16 rounded-[1.5rem] flex items-center justify-center shrink-0 shadow-lg", currentStatus.bg, currentStatus.color)}>
-              {currentStatus.icon}
+            <div className="flex items-start space-x-6 relative overflow-hidden">
+              <div className={cn("h-16 w-16 rounded-[1.5rem] flex items-center justify-center shrink-0 shadow-lg", currentStatus.bg, currentStatus.color)}>
+                {currentStatus.icon}
+              </div>
+              <div className="space-y-2">
+                <h3 className="text-2xl font-black">{currentStatus.label}</h3>
+                <p className="text-gray-500 font-medium leading-relaxed">{currentStatus.desc}</p>
+              </div>
+              <div className="absolute top-0 right-0 w-32 h-32 bg-[#FF5200]/5 rounded-full blur-3xl -mr-16 -mt-16"></div>
             </div>
-            <div className="space-y-2">
-              <h3 className="text-2xl font-black">{currentStatus.label}</h3>
-              <p className="text-gray-500 font-medium leading-relaxed">{currentStatus.desc}</p>
+
+            {/* Order Tracking Timeline */}
+            <div className="pt-6 border-t border-gray-100">
+              <h4 className="text-sm font-black uppercase tracking-widest text-gray-400 mb-6">Order Progress</h4>
+              <div className="space-y-4">
+                {(['PLACED', 'PREPARING', 'READY', 'DELIVERED'] as const).map((status, idx) => {
+                  const config = statusConfig[status];
+                  const isCompleted = ['PLACED', 'PREPARING', 'READY', 'DELIVERED'].indexOf(order.status) >= idx;
+                  const isCurrent = order.status === status;
+                  const isCancelled = order.status === 'CANCELLED';
+
+                  return (
+                    <div key={status} className="flex items-center space-x-4">
+                      <div className={cn(
+                        "h-10 w-10 rounded-md flex items-center justify-center shrink-0 transition-all",
+                        isCancelled ? "bg-gray-100 text-gray-300" :
+                          isCurrent ? cn(config.bg, config.color, "shadow-md") :
+                            isCompleted ? "bg-green-100 text-green-600" : "bg-gray-100 text-gray-300"
+                      )}>
+                        {isCompleted && !isCancelled ? <CheckCircle2 size={20} /> : config.icon}
+                      </div>
+                      <div className="grow">
+                        <p className={cn(
+                          "font-bold text-sm",
+                          isCancelled ? "text-gray-300" :
+                            isCurrent ? "text-gray-900" :
+                              isCompleted ? "text-gray-600" : "text-gray-400"
+                        )}>{config.label}</p>
+                        {isCurrent && !isCancelled && (
+                          <p className="text-xs text-gray-400 font-medium">Currently in progress...</p>
+                        )}
+                      </div>
+                      {isCompleted && !isCancelled && !isCurrent && (
+                        <CheckCircle2 size={16} className="text-green-500" />
+                      )}
+                    </div>
+                  );
+                })}
+                {order.status === 'CANCELLED' && (
+                  <div className="flex items-center space-x-4 pt-2 border-t border-gray-100">
+                    <div className="h-10 w-10 rounded-md flex items-center justify-center shrink-0 bg-red-100 text-red-600">
+                      <XCircle size={20} />
+                    </div>
+                    <div>
+                      <p className="font-bold text-sm text-red-600">Order Cancelled</p>
+                      <p className="text-xs text-gray-400 font-medium">This order was cancelled</p>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
-            <div className="absolute top-0 right-0 w-32 h-32 bg-[#FF5200]/5 rounded-full blur-3xl -mr-16 -mt-16"></div>
           </motion.div>
 
           {/* Items Card */}
@@ -112,7 +162,7 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
             className="premium-card p-10 space-y-8"
           >
             <div className="flex items-center space-x-4">
-              <div className="h-10 w-10 bg-gray-50 rounded-xl flex items-center justify-center text-gray-400">
+              <div className="h-10 w-10 bg-gray-50 rounded-md flex items-center justify-center text-gray-400">
                 <ShoppingBag size={20} />
               </div>
               <h3 className="text-xl font-black">Ordered Items</h3>
@@ -120,9 +170,9 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
 
             <div className="space-y-6">
               {order.orderItems.map((item) => (
-                <div key={item.id} className="flex items-center justify-between p-4 rounded-2xl hover:bg-gray-50 transition-colors group">
+                <div key={item.id} className="flex items-center justify-between p-4 rounded-md hover:bg-gray-50 transition-colors group">
                   <div className="flex items-center space-x-4">
-                    <div className="h-16 w-16 rounded-2xl overflow-hidden shadow-sm">
+                    <div className="h-16 w-16 rounded-md overflow-hidden shadow-sm">
                       <img src={item.meal.image} className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-500" />
                     </div>
                     <div>
@@ -185,11 +235,11 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
             </div>
 
             <div className="pt-8 border-t border-gray-50 space-y-4">
-              <Button variant="outline" className="w-full rounded-2xl h-12 font-bold border-gray-100 hover:bg-orange-50 hover:text-[#FF5200] hover:border-orange-100">
+              <Button variant="outline" className="w-full rounded-md h-12 font-bold border-gray-100 hover:bg-orange-50 hover:text-[#FF5200] hover:border-orange-100">
                 Download Invoice
               </Button>
               <Link href="/meals">
-                <Button className="w-full rounded-2xl h-14 font-black mt-2">
+                <Button className="w-full rounded-md h-14 font-black mt-2">
                   Order Something Else
                 </Button>
               </Link>

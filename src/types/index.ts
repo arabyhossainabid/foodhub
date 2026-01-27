@@ -16,6 +16,7 @@ export interface ProviderProfile {
   address: string;
   cuisine?: string;
   rating: number;
+  meals?: Meal[];
 }
 
 export interface Category {

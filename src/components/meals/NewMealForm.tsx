@@ -30,7 +30,7 @@ export function NewMealForm({ initialData, categories, onSubmit, isLoading, onCa
 
   const handleFormSubmit = (data: any) => {
     // Manual validation or type conversion
-    const price = parseFloat(data.price);
+    const price = Math.round(parseFloat(data.price));
     onSubmit({
       ...data,
       price: price

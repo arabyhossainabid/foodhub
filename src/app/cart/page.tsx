@@ -13,6 +13,7 @@ import api from "@/lib/axios";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { FullPageLoader } from "@/components/shared/FullPageLoader";
 
 export default function CartPage() {
   return (
@@ -73,7 +74,7 @@ function CartPageContent() {
         <h1 className="text-4xl font-black text-gray-900">Your Cart is Empty</h1>
         <p className="text-gray-500 max-w-md">Looks like you haven't added anything to your cart yet. Explore our menu and find something delicious!</p>
         <Link href="/meals">
-          <Button size="lg" className="rounded-2xl">Browse Meals</Button>
+          <Button size="lg" className="rounded-md">Browse Meals</Button>
         </Link>
       </div>
     );
@@ -81,6 +82,7 @@ function CartPageContent() {
 
   return (
     <div className="container mx-auto px-4 py-12">
+      {isLoading && <FullPageLoader message="Placing your order..." transparent />}
       <div className="mb-10">
         <Link href="/meals" className="text-[#FF5200] font-bold flex items-center hover:translate-x-[-4px] transition-transform">
           <ArrowLeft size={18} className="mr-2" /> Continue Browsing
@@ -96,7 +98,7 @@ function CartPageContent() {
               <CardContent className="p-4 flex items-center space-x-6">
                 <img
                   src={item.image || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=1760&auto=format&fit=crop"}
-                  className="h-24 w-24 rounded-2xl object-cover shrink-0"
+                  className="h-24 w-24 rounded-md object-cover shrink-0"
                   alt={item.title}
                 />
                 <div className="grow space-y-1">
@@ -107,7 +109,7 @@ function CartPageContent() {
                   <p className="text-[#FF5200] font-black">{formatCurrency(item.price)}</p>
                 </div>
 
-                <div className="flex items-center space-x-3 bg-gray-50 p-1 rounded-xl border border-gray-100">
+                <div className="flex items-center space-x-3 bg-gray-50 p-1 rounded-md border border-gray-100">
                   <button
                     onClick={() => updateQuantity(item.id, item.quantity - 1)}
                     className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-white hover:text-[#FF5200] transition-all"
@@ -138,8 +140,8 @@ function CartPageContent() {
 
         {/* Summary */}
         <aside className="space-y-6">
-          <Card className="border-none shadow-2xl shadow-gray-200/50 bg-[#1C1C1C] text-white p-8 rounded-3xl sticky top-24">
-            <h3 className="text-2xl font-bold mb-8 flex items-center">
+          <Card className="shadow-xl border-gray-100 p-8 rounded-md sticky top-24">
+            <h3 className="text-2xl font-bold mb-8 flex items-center text-gray-900">
               <CreditCard size={24} className="mr-3 text-[#FF5200]" />
               Order Summary
             </h3>
@@ -166,7 +168,7 @@ function CartPageContent() {
             <div className="space-y-6">
               <Link href="/checkout">
                 <Button
-                  className="w-full h-14 rounded-2xl text-lg flex items-center justify-center font-black"
+                  className="w-full h-14 rounded-md text-lg flex items-center justify-center font-black"
                 >
                   Proceed to Checkout <Plus size={20} className="ml-2 rotate-45" />
                 </Button>

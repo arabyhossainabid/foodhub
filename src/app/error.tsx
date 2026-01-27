@@ -32,7 +32,7 @@ export default function Error({
           <Button
             onClick={() => reset()}
             size="lg"
-            className="rounded-2xl h-14 px-8 font-black bg-gray-900 hover:bg-black shadow-xl shadow-gray-200"
+            className="rounded-md h-14 px-8 font-black bg-gray-900 hover:bg-black shadow-xl shadow-gray-200"
           >
             <RefreshCcw size={20} className="mr-2" /> Try Again
           </Button>
@@ -40,7 +40,7 @@ export default function Error({
             <Button
               variant="outline"
               size="lg"
-              className="rounded-2xl h-14 px-8 font-black border-gray-100"
+              className="rounded-md h-14 px-8 font-black border-gray-100"
             >
               <Home size={20} className="mr-2" /> Back Home
             </Button>

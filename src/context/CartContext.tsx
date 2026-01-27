@@ -38,14 +38,13 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     setCart((prev) => {
       const existing = prev.find((item) => item.id === meal.id);
       if (existing) {
-        toast.success(`Increased ${meal.title} quantity`);
         return prev.map((item) =>
           item.id === meal.id ? { ...item, quantity: item.quantity + 1 } : item
         );
       }
-      toast.success(`Added ${meal.title} to cart`);
       return [...prev, { ...meal, quantity: 1 }];
     });
+    toast.success(`Added ${meal.title} to cart`);
   };
 
   const removeFromCart = (mealId: string) => {

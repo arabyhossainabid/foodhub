@@ -12,7 +12,7 @@ import api from "@/lib/axios";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
-import { UtensilsCrossed } from "lucide-react";
+import { FullPageLoader } from "@/components/shared/FullPageLoader";
 
 const registerSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -66,13 +66,6 @@ export default function RegisterPage() {
         ...(data.role === "PROVIDER" ? {
           shopName: data.shopName,
           address: data.address,
-          cuisine: data.cuisine,
-          // Support both flattened and nested for maximum compatibility
-          providerProfile: {
-            shopName: data.shopName,
-            address: data.address,
-            cuisine: data.cuisine
-          }
         } : {})
       };
 
@@ -87,120 +80,103 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center py-20 px-4 relative overflow-hidden bg-[#0A0A0A]">
-      {/* Background Orbs */}
-      <div className="absolute top-0 -right-20 w-96 h-96 bg-[#FF5200]/20 rounded-full blur-[120px] animate-pulse"></div>
-      <div className="absolute bottom-0 -left-20 w-96 h-96 bg-blue-500/10 rounded-full blur-[120px] animate-pulse-slow"></div>
-
-      <div className="w-full max-w-lg z-10" data-aos="zoom-in">
-        <Card className="glass border-white/10 shadow-2xl overflow-hidden rounded-[2.5rem]">
-          <CardHeader className="text-center pt-12 pb-8">
-            <div className="h-16 w-16 bg-[#FF5200] rounded-2xl flex items-center justify-center text-white shadow-lg shadow-orange-500/30 mx-auto mb-6">
-              <Link href="/">
-                <UtensilsCrossed size={32} />
-              </Link>
-            </div>
-            <CardTitle className="text-4xl font-black text-white tracking-tighter">Create Account</CardTitle>
-            <CardDescription className="text-gray-400 font-medium">
-              Join the most advanced food hub community
+    <div className="min-h-[80vh] flex items-center justify-center py-12 px-4 bg-gray-50">
+      {isLoading && <FullPageLoader message="Creating your account..." transparent />}
+      <div className="w-full max-w-lg">
+        <Card className="shadow-xl border-gray-100">
+          <CardHeader className="text-center pt-10 pb-6">
+            <CardTitle className="text-3xl font-bold">Create Account</CardTitle>
+            <CardDescription className="text-gray-500">
+              Join the FoodHub community today
             </CardDescription>
           </CardHeader>
-          <CardContent className="px-8 pb-12 space-y-10">
+          <CardContent className="pt-8 space-y-6">
             {/* Role Selection */}
-            <div className="flex p-1.5 bg-white/5 border border-white/10 rounded-2xl">
+            <div className="flex p-1 bg-gray-100 rounded-md">
               <button
                 type="button"
-                className={`flex-1 py-3 text-sm font-black rounded-xl transition-all ${selectedRole === "CUSTOMER" ? "bg-[#FF5200] text-white shadow-lg shadow-orange-500/20" : "text-gray-500 hover:text-gray-300"
+                className={`flex-1 py-3 text-sm font-bold rounded-lg transition-all ${selectedRole === "CUSTOMER" ? "bg-white text-[#FF5200] shadow-sm" : "text-gray-500 hover:text-gray-700"
                   }`}
                 onClick={() => handleRoleChange("CUSTOMER")}
               >
-                Customer
+                I am a Customer
               </button>
               <button
                 type="button"
-                className={`flex-1 py-3 text-sm font-black rounded-xl transition-all ${selectedRole === "PROVIDER" ? "bg-[#FF5200] text-white shadow-lg shadow-orange-500/20" : "text-gray-500 hover:text-gray-300"
+                className={`flex-1 py-3 text-sm font-bold rounded-lg transition-all ${selectedRole === "PROVIDER" ? "bg-white text-[#FF5200] shadow-sm" : "text-gray-500 hover:text-gray-700"
                   }`}
                 onClick={() => handleRoleChange("PROVIDER")}
               >
-                Food Provider
+                I am a Provider
               </button>
             </div>
 
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Full Name</label>
-                  <Input
-                    placeholder="John Doe"
-                    className="h-14 rounded-2xl bg-white/5 border-white/10 text-white placeholder:text-gray-600 focus:ring-[#FF5200]/20"
-                    {...register("name")}
-                  />
-                  {errors.name && <p className="text-xs text-red-500 font-medium ml-1">{errors.name.message}</p>}
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Email Address</label>
-                  <Input
-                    type="email"
-                    placeholder="asif@example.com"
-                    className="h-14 rounded-2xl bg-white/5 border-white/10 text-white placeholder:text-gray-600 focus:ring-[#FF5200]/20"
-                    {...register("email")}
-                  />
-                  {errors.email && <p className="text-xs text-red-500 font-medium ml-1">{errors.email.message}</p>}
-                </div>
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium leading-none">Full Name</label>
+                <Input
+                  placeholder="John Doe"
+                  {...register("name")}
+                />
+                {errors.name && <p className="text-xs text-red-500 font-medium">{errors.name.message}</p>}
               </div>
 
               <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Security Password</label>
+                <label className="text-sm font-medium leading-none">Email</label>
+                <Input
+                  type="email"
+                  placeholder="asif@example.com"
+                  {...register("email")}
+                />
+                {errors.email && <p className="text-xs text-red-500 font-medium">{errors.email.message}</p>}
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium leading-none">Password</label>
                 <Input
                   type="password"
                   placeholder="••••••••"
-                  className="h-14 rounded-2xl bg-white/5 border-white/10 text-white placeholder:text-gray-600 focus:ring-[#FF5200]/20"
                   {...register("password")}
                 />
-                {errors.password && <p className="text-xs text-red-500 font-medium ml-1">{errors.password.message}</p>}
+                {errors.password && <p className="text-xs text-red-500 font-medium">{errors.password.message}</p>}
               </div>
 
               {selectedRole === "PROVIDER" && (
-                <div className="space-y-6 pt-4 border-t border-white/5 animate-in fade-in slide-in-from-top-2">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Shop Name</label>
-                      <Input
-                        placeholder="My Delicious Food"
-                        className="h-14 rounded-2xl bg-white/5 border-white/10 text-white placeholder:text-gray-600 focus:ring-[#FF5200]/20"
-                        {...register("shopName")}
-                      />
-                      {errors.shopName && <p className="text-xs text-red-500 font-medium ml-1">{errors.shopName.message}</p>}
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Cuisine Type</label>
-                      <Input
-                        placeholder="Italian, Fast Food..."
-                        className="h-14 rounded-2xl bg-white/5 border-white/10 text-white placeholder:text-gray-600 focus:ring-[#FF5200]/20"
-                        {...register("cuisine")}
-                      />
-                    </div>
+                <div className="space-y-4 pt-2 animate-in fade-in slide-in-from-top-2">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium leading-none">Shop Name</label>
+                    <Input
+                      placeholder="My Delicious Food"
+                      {...register("shopName")}
+                    />
+                    {errors.shopName && <p className="text-xs text-red-500 font-medium">{errors.shopName.message}</p>}
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Shop Full Address</label>
+                    <label className="text-sm font-medium leading-none">Shop Address</label>
                     <Input
                       placeholder="123 Street, City"
-                      className="h-14 rounded-2xl bg-white/5 border-white/10 text-white placeholder:text-gray-600 focus:ring-[#FF5200]/20"
                       {...register("address")}
                     />
-                    {errors.address && <p className="text-xs text-red-500 font-medium ml-1">{errors.address.message}</p>}
+                    {errors.address && <p className="text-xs text-red-500 font-medium">{errors.address.message}</p>}
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium leading-none">Cuisine Type</label>
+                    <Input
+                      placeholder="Italian, Bangladeshi, Fast Food..."
+                      {...register("cuisine")}
+                    />
                   </div>
                 </div>
               )}
 
-              <Button type="submit" className="w-full h-16 rounded-2xl text-lg font-black shadow-xl shadow-orange-500/20 mt-4" isLoading={isLoading}>
-                Create Account
+              <Button type="submit" className="w-full" isLoading={isLoading}>
+                Register
               </Button>
             </form>
 
-            <p className="text-center text-sm text-gray-500 font-medium">
+            <p className="text-center text-sm text-gray-600">
               Already have an account?{" "}
-              <Link href="/login" className="text-[#FF5200] font-black hover:underline underline-offset-4">
+              <Link href="/login" className="text-[#FF5200] font-bold hover:underline">
                 Login Here
               </Link>
             </p>
