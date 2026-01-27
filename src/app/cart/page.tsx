@@ -12,8 +12,17 @@ import { useState } from "react";
 import api from "@/lib/axios";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 
 export default function CartPage() {
+  return (
+    <ProtectedRoute allowedRoles={["CUSTOMER"]}>
+      <CartPageContent />
+    </ProtectedRoute>
+  );
+}
+
+function CartPageContent() {
   const { cart, removeFromCart, updateQuantity, totalPrice, clearCart } = useCart();
   const { user } = useAuth();
   const router = useRouter();

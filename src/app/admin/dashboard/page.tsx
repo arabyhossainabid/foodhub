@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import api from "@/lib/axios";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatCurrency } from "@/lib/utils";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 
 const adminNavItems = [
   { title: "Dashboard", href: "/admin/dashboard", icon: <LayoutDashboard size={20} /> },
@@ -14,6 +15,14 @@ const adminNavItems = [
 ];
 
 export default function AdminDashboard() {
+  return (
+    <ProtectedRoute allowedRoles={["ADMIN"]}>
+      <AdminDashboardContent />
+    </ProtectedRoute>
+  );
+}
+
+function AdminDashboardContent() {
   const [stats, setStats] = useState<any>(null);
 
   useEffect(() => {

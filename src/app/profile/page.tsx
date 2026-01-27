@@ -5,8 +5,17 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { User, Mail, Shield, ShieldCheck, MapPin, Calendar, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 
 export default function ProfilePage() {
+  return (
+    <ProtectedRoute>
+      <ProfilePageContent />
+    </ProtectedRoute>
+  );
+}
+
+function ProfilePageContent() {
   const { user, logout } = useAuth();
 
   if (!user) return null;

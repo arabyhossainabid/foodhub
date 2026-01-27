@@ -11,6 +11,7 @@ import { ShoppingBag, Clock, Package, CheckCircle2, Truck, XCircle, MapPin, Sear
 import Link from "next/link";
 import { toast } from "react-hot-toast";
 import { ReviewModal } from "@/components/reviews/ReviewModal";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 
 const customerNavItems = [
   { title: "Browse Menu", href: "/meals", icon: <ShoppingBag size={20} /> },

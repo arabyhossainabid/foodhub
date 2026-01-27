@@ -4,7 +4,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
 import { Button } from "@/components/ui/button";
 import { ShoppingBag, User, LogOut, Menu, UtensilsCrossed } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
@@ -12,6 +12,15 @@ export function Navbar() {
   const { user, logout } = useAuth();
   const { totalItems } = useCart();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const navLinks = [
     { name: "Browse Meals", href: "/meals" },
@@ -26,8 +35,13 @@ export function Navbar() {
   }
 
   return (
-    <nav className="sticky top-0 z-50 w-full glass border-b border-gray-100/50">
-      <div className="container mx-auto px-4 h-20 flex items-center justify-between">
+    <nav className={cn(
+      "fixed top-0 z-50 w-full transition-all duration-500",
+      isScrolled
+        ? "bg-white/80 backdrop-blur-xl border-b border-gray-100 shadow-sm py-2"
+        : "bg-transparent py-4"
+    )}>
+      <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center space-x-2 group">
           <div className="h-10 w-10 bg-[#FF5200] rounded-xl flex items-center justify-center text-white shadow-lg shadow-orange-500/30 group-hover:rotate-12 transition-transform duration-500">
@@ -95,7 +109,7 @@ export function Navbar() {
 
         {/* Mobile Toggle */}
         <button
-          className="md:hidden p-2 text-gray-600"
+          className="md:hidden p-2 text-gray-600 hover:text-[#FF5200] transition-colors"
           onClick={() => setIsMenuOpen(!isMenuOpen)}
         >
           <Menu size={24} />

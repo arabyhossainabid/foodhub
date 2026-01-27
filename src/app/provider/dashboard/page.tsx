@@ -7,6 +7,7 @@ import api from "@/lib/axios";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatCurrency } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 
 const providerNavItems = [
   { title: "Dashboard", href: "/provider/dashboard", icon: <LayoutDashboard size={20} /> },
@@ -15,6 +16,14 @@ const providerNavItems = [
 ];
 
 export default function ProviderDashboard() {
+  return (
+    <ProtectedRoute allowedRoles={["PROVIDER"]}>
+      <ProviderDashboardContent />
+    </ProtectedRoute>
+  );
+}
+
+function ProviderDashboardContent() {
   const { user } = useAuth();
   const [stats, setStats] = useState({
     totalMeals: 0,
