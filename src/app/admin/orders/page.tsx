@@ -66,17 +66,17 @@ export default function AdminOrdersPage() {
       action={
         <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
           <div className="relative group">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#FF5200] transition-colors" size={18} />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-orange-500 transition-colors" size={18} />
             <Input
               placeholder="Search by ID or name..."
-              className="pl-10 h-11 w-full sm:w-64 border-gray-100 focus:border-[#FF5200] focus:ring-[#FF5200]/10 transition-all rounded-md"
+              className="pl-10 h-11 w-full sm:w-64 border-gray-100 focus:border-orange-500 focus:ring-orange-500/10 transition-all rounded-md"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
           <select
             title="Filter by Status"
-            className="bg-white border border-gray-100 rounded-md px-4 py-2 text-sm font-medium text-gray-600 outline-none focus:ring-2 focus:ring-[#FF5200]/20 transition-all cursor-pointer h-11"
+            className="bg-white border border-gray-100 rounded-md px-4 py-2 text-sm font-medium text-gray-600 outline-none focus:ring-2 focus:ring-orange-500/20 transition-all cursor-pointer h-11"
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
           >
@@ -115,7 +115,7 @@ export default function AdminOrdersPage() {
 
                   {/* User Info */}
                   <div className="p-8 lg:w-64 border-b lg:border-b-0 lg:border-r border-gray-100 flex items-center space-x-4">
-                    <div className="h-12 w-12 bg-white rounded-md flex items-center justify-center text-[#FF5200] shadow-sm">
+                    <div className="h-12 w-12 bg-white rounded-md flex items-center justify-center text-orange-500 shadow-sm">
                       <User size={20} />
                     </div>
                     <div>
@@ -128,7 +128,7 @@ export default function AdminOrdersPage() {
                   {/* Logistics */}
                   <div className="p-8 grow flex flex-col justify-center space-y-3">
                     <div className="flex items-center text-sm font-bold text-gray-600">
-                      <MapPin size={16} className="text-[#FF5200] mr-3" />
+                      <MapPin size={16} className="text-orange-500 mr-3" />
                       <span className="truncate max-w-[200px]">{order.address}</span>
                     </div>
                     <div className="flex items-center text-sm font-bold text-gray-600">
@@ -140,7 +140,7 @@ export default function AdminOrdersPage() {
                   {/* Financials & Actions */}
                   <div className="text-right px-6">
                     <p className="text-[10px] font-black uppercase text-gray-400 tracking-widest mb-1">Revenue</p>
-                    <p className="text-2xl font-black text-[#FF5200] leading-none">{formatCurrency(order.totalAmount)}</p>
+                    <p className="text-2xl font-black text-orange-500 leading-none">{formatCurrency(order.totalAmount)}</p>
                   </div>
                 </CardContent>
               </Card>
@@ -151,7 +151,7 @@ export default function AdminOrdersPage() {
             <ShoppingBag size={64} className="text-gray-200 mb-6" />
             <h3 className="text-2xl font-black text-gray-900 tracking-tight">No match found</h3>
             <p className="text-gray-500 font-medium">The system has no records for this query.</p>
-            <Button onClick={() => { setSearchTerm(""); setStatusFilter("ALL"); }} variant="link" className="text-[#FF5200] mt-4 font-bold">Clear All Filters</Button>
+            <Button onClick={() => { setSearchTerm(""); setStatusFilter("ALL"); }} variant="link" className="text-orange-500 mt-4 font-bold">Clear All Filters</Button>
           </div>
         )}
       </div>

@@ -98,7 +98,7 @@ export default function MyOrdersPage() {
                     {order.orderItems.map((item) => (
                       <div key={item.id} className="flex justify-between items-center group/item">
                         <div className="flex items-center space-x-4">
-                          <span className="text-sm font-black text-[#FF5200]">{item.quantity}x</span>
+                          <span className="text-sm font-black text-orange-500">{item.quantity}x</span>
                           <span className="text-sm font-bold text-gray-700">{item.meal.title}</span>
                           {order.status === "DELIVERED" && (
                             <button
@@ -107,7 +107,7 @@ export default function MyOrdersPage() {
                                 orderId: order.id,
                                 title: item.meal.title
                               })}
-                              className="text-xs font-bold text-gray-400 hover:text-[#FF5200] transition-colors opacity-0 group-hover/item:opacity-100 flex items-center"
+                              className="text-xs font-bold text-gray-400 hover:text-orange-500 transition-colors opacity-0 group-hover/item:opacity-100 flex items-center"
                             >
                               <Star size={12} className="mr-1" />
                               Rate Meal
@@ -122,7 +122,7 @@ export default function MyOrdersPage() {
                   <div className="pt-6 mt-6 border-t border-gray-50 flex justify-between items-end">
                     <div className="flex flex-col">
                       <span className="text-[10px] font-black uppercase text-gray-400 tracking-[0.2em]">Paid Amount</span>
-                      <span className="text-2xl font-black text-[#FF5200]">{formatCurrency(order.totalAmount)}</span>
+                      <span className="text-2xl font-black text-orange-500">{formatCurrency(order.totalAmount)}</span>
                     </div>
                     <div className="flex items-center space-x-3">
                       <Link href={`/meals/${order.orderItems[0].mealId}`}>

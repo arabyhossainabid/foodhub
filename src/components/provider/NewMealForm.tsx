@@ -53,7 +53,7 @@ export function NewMealForm({
         <div className="space-y-4">
           <div className="space-y-2">
             <label className="text-sm font-bold text-gray-700 flex items-center">
-              <Package size={16} className="mr-2 text-[#FF5200]" />
+              <Package size={16} className="mr-2 text-orange-500" />
               Meal Title
             </label>
             <Input
@@ -68,7 +68,7 @@ export function NewMealForm({
 
           <div className="space-y-2">
             <label className="text-sm font-bold text-gray-700 flex items-center">
-              <DollarSign size={16} className="mr-2 text-[#FF5200]" />
+              <DollarSign size={16} className="mr-2 text-orange-500" />
               Price (TK)
             </label>
             <Input
@@ -85,7 +85,7 @@ export function NewMealForm({
 
           <div className="space-y-2">
             <label className="text-sm font-bold text-gray-700 flex items-center">
-              <FileText size={16} className="mr-2 text-[#FF5200]" />
+              <FileText size={16} className="mr-2 text-orange-500" />
               Description
             </label>
             <textarea
@@ -102,7 +102,7 @@ export function NewMealForm({
         <div className="space-y-4">
           <div className="space-y-2">
             <label className="text-sm font-bold text-gray-700 flex items-center">
-              <ImagePlus size={16} className="mr-2 text-[#FF5200]" />
+              <ImagePlus size={16} className="mr-2 text-orange-500" />
               Image URL
             </label>
             <Input
@@ -141,7 +141,7 @@ export function NewMealForm({
               name="isAvailable"
               checked={formData.isAvailable}
               onChange={handleChange}
-              className="h-4 w-4 rounded border-gray-300 text-[#FF5200] focus:ring-[#FF5200]"
+              className="h-4 w-4 rounded border-gray-300 text-orange-500 focus:ring-orange-500"
             />
             <label htmlFor="isAvailable" className="text-sm font-bold text-gray-700">
               Mark as Available for Order

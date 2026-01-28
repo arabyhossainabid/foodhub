@@ -73,7 +73,7 @@ export default function ProviderOrdersPage() {
               className={cn(
                 "px-4 py-2 text-[10px] font-bold uppercase tracking-tight rounded-lg transition-all",
                 filter === s
-                  ? "bg-white text-[#FF5200] shadow-sm"
+                  ? "bg-white text-orange-500 shadow-sm"
                   : "text-gray-400 hover:text-gray-600"
               )}
             >
@@ -89,7 +89,7 @@ export default function ProviderOrdersPage() {
             <Card key={order.id} className="border border-gray-100 shadow-sm overflow-hidden">
               <CardContent className="p-6 flex flex-col lg:flex-row items-center gap-8">
                 <div className="flex items-center space-x-4 min-w-0 w-full lg:w-1/4">
-                  <div className="h-16 w-16 bg-orange-50 rounded-md flex items-center justify-center text-[#FF5200] shrink-0">
+                  <div className="h-16 w-16 bg-orange-50 rounded-md flex items-center justify-center text-orange-500 shrink-0">
                     <ShoppingBag size={28} />
                   </div>
                   <div>
@@ -132,7 +132,7 @@ export default function ProviderOrdersPage() {
                     {order.orderItems?.map((item, id) => (
                       <div key={id} className="flex justify-between items-center text-[10px]">
                         <span className="font-medium text-gray-600 truncate mr-2">{item.meal?.title}</span>
-                        <span className="font-bold text-[#FF5200]">x{item.quantity}</span>
+                        <span className="font-bold text-orange-500">x{item.quantity}</span>
                       </div>
                     ))}
                   </div>
@@ -144,7 +144,7 @@ export default function ProviderOrdersPage() {
                       {order.status === 'PLACED' && (
                         <Button
                           size="sm"
-                          className="rounded-lg font-bold px-4 bg-[#FF5200] hover:bg-[#E64A00]"
+                          className="rounded-lg font-bold px-4 bg-orange-500 hover:bg-[#E64A00]"
                           onClick={() => updateStatus(order.id, 'PREPARING')}
                         >
                           Accept

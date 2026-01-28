@@ -93,7 +93,7 @@ export default function RegisterPage() {
             <div className="flex p-1 bg-gray-100 rounded-md">
               <button
                 type="button"
-                className={`flex-1 py-3 text-sm font-bold rounded-lg transition-all ${selectedRole === "CUSTOMER" ? "bg-white text-[#FF5200] shadow-sm" : "text-gray-500 hover:text-gray-700"
+                className={`flex-1 py-3 text-sm font-bold rounded-lg transition-all ${selectedRole === "CUSTOMER" ? "bg-white text-orange-500 shadow-sm" : "text-gray-500 hover:text-gray-700"
                   }`}
                 onClick={() => handleRoleChange("CUSTOMER")}
               >
@@ -101,7 +101,7 @@ export default function RegisterPage() {
               </button>
               <button
                 type="button"
-                className={`flex-1 py-3 text-sm font-bold rounded-lg transition-all ${selectedRole === "PROVIDER" ? "bg-white text-[#FF5200] shadow-sm" : "text-gray-500 hover:text-gray-700"
+                className={`flex-1 py-3 text-sm font-bold rounded-lg transition-all ${selectedRole === "PROVIDER" ? "bg-white text-orange-500 shadow-sm" : "text-gray-500 hover:text-gray-700"
                   }`}
                 onClick={() => handleRoleChange("PROVIDER")}
               >
@@ -174,7 +174,7 @@ export default function RegisterPage() {
 
             <p className="text-center text-sm text-gray-600">
               Already have an account?{" "}
-              <Link href="/login" className="text-[#FF5200] font-bold hover:underline">
+              <Link href="/login" className="text-orange-500 font-bold hover:underline">
                 Login Here
               </Link>
             </p>

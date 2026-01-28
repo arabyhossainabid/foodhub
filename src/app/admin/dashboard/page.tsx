@@ -45,7 +45,7 @@ function AdminDashboardContent() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {[
             { title: "Total Revenue", value: formatCurrency(stats?.totalRevenue || 0), icon: <DollarSign className="text-green-500" />, color: "border-green-500" },
-            { title: "Active Users", value: stats?.activeUsersCount || 0, icon: <UserPlus className="text-[#FF5200]" />, color: "border-orange-500" },
+            { title: "Active Users", value: stats?.activeUsersCount || 0, icon: <UserPlus className="text-orange-500" />, color: "border-orange-500" },
             { title: "Active Providers", value: stats?.providersCount || 0, icon: <TrendingUp className="text-blue-500" />, color: "border-blue-500" },
             { title: "Total Orders", value: stats?.totalOrders || 0, icon: <Package className="text-purple-500" />, color: "border-purple-500" },
           ].map((stat, i) => (
@@ -62,7 +62,7 @@ function AdminDashboardContent() {
                   <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">{stat.title}</p>
                 </div>
               </CardContent>
-              <div className={`absolute bottom-0 left-0 w-full h-1 bg-gray-50 group-hover:bg-[#FF5200] transition-all`}></div>
+              <div className={`absolute bottom-0 left-0 w-full h-1 bg-gray-50 group-hover:bg-orange-500 transition-all`}></div>
             </Card>
           ))}
         </div>

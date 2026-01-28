@@ -84,7 +84,7 @@ function CartPageContent() {
     <div className="container mx-auto px-4 py-12">
       {isLoading && <FullPageLoader message="Placing your order..." transparent />}
       <div className="mb-10">
-        <Link href="/meals" className="text-[#FF5200] font-bold flex items-center hover:translate-x-[-4px] transition-transform">
+        <Link href="/meals" className="text-orange-500 font-bold flex items-center hover:translate-x-[-4px] transition-transform">
           <ArrowLeft size={18} className="mr-2" /> Continue Browsing
         </Link>
         <h1 className="text-5xl font-black text-gray-900 mt-4">My Shopping Cart</h1>
@@ -105,20 +105,20 @@ function CartPageContent() {
                   <p className="text-sm text-gray-400 font-bold uppercase tracking-wider">
                     {item.provider?.user.name || "Provider"}
                   </p>
-                  <p className="text-[#FF5200] font-black">{formatCurrency(item.price)}</p>
+                  <p className="text-orange-500 font-black">{formatCurrency(item.price)}</p>
                 </div>
 
                 <div className="flex items-center space-x-3 bg-gray-50 p-1 rounded-md border border-gray-100">
                   <button
                     onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                    className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-white hover:text-[#FF5200] transition-all"
+                    className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-white hover:text-orange-500 transition-all"
                   >
                     <Minus size={16} />
                   </button>
                   <span className="font-bold w-4 text-center">{item.quantity}</span>
                   <button
                     onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                    className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-white hover:text-[#FF5200] transition-all"
+                    className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-white hover:text-orange-500 transition-all"
                   >
                     <Plus size={16} />
                   </button>
@@ -140,7 +140,7 @@ function CartPageContent() {
         <aside className="space-y-6">
           <Card className="shadow-xl border-gray-100 p-8 rounded-md sticky top-24">
             <h3 className="text-2xl font-bold mb-8 flex items-center text-gray-900">
-              <CreditCard size={24} className="mr-3 text-[#FF5200]" />
+              <CreditCard size={24} className="mr-3 text-orange-500" />
               Order Summary
             </h3>
 
@@ -156,7 +156,7 @@ function CartPageContent() {
               <div className="pt-4 border-t border-gray-800 flex justify-between items-end">
                 <div className="flex flex-col">
                   <span className="text-xs uppercase tracking-widest text-gray-500 font-bold mb-1">Total Amount</span>
-                  <span className="text-3xl font-black text-[#FF5200]">
+                  <span className="text-3xl font-black text-orange-500">
                     {formatCurrency(totalPrice)}
                   </span>
                 </div>

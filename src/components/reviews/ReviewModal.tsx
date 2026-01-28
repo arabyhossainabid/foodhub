@@ -91,7 +91,7 @@ export function ReviewModal({ mealId, orderId, mealTitle, isOpen, onClose, onSuc
             <label className="text-sm font-bold text-gray-700 ml-1">Your Feedback</label>
             <textarea
               {...register("comment")}
-              className="w-full bg-gray-50 border-2 border-gray-100 rounded-md p-4 text-base focus:border-[#FF5200] focus:bg-white outline-none transition-all min-h-[120px] resize-none"
+              className="w-full bg-gray-50 border-2 border-gray-100 rounded-md p-4 text-base focus:border-orange-500 focus:bg-white outline-none transition-all min-h-[120px] resize-none"
               placeholder="Tell us what you liked..."
             />
             {errors.comment && <p className="text-xs text-red-500">{errors.comment.message}</p>}

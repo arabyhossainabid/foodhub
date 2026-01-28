@@ -98,7 +98,7 @@ export default function ProviderMenuPage() {
       {isFormOpen && (
         <Card className="border border-gray-100 shadow-md p-8 mb-12">
           <div className="flex items-center space-x-4 mb-8">
-            <div className="h-10 w-10 bg-orange-50 rounded-md flex items-center justify-center text-[#FF5200]">
+            <div className="h-10 w-10 bg-orange-50 rounded-md flex items-center justify-center text-orange-500">
               <ChefHat size={20} />
             </div>
             <h2 className="text-2xl font-bold text-gray-900">{editingMeal ? "Edit Meal" : "Add New Meal"}</h2>
@@ -150,7 +150,7 @@ export default function ProviderMenuPage() {
                 </div>
 
                 <div className="absolute bottom-2 left-2 bg-white px-3 py-1.5 rounded-lg shadow-sm border border-gray-100">
-                  <span className="text-lg font-bold text-[#FF5200]">{formatCurrency(meal.price)}</span>
+                  <span className="text-lg font-bold text-orange-500">{formatCurrency(meal.price)}</span>
                 </div>
               </div>
 
@@ -158,7 +158,7 @@ export default function ProviderMenuPage() {
                 <div className="space-y-1 mb-4">
                   <h3 className="text-xl font-bold text-gray-900 line-clamp-1">{meal.title}</h3>
                   <div className="flex items-center space-x-2">
-                    <span className="text-[10px] font-bold text-[#FF5200] uppercase">{meal.category?.name || 'Category'}</span>
+                    <span className="text-[10px] font-bold text-orange-500 uppercase">{meal.category?.name || 'Category'}</span>
                     <div className="h-1 w-1 rounded-full bg-gray-300"></div>
                     <span className={cn("text-[10px] font-bold uppercase", meal.isAvailable ? "text-green-600" : "text-red-500")}>
                       {meal.isAvailable ? 'Available' : 'Unavailable'}

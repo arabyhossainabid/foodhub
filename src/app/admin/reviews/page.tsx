@@ -94,7 +94,7 @@ export default function AdminReviewsPage() {
                   {/* Review Content */}
                   <div className="p-8 grow space-y-4">
                     <div className="flex items-center space-x-2 text-[10px] font-black uppercase tracking-widest text-gray-400">
-                      <MessageSquare size={12} className="text-[#FF5200]" />
+                      <MessageSquare size={12} className="text-orange-500" />
                       <span>Meal: {review.meal?.title || "Unknown Meal"}</span>
                     </div>
                     <p className="text-gray-600 font-medium italic leading-relaxed text-sm">

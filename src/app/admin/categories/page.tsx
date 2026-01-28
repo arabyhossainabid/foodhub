@@ -10,6 +10,8 @@ import { Input } from "@/components/ui/input";
 import { toast } from "react-hot-toast";
 import { ManagementPage } from "@/components/dashboard/ManagementPage";
 
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+
 const adminNavItems = [
   { title: "Dashboard", href: "/admin/dashboard", icon: <LayoutDashboard size={20} /> },
   { title: "User Management", href: "/admin/users", icon: <Users size={20} /> },
@@ -19,6 +21,14 @@ const adminNavItems = [
 ];
 
 export default function AdminCategoriesPage() {
+  return (
+    <ProtectedRoute allowedRoles={["ADMIN"]}>
+      <AdminCategoriesContent />
+    </ProtectedRoute>
+  );
+}
+
+function AdminCategoriesContent() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -117,7 +127,7 @@ export default function AdminCategoriesPage() {
             <Card key={cat.id} className="border-none shadow-sm hover:shadow-lg transition-all duration-300 group overflow-hidden bg-white">
               <CardContent className="p-6 flex items-center justify-between">
                 <div className="flex items-center space-x-4">
-                  <div className="h-10 w-10 bg-gray-50 rounded-md flex items-center justify-center text-[#FF5200] group-hover:bg-[#FF5200] group-hover:text-white transition-colors">
+                  <div className="h-10 w-10 bg-gray-50 rounded-md flex items-center justify-center text-orange-500 group-hover:bg-orange-500 group-hover:text-white transition-colors">
                     <Hash size={20} />
                   </div>
                   <div>

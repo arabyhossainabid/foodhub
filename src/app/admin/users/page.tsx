@@ -87,7 +87,7 @@ export default function AdminUsersPage() {
                 <CardContent className="p-8 space-y-6">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-4">
-                      <div className="h-16 w-16 bg-gray-50 rounded-md flex items-center justify-center text-gray-400 group-hover:bg-[#FF5200] group-hover:text-white transition-all duration-500 shadow-sm overflow-hidden">
+                      <div className="h-16 w-16 bg-gray-50 rounded-md flex items-center justify-center text-gray-400 group-hover:bg-orange-500 group-hover:text-white transition-all duration-500 shadow-sm overflow-hidden">
                         <UserIcon size={28} />
                       </div>
                       <div>
@@ -107,13 +107,13 @@ export default function AdminUsersPage() {
                     <div className="space-y-1">
                       <p className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Email Address</p>
                       <div className="flex items-center text-sm font-bold text-gray-700">
-                        <Mail size={14} className="mr-2 text-[#FF5200]" /> {user.email}
+                        <Mail size={14} className="mr-2 text-orange-500" /> {user.email}
                       </div>
                     </div>
                     <div className="space-y-1">
                       <p className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Platform Role</p>
                       <div className="flex items-center text-sm font-bold text-gray-700">
-                        <ShieldCheck size={14} className="mr-2 text-[#FF5200]" /> {user.role}
+                        <ShieldCheck size={14} className="mr-2 text-orange-500" /> {user.role}
                       </div>
                     </div>
                   </div>

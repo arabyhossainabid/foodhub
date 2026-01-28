@@ -23,14 +23,14 @@ export function MealCard({ meal }: MealCardProps) {
           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
           alt={meal.title}
         />
-        <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-md font-bold text-[#FF5200] text-sm shadow-sm ring-1 ring-black/5">
+        <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-md font-bold text-orange-500 text-sm shadow-sm ring-1 ring-black/5">
           {formatCurrency(meal.price)}
         </div>
       </div>
       <CardContent className="p-6 space-y-4">
         <div className="flex justify-between items-start gap-2">
           <Link href={`/meals/${meal.id}`}>
-            <h3 className="text-lg font-bold text-gray-900 leading-tight group-hover:text-[#FF5200] transition-colors line-clamp-1">
+            <h3 className="text-lg font-bold text-gray-900 leading-tight group-hover:text-orange-500 transition-colors line-clamp-1">
               {meal.title}
             </h3>
           </Link>
@@ -53,7 +53,7 @@ export function MealCard({ meal }: MealCardProps) {
           <div className="flex flex-col">
             <span className="text-[10px] uppercase tracking-wider text-gray-400 font-bold">Provider</span>
             <Link href={`/providers/${meal.providerId}`}>
-              <span className="text-xs font-bold text-gray-700 hover:text-[#FF5200] transition-colors">{meal.provider?.shopName || meal.provider?.user.name || "FoodHub Kitchen"}</span>
+              <span className="text-xs font-bold text-gray-700 hover:text-orange-500 transition-colors">{meal.provider?.shopName || meal.provider?.user.name || "FoodHub Kitchen"}</span>
             </Link>
           </div>
           <Button

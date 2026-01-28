@@ -71,7 +71,7 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
   return (
     <div className="container mx-auto px-4 py-12 max-w-5xl">
       <div className="mb-12">
-        <Link href="/orders" className="text-[#FF5200] font-bold flex items-center group">
+        <Link href="/orders" className="text-orange-500 font-bold flex items-center group">
           <ArrowLeft size={18} className="mr-2 group-hover:-translate-x-1 transition-transform" /> My Orders
         </Link>
         <div className="flex flex-col md:flex-row md:items-center justify-between mt-4 gap-4">
@@ -99,7 +99,7 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                 <h3 className="text-2xl font-black">{currentStatus.label}</h3>
                 <p className="text-gray-500 font-medium leading-relaxed">{currentStatus.desc}</p>
               </div>
-              <div className="absolute top-0 right-0 w-32 h-32 bg-[#FF5200]/5 rounded-full blur-3xl -mr-16 -mt-16"></div>
+              <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/5 rounded-full blur-3xl -mr-16 -mt-16"></div>
             </div>
 
             {/* Order Tracking Timeline */}
@@ -177,7 +177,7 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                     </div>
                     <div>
                       <h4 className="font-bold text-gray-900">{item.meal.title}</h4>
-                      <p className="text-xs font-black text-[#FF5200] uppercase tracking-widest">{item.quantity} x {formatCurrency(item.price)}</p>
+                      <p className="text-xs font-black text-orange-500 uppercase tracking-widest">{item.quantity} x {formatCurrency(item.price)}</p>
                     </div>
                   </div>
                   <span className="font-black text-gray-900">{formatCurrency(item.price * item.quantity)}</span>
@@ -189,13 +189,13 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
               <div className="space-y-1">
                 <p className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Delivery Address</p>
                 <div className="flex items-start text-sm font-bold text-gray-700">
-                  <MapPin size={16} className="mr-2 text-[#FF5200] shrink-0 mt-0.5" />
+                  <MapPin size={16} className="mr-2 text-orange-500 shrink-0 mt-0.5" />
                   {order.address}
                 </div>
               </div>
               <div className="text-right">
                 <p className="text-[10px] font-black uppercase text-gray-400 tracking-widest mb-1">Total Amount</p>
-                <p className="text-4xl font-black text-[#FF5200]">{formatCurrency(order.totalAmount)}</p>
+                <p className="text-4xl font-black text-orange-500">{formatCurrency(order.totalAmount)}</p>
                 <p className="text-xs font-bold text-green-500 uppercase tracking-widest mt-1">Paid via Cash</p>
               </div>
             </div>
@@ -211,7 +211,7 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
           >
             <div className="space-y-6">
               <div className="flex items-center space-x-3">
-                <FileText size={20} className="text-[#FF5200]" />
+                <FileText size={20} className="text-orange-500" />
                 <h4 className="text-lg font-black">Order Summary</h4>
               </div>
 
@@ -235,7 +235,7 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
             </div>
 
             <div className="pt-8 border-t border-gray-50 space-y-4">
-              <Button variant="outline" className="w-full rounded-md h-12 font-bold border-gray-100 hover:bg-orange-50 hover:text-[#FF5200] hover:border-orange-100">
+              <Button variant="outline" className="w-full rounded-md h-12 font-bold border-gray-100 hover:bg-orange-50 hover:text-orange-500 hover:border-orange-100">
                 Download Invoice
               </Button>
               <Link href="/meals">

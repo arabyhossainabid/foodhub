@@ -28,7 +28,7 @@ function ProfilePageContent() {
       <div className="max-w-4xl mx-auto space-y-12">
         <div className="flex flex-col md:flex-row items-center gap-12">
           <div className="relative">
-            <div className="h-48 w-48 bg-[#FF5200] rounded-md shadow-xl flex items-center justify-center text-6xl font-black text-white">
+            <div className="h-48 w-48 bg-orange-500 rounded-md shadow-xl flex items-center justify-center text-6xl font-black text-white">
               {user.name.charAt(0)}
             </div>
             <div className="absolute -bottom-4 -right-4 bg-white p-3 rounded-md shadow-xl border border-gray-100">
@@ -49,7 +49,7 @@ function ProfilePageContent() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <Card className="border border-gray-100 shadow-lg p-8 space-y-8 rounded-md">
             <h3 className="text-xl font-bold flex items-center">
-              <User className="mr-3 text-[#FF5200]" size={20} /> Personal Information
+              <User className="mr-3 text-orange-500" size={20} /> Personal Information
             </h3>
             <div className="space-y-6">
               <div className="flex items-center space-x-4">
@@ -75,7 +75,7 @@ function ProfilePageContent() {
 
           <Card className="border border-gray-100 shadow-lg p-8 space-y-8 rounded-md">
             <h3 className="text-xl font-bold flex items-center">
-              <MapPin className="mr-3 text-[#FF5200]" size={20} /> Preferences
+              <MapPin className="mr-3 text-orange-500" size={20} /> Preferences
             </h3>
             <div className="space-y-6">
               <div className="flex items-center space-x-4">

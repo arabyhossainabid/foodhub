@@ -41,11 +41,11 @@ export function Navbar() {
       <div className="container mx-auto px-4 h-20 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center space-x-2">
-          <div className="h-10 w-10 bg-[#FF5200] rounded-md flex items-center justify-center text-white">
+          <div className="h-10 w-10 bg-orange-500 rounded-md flex items-center justify-center text-white">
             <UtensilsCrossed size={22} strokeWidth={2.5} />
           </div>
           <span className="text-2xl font-black text-gray-900 tracking-tight">
-            Food<span className="text-[#FF5200]">Hub</span>
+            Food<span className="text-orange-500">Hub</span>
           </span>
         </Link>
 
@@ -53,25 +53,25 @@ export function Navbar() {
         <div className="hidden lg:flex items-center space-x-1">
           {user?.role === "PROVIDER" ? (
             <Link href="/provider/dashboard">
-              <Button variant="ghost" className="font-bold text-gray-600 hover:text-[#FF5200] rounded-md px-6">
+              <Button variant="ghost" className="font-bold text-gray-600 hover:text-orange-500 rounded-md px-6">
                 Provider Dashboard
               </Button>
             </Link>
           ) : user?.role === "ADMIN" ? (
             <Link href="/admin/dashboard">
-              <Button variant="ghost" className="font-bold text-gray-600 hover:text-[#FF5200] rounded-md px-6">
+              <Button variant="ghost" className="font-bold text-gray-600 hover:text-orange-500 rounded-md px-6">
                 Admin Dashboard
               </Button>
             </Link>
           ) : (
             <>
               <Link href="/meals">
-                <Button variant="ghost" className="font-bold text-gray-600 hover:text-[#FF5200] rounded-md px-6">
+                <Button variant="ghost" className="font-bold text-gray-600 hover:text-orange-500 rounded-md px-6">
                   Explore Meals
                 </Button>
               </Link>
               <Link href="/providers">
-                <Button variant="ghost" className="font-bold text-gray-600 hover:text-[#FF5200] rounded-md px-6">
+                <Button variant="ghost" className="font-bold text-gray-600 hover:text-orange-500 rounded-md px-6">
                   Restaurants
                 </Button>
               </Link>
@@ -95,7 +95,7 @@ export function Navbar() {
                     <Button variant="ghost" size="icon" className="relative hover:bg-orange-50 rounded-md">
                       <ShoppingBag size={20} className="text-gray-600" />
                       {totalItems > 0 && (
-                        <span className="absolute -top-1 -right-1 h-5 w-5 bg-[#FF5200] text-white text-[10px] flex items-center justify-center rounded-full border-2 border-white font-bold animate-in zoom-in">
+                        <span className="absolute -top-1 -right-1 h-5 w-5 bg-orange-500 text-white text-[10px] flex items-center justify-center rounded-full border-2 border-white font-bold animate-in zoom-in">
                           {totalItems}
                         </span>
                       )}
@@ -137,7 +137,7 @@ export function Navbar() {
 
         {/* Mobile Toggle */}
         <button
-          className="md:hidden p-2 text-gray-600 hover:text-[#FF5200] transition-colors"
+          className="md:hidden p-2 text-gray-600 hover:text-orange-500 transition-colors"
           onClick={() => setIsMenuOpen(!isMenuOpen)}
         >
           <Menu size={24} />

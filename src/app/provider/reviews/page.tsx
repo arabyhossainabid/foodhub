@@ -108,7 +108,7 @@ export default function ProviderReviewsPage() {
                 <div>
                   <p className="text-xs font-black uppercase text-gray-400 tracking-widest">Average Rating</p>
                   <div className="flex items-center space-x-2 mt-2">
-                    <p className="text-3xl font-black text-[#FF5200]">{stats.averageRating.toFixed(1)}</p>
+                    <p className="text-3xl font-black text-orange-500">{stats.averageRating.toFixed(1)}</p>
                     <Star size={20} className="text-orange-500 fill-orange-500" />
                   </div>
                 </div>
@@ -184,7 +184,7 @@ export default function ProviderReviewsPage() {
                     {/* Review Content */}
                     <div className="grow space-y-3">
                       <div className="flex items-center space-x-2">
-                        <Utensils size={14} className="text-[#FF5200]" />
+                        <Utensils size={14} className="text-orange-500" />
                         <p className="text-sm font-black uppercase text-gray-400 tracking-widest">
                           {review.meal?.title}
                         </p>

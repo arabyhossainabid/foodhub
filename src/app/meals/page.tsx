@@ -78,7 +78,7 @@ function MealsContent() {
         <aside className="w-full md:w-72 space-y-10 shrink-0">
           <div className="space-y-6">
             <h3 className="text-xl font-black text-gray-900 flex items-center">
-              <SlidersHorizontal size={20} className="mr-2 text-[#FF5200]" />
+              <SlidersHorizontal size={20} className="mr-2 text-orange-500" />
               Filters
             </h3>
 
@@ -99,7 +99,7 @@ function MealsContent() {
               <div className="flex justify-between items-center">
                 <label className="text-sm font-bold text-gray-400 uppercase tracking-widest">Categories</label>
                 {selectedCat && (
-                  <button onClick={() => toggleCategory("")} className="text-xs text-[#FF5200] font-bold flex items-center">
+                  <button onClick={() => toggleCategory("")} className="text-xs text-orange-500 font-bold flex items-center">
                     Clear <X size={12} className="ml-1" />
                   </button>
                 )}
@@ -110,7 +110,7 @@ function MealsContent() {
                     key={cat.id}
                     onClick={() => toggleCategory(cat.id)}
                     className={`w-full flex items-center justify-between px-4 py-3 rounded-md transition-all duration-300 ${selectedCat === cat.id
-                      ? "bg-[#FF5200] text-white shadow-lg shadow-orange-500/20"
+                      ? "bg-orange-500 text-white shadow-lg shadow-orange-500/20"
                       : "bg-gray-50 text-gray-600 hover:bg-gray-100"
                       }`}
                   >
@@ -127,12 +127,12 @@ function MealsContent() {
 
           {/* Promo Card */}
           <div className="bg-[#1C1C1C] rounded-md p-8 text-white space-y-4 relative overflow-hidden">
-            <div className="absolute -top-4 -right-4 w-24 h-24 bg-[#FF5200] rounded-full blur-2xl opacity-50"></div>
-            <Utensils size={32} className="text-[#FF5200]" />
+            <div className="absolute -top-4 -right-4 w-24 h-24 bg-orange-500 rounded-full blur-2xl opacity-50"></div>
+            <Utensils size={32} className="text-orange-500" />
             <h4 className="text-xl font-bold font-extra-bold">Join as a Provider</h4>
             <p className="text-sm text-gray-400 leading-relaxed">Grow your business with FoodHub. Start selling today!</p>
             <Link href="/register?role=PROVIDER" className="block">
-              <Button variant="outline" className="w-full border-gray-700 text-white hover:bg-[#FF5200] hover:border-[#FF5200]">Apply Now</Button>
+              <Button variant="outline" className="w-full border-gray-700 text-white hover:bg-orange-500 hover:border-orange-500">Apply Now</Button>
             </Link>
           </div>
         </aside>

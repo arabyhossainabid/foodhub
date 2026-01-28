@@ -40,7 +40,7 @@ export function ManagementPage({
               {title.split(" ").map((word, i, arr) => (
                 <span key={i}>
                   {i === arr.length - 1 && arr.length > 1 ? (
-                    <span className="text-[#FF5200]">{word}</span>
+                    <span className="text-orange-500">{word}</span>
                   ) : (
                     word
                   )}{" "}

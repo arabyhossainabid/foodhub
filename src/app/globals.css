@@ -121,7 +121,7 @@
   }
 
   body {
-    @apply bg-background text-foreground selection:bg-[#FF5200] selection:text-white;
+    @apply bg-background text-foreground selection:bg-orange-500 selection:text-white;
   }
 }
 
@@ -135,7 +135,7 @@
   }
 
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-[#FF5200] via-[#FF7A00] to-[#FF9F00];
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-orange-500 via-[#FF7A00] to-[#FF9F00];
   }
 
   .premium-shadow {
@@ -143,7 +143,7 @@
   }
 
   .premium-card {
-    @apply bg-white rounded-[2rem] border border-gray-100 hover:border-[#FF5200]/30 transition-all duration-500;
+    @apply bg-white rounded-[2rem] border border-gray-100 hover:border-orange-500/30 transition-all duration-500;
   }
 
   .premium-card:hover {

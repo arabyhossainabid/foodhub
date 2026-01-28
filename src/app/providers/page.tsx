@@ -30,7 +30,7 @@ export default function ProvidersPage() {
   return (
     <div className="container mx-auto px-4 py-12 min-h-screen">
       <div className="mb-16 space-y-4">
-        <h1 className="text-5xl font-black text-gray-900 tracking-tight">Our <span className="text-[#FF5200]">Kitchens</span></h1>
+        <h1 className="text-5xl font-black text-gray-900 tracking-tight">Our <span className="text-orange-500">Kitchens</span></h1>
         <p className="text-gray-500 max-w-2xl text-lg font-medium">Discover the best local providers and their unique culinary offerings.</p>
       </div>
 
@@ -52,9 +52,9 @@ export default function ProvidersPage() {
 
                 <CardContent className="p-10 space-y-6 grow flex flex-col">
                   <div className="space-y-2">
-                    <h3 className="text-2xl font-black text-gray-900 group-hover:text-[#FF5200] transition-colors">{provider.shopName}</h3>
+                    <h3 className="text-2xl font-black text-gray-900 group-hover:text-orange-500 transition-colors">{provider.shopName}</h3>
                     <div className="flex items-center text-gray-400 font-bold text-sm">
-                      <MapPin size={16} className="mr-2 text-[#FF5200] shrink-0" />
+                      <MapPin size={16} className="mr-2 text-orange-500 shrink-0" />
                       <span className="truncate">{provider.address}</span>
                     </div>
                   </div>
@@ -65,12 +65,12 @@ export default function ProvidersPage() {
 
                   <div className="pt-6 border-t border-gray-50 flex items-center justify-between">
                     <div className="flex items-center space-x-2">
-                      <div className="h-8 w-8 bg-gray-50 rounded-lg flex items-center justify-center text-[#FF5200]">
+                      <div className="h-8 w-8 bg-gray-50 rounded-lg flex items-center justify-center text-orange-500">
                         <UtensilsCrossed size={16} />
                       </div>
                       <span className="text-xs font-black text-gray-400 uppercase tracking-widest">Explore Menu</span>
                     </div>
-                    <ArrowRight size={20} className="text-[#FF5200] transform group-hover:translate-x-2 transition-transform" />
+                    <ArrowRight size={20} className="text-orange-500 transform group-hover:translate-x-2 transition-transform" />
                   </div>
                 </CardContent>
               </Card>

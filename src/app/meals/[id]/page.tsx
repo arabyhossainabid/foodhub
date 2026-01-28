@@ -69,7 +69,7 @@ export default function MealDetailsPage() {
 
   return (
     <div className="container mx-auto px-4 py-12">
-      <Link href="/meals" className="text-[#FF5200] font-bold flex items-center mb-8 hover:translate-x-[-4px] transition-transform">
+      <Link href="/meals" className="text-orange-500 font-bold flex items-center mb-8 hover:translate-x-[-4px] transition-transform">
         <ArrowLeft size={18} className="mr-2" /> Back to Menu
       </Link>
 
@@ -91,7 +91,7 @@ export default function MealDetailsPage() {
 
           <div className="grid grid-cols-3 gap-4">
             {[1, 2, 3].map(i => (
-              <div key={i} className="aspect-square rounded-md bg-gray-100 overflow-hidden cursor-pointer hover:ring-4 ring-[#FF5200] transition-all">
+              <div key={i} className="aspect-square rounded-md bg-gray-100 overflow-hidden cursor-pointer hover:ring-4 ring-orange-500 transition-all">
                 <img src={meal.image || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=1760&auto=format&fit=crop"} className="w-full h-full object-cover opacity-50" alt="Thumbnail" />
               </div>
             ))}
@@ -101,7 +101,7 @@ export default function MealDetailsPage() {
         {/* Right: Info */}
         <div className="space-y-10">
           <div className="space-y-4">
-            <span className="text-xs font-black uppercase tracking-[0.3em] text-[#FF5200]">{meal.category?.name || "Delicious Meal"}</span>
+            <span className="text-xs font-black uppercase tracking-[0.3em] text-orange-500">{meal.category?.name || "Delicious Meal"}</span>
             <h1 className="text-5xl md:text-6xl font-black text-gray-900 leading-tight">{meal.title}</h1>
             <div className="flex items-center space-x-6">
               <div className="flex items-center text-orange-500 bg-orange-50 px-3 py-1.5 rounded-md font-bold">
@@ -120,7 +120,7 @@ export default function MealDetailsPage() {
           <div className="space-y-4 pt-4">
             <div className="flex items-center justify-between">
               <span className="text-sm font-black uppercase tracking-widest text-gray-400">Price</span>
-              <span className="text-4xl font-black text-[#FF5200]">{formatCurrency(meal.price)}</span>
+              <span className="text-4xl font-black text-orange-500">{formatCurrency(meal.price)}</span>
             </div>
             <Button
               size="lg"
@@ -134,13 +134,13 @@ export default function MealDetailsPage() {
 
           <Card className="border-none bg-gray-50 rounded-md p-6">
             <div className="flex items-center space-x-4">
-              <div className="h-14 w-14 bg-white rounded-md flex items-center justify-center text-[#FF5200] shadow-sm">
+              <div className="h-14 w-14 bg-white rounded-md flex items-center justify-center text-orange-500 shadow-sm">
                 <Utensils size={28} />
               </div>
               <div>
                 <p className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Provided By</p>
                 <Link href={`/providers/${meal.providerId}`}>
-                  <p className="text-xl font-bold text-gray-900 hover:text-[#FF5200] transition-colors">{meal.provider?.shopName || meal.provider?.user.name || "FoodHub Kitchen"}</p>
+                  <p className="text-xl font-bold text-gray-900 hover:text-orange-500 transition-colors">{meal.provider?.shopName || meal.provider?.user.name || "FoodHub Kitchen"}</p>
                 </Link>
               </div>
             </div>
@@ -173,7 +173,7 @@ export default function MealDetailsPage() {
                 <div className="space-y-6">
                   <div className="flex justify-between items-start">
                     <div className="flex items-center space-x-3">
-                      <div className="h-12 w-12 bg-[#FF5200] rounded-md flex items-center justify-center font-bold text-white shadow-lg shadow-orange-500/20">
+                      <div className="h-12 w-12 bg-orange-500 rounded-md flex items-center justify-center font-bold text-white shadow-lg shadow-orange-500/20">
                         {review.user?.name.charAt(0)}
                       </div>
                       <div>

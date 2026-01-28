@@ -9,27 +9,27 @@ export function Footer() {
           {/* Brand */}
           <div className="space-y-6">
             <Link href="/" className="flex items-center space-x-2">
-              <div className="h-10 w-10 bg-[#FF5200] rounded-md flex items-center justify-center text-white">
+              <div className="h-10 w-10 bg-orange-500 rounded-md flex items-center justify-center text-white">
                 <UtensilsCrossed size={22} strokeWidth={2.5} />
               </div>
               <span className="text-2xl font-bold tracking-tight">
-                Food<span className="text-[#FF5200]">Hub</span>
+                Food<span className="text-orange-500">Hub</span>
               </span>
             </Link>
             <p className="text-gray-400 leading-relaxed">
               Order your favorite meals from the best local restaurants and food providers. Fast delivery and fresh food guaranteed.
             </p>
             <div className="flex items-center space-x-4">
-              <Link href="#" className="h-10 w-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-[#FF5200] transition-colors">
+              <Link href="#" className="h-10 w-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-orange-500 transition-colors">
                 <Facebook size={18} />
               </Link>
-              <Link href="#" className="h-10 w-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-[#FF5200] transition-colors">
+              <Link href="#" className="h-10 w-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-orange-500 transition-colors">
                 <Twitter size={18} />
               </Link>
-              <Link href="#" className="h-10 w-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-[#FF5200] transition-colors">
+              <Link href="#" className="h-10 w-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-orange-500 transition-colors">
                 <Instagram size={18} />
               </Link>
-              <Link href="#" className="h-10 w-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-[#FF5200] transition-colors">
+              <Link href="#" className="h-10 w-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-orange-500 transition-colors">
                 <Youtube size={18} />
               </Link>
             </div>
@@ -64,9 +64,9 @@ export function Footer() {
               <input
                 type="email"
                 placeholder="Enter your email"
-                className="bg-gray-800 border-none rounded-md px-4 py-3 text-sm focus:ring-1 focus:ring-[#FF5200] outline-none"
+                className="bg-gray-800 border-none rounded-md px-4 py-3 text-sm focus:ring-1 focus:ring-orange-500 outline-none"
               />
-              <button className="bg-[#FF5200] text-white py-3 rounded-md font-bold hover:bg-[#E64A00] transition-all px-8">
+              <button className="bg-orange-500 text-white py-3 rounded-md font-bold hover:bg-[#E64A00] transition-all px-8">
                 Join
               </button>
             </div>

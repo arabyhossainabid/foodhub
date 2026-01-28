@@ -74,7 +74,7 @@ function CheckoutPageContent() {
     <div className="container mx-auto px-4 py-12 max-w-6xl">
       {isLoading && <FullPageLoader message="Placing your order..." transparent />}
       <div className="mb-12">
-        <Link href="/cart" className="text-[#FF5200] font-bold flex items-center group">
+        <Link href="/cart" className="text-orange-500 font-bold flex items-center group">
           <ArrowLeft size={18} className="mr-2" /> Back to Cart
         </Link>
         <h1 className="text-4xl font-bold text-gray-900 mt-4">Finalize Order</h1>
@@ -85,7 +85,7 @@ function CheckoutPageContent() {
         <div className="space-y-8">
           <div className="bg-white p-8 rounded-md shadow-lg border border-gray-100 space-y-6">
             <div className="flex items-center space-x-4">
-              <div className="h-12 w-12 bg-orange-50 rounded-md flex items-center justify-center text-[#FF5200]">
+              <div className="h-12 w-12 bg-orange-50 rounded-md flex items-center justify-center text-orange-500">
                 <MapPin size={24} />
               </div>
               <h2 className="text-xl font-bold">Delivery Details</h2>
@@ -95,7 +95,7 @@ function CheckoutPageContent() {
               <label className="text-sm font-medium text-gray-700">Full Shipping Address</label>
               <textarea
                 placeholder="Street name, House #, Apartment, City..."
-                className="w-full bg-gray-50 border border-gray-100 rounded-md p-4 text-sm focus:ring-2 focus:ring-[#FF5200]/20 focus:border-[#FF5200] outline-none min-h-[120px] resize-none transition-all"
+                className="w-full bg-gray-50 border border-gray-100 rounded-md p-4 text-sm focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 outline-none min-h-[120px] resize-none transition-all"
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
               />
@@ -105,17 +105,17 @@ function CheckoutPageContent() {
 
           <div className="bg-white p-8 rounded-md shadow-lg border border-gray-100 space-y-6">
             <div className="flex items-center space-x-4">
-              <div className="h-12 w-12 bg-orange-50 rounded-md flex items-center justify-center text-[#FF5200]">
+              <div className="h-12 w-12 bg-orange-50 rounded-md flex items-center justify-center text-orange-500">
                 <CreditCard size={24} />
               </div>
               <h2 className="text-xl font-bold">Payment Method</h2>
             </div>
             <div className="p-4 bg-orange-50/50 rounded-md border border-orange-100 flex items-center justify-between">
               <div className="flex items-center space-x-4">
-                <div className="h-4 w-4 rounded-full bg-[#FF5200]"></div>
+                <div className="h-4 w-4 rounded-full bg-orange-500"></div>
                 <span className="font-bold text-gray-900">Cash on Delivery</span>
               </div>
-              <span className="text-xs font-bold text-[#FF5200] uppercase tracking-wider">Default</span>
+              <span className="text-xs font-bold text-orange-500 uppercase tracking-wider">Default</span>
             </div>
           </div>
         </div>
@@ -155,7 +155,7 @@ function CheckoutPageContent() {
                 <div className="flex justify-between items-end pt-4">
                   <div className="flex flex-col">
                     <span className="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1">Total Amount</span>
-                    <span className="text-3xl font-black text-[#FF5200]">{formatCurrency(totalPrice)}</span>
+                    <span className="text-3xl font-black text-orange-500">{formatCurrency(totalPrice)}</span>
                   </div>
                 </div>
               </div>
