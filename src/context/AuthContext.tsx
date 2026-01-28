@@ -29,7 +29,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       if (storedToken) {
         try {
-          // Optimization: Set local storage data immediately to reduce flicker
           if (storedUser) {
             setUser(JSON.parse(storedUser));
             setToken(storedToken);
@@ -40,13 +39,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           setToken(storedToken);
           localStorage.setItem("user", JSON.stringify(res.data.data));
         } catch (error: any) {
-          // Only logout on 401 Unauthorized or 403 Forbidden
           if (error.response?.status === 401 || error.response?.status === 403) {
             console.error("Auth session invalid:", error);
             logout();
           } else {
             console.error("Profile fetch failed (non-auth error):", error);
-            // On other errors (like 429), keep local state if it exists
           }
         }
       }
@@ -61,7 +58,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     localStorage.setItem("token", newToken);
     localStorage.setItem("user", JSON.stringify(newUser));
 
-    // Redirect based on role
     if (newUser.role === "ADMIN") router.push("/admin/dashboard");
     else if (newUser.role === "PROVIDER") router.push("/provider/dashboard");
     else router.push("/");

@@ -8,8 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { formatCurrency, cn } from "@/lib/utils";
 import { toast } from "react-hot-toast";
-import { NewMealForm } from "@/components/meals/NewMealForm";
 import { ManagementPage } from "@/components/dashboard/ManagementPage";
+import { NewMealForm } from "@/components/provider/NewMealForm";
 
 const providerNavItems = [
   { title: "Dashboard", href: "/provider/dashboard", icon: <LayoutDashboard size={20} /> },

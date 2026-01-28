@@ -3,12 +3,12 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import { CartProvider } from "@/context/CartContext";
-import { AOSProvider } from "@/components/shared/AOSProvider";
 import { Toaster } from "react-hot-toast";
 import { Navbar } from "@/components/shared/Navbar";
 import { Footer } from "@/components/shared/Footer";
 import NextTopLoader from 'nextjs-toploader';
 import { GlobalLoader } from "@/components/shared/GlobalLoader";
+import { AOSProvider } from "@/components/shared/AOSProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

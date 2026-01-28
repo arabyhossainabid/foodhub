@@ -39,7 +39,6 @@ export default function RegisterPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
-  // Get role from URL if present
   const searchParams = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
   const initialRole = searchParams?.get("role") === "PROVIDER" ? "PROVIDER" : "CUSTOMER";
 
@@ -91,7 +90,6 @@ export default function RegisterPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="pt-8 space-y-6">
-            {/* Role Selection */}
             <div className="flex p-1 bg-gray-100 rounded-md">
               <button
                 type="button"

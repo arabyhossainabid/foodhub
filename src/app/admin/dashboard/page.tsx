@@ -31,11 +31,21 @@ function AdminDashboardContent() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [statsRes, healthRes] = await Promise.all([
+        const [statsRes, healthRes, usersRes] = await Promise.all([
           api.get("/admin/stats"),
-          api.get("/health")
+          api.get("/health"),
+          api.get("/admin/users")
         ]);
-        setStats(statsRes.data.data);
+
+        const users = usersRes.data.data || [];
+        const activeUsersCount = users.filter((u: any) => u.isActive && u.role !== 'PROVIDER').length;
+        const providersCount = users.filter((u: any) => u.role === 'PROVIDER').length;
+
+        setStats({
+          ...statsRes.data.data,
+          activeUsersCount,
+          providersCount
+        });
         setHealth(healthRes.data.data);
       } catch (error) {
         console.error("Failed to fetch dashboard data");
@@ -56,8 +66,8 @@ function AdminDashboardContent() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {[
             { title: "Total Revenue", value: formatCurrency(stats?.totalRevenue || 0), icon: <DollarSign className="text-green-500" />, color: "border-green-500" },
-            { title: "Active Users", value: stats?.userCount || 0, icon: <UserPlus className="text-[#FF5200]" />, color: "border-orange-500" },
-            { title: "Active Providers", value: stats?.providerCount || 0, icon: <TrendingUp className="text-blue-500" />, color: "border-blue-500" },
+            { title: "Active Users", value: stats?.activeUsersCount || 0, icon: <UserPlus className="text-[#FF5200]" />, color: "border-orange-500" },
+            { title: "Active Providers", value: stats?.providersCount || 0, icon: <TrendingUp className="text-blue-500" />, color: "border-blue-500" },
             { title: "Total Orders", value: stats?.totalOrders || 0, icon: <Package className="text-purple-500" />, color: "border-purple-500" },
           ].map((stat, i) => (
             <Card key={i} className="border border-gray-100 shadow-lg relative overflow-hidden group rounded-md">

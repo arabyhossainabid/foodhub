@@ -42,12 +42,10 @@ export default function HomePage() {
 
   return (
     <div className="flex flex-col pb-32">
-      {/* Hero Section - Premium Design */}
       <section className="relative h-[85vh] min-h-[600px] flex items-center overflow-hidden">
-        {/* Background Image with Overlay */}
         <div className="absolute inset-0 z-0">
           <img
-            src="/foodhub_banner_bg_1769511486315.png" // This should be copied to public/ if it's an artifact, but since I'm in local env, I'll assume I can serve it or use the full path eventually. For now, using the artifact name.
+            src="/foodhub_banner_bg_1769511486315.png"
             alt="Delicious Food Background"
             className="w-full h-full object-cover scale-105"
           />
@@ -88,7 +86,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Categories Section - Grid with Glassmorphism */}
       <section className="container mx-auto px-4 -mt-20 z-20">
         <div className="bg-white rounded-md shadow-2xl shadow-black/10 p-8 lg:p-16 border border-gray-100">
           <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
@@ -124,7 +121,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Featured Meals Section */}
       <section className="py-32">
         <div className="container mx-auto px-4">
           <div className="flex flex-col items-center text-center mb-20 space-y-4">
@@ -153,7 +149,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Why Choose Us - Modernized */}
       {(!user || user.role === "CUSTOMER") && (
         <section className="container mx-auto px-4 py-32 border-t border-gray-100">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
@@ -164,7 +159,6 @@ export default function HomePage() {
                 className="rounded-md shadow-3xl shadow-black/20 w-full object-cover h-[500px] lg:h-[650px] relative transition-transform duration-700 group-hover:scale-[1.02]"
                 alt="Why Choose Us"
               />
-              {/* Floating Stats */}
               <div className="absolute -bottom-10 -right-10 bg-white p-8 rounded-md shadow-2xl border border-gray-100 hidden md:block" data-aos="fade-left">
                 <div className="flex items-center space-x-4">
                   <div className="h-14 w-14 bg-green-50 rounded-md flex items-center justify-center text-green-500">

@@ -91,7 +91,6 @@ function CartPageContent() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-        {/* Cart Items */}
         <div className="lg:col-span-2 space-y-6">
           {cart.map((item) => (
             <Card key={item.id} className="overflow-hidden border-none shadow-md hover:shadow-lg transition-shadow">
@@ -138,7 +137,6 @@ function CartPageContent() {
           ))}
         </div>
 
-        {/* Summary */}
         <aside className="space-y-6">
           <Card className="shadow-xl border-gray-100 p-8 rounded-md sticky top-24">
             <h3 className="text-2xl font-bold mb-8 flex items-center text-gray-900">
