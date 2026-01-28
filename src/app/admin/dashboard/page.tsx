@@ -1,6 +1,6 @@
 "use client";
 
-import { LayoutDashboard, Users, Grid, UserPlus, Package, DollarSign, ShoppingBag, ShieldAlert } from "lucide-react";
+import { LayoutDashboard, Users, Grid, UserPlus, Package, DollarSign, ShoppingBag, ShieldAlert, TrendingUp } from "lucide-react";
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatCurrency } from "@/lib/utils";
@@ -24,8 +24,6 @@ export default function AdminDashboard() {
 }
 
 function AdminDashboardContent() {
-  // Since the current backend does not expose /admin/stats, /admin/users, or /health,
-  // we use safe fallback values to avoid 404 errors and keep the UI stable.
   const [stats] = useState<any>({
     totalRevenue: 0,
     totalOrders: 0,
