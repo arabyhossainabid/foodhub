@@ -1,7 +1,11 @@
 import axios from "axios";
 
 const api = axios.create({
+<<<<<<< HEAD
   baseURL: process.env.NEXT_PUBLIC_API_URL || "https://foodhub-backend-seven.vercel.app/api",
+=======
+  baseURL: process.env.NEXT_PUBLIC_API_URL || "https://foodhub-backend-api.vercel.app/api",
+>>>>>>> meaningful-commits
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",
