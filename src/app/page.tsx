@@ -35,9 +35,11 @@ export default function HomePage() {
       }
     };
     fetchData();
-    setTimeout(() => {
+    // Refresh AOS safely after a short delay to ensure DOM is ready
+    const timer = setTimeout(() => {
       AOS.refresh();
-    }, 500);
+    }, 1000);
+    return () => clearTimeout(timer);
   }, []);
 
   return (
@@ -53,7 +55,7 @@ export default function HomePage() {
         </div>
 
         <div className="container mx-auto px-4 z-10">
-          <div className="max-w-3xl space-y-10" data-aos="fade-right">
+          <div className="max-w-3xl space-y-10" data-aos="fade-right" suppressHydrationWarning>
             <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full border border-white/20">
               <span className="h-2 w-2 bg-[#FF5200] rounded-full animate-pulse"></span>
               <span className="text-white text-xs font-black uppercase tracking-widest">Now Delivering to Your City</span>
@@ -89,7 +91,7 @@ export default function HomePage() {
       <section className="container mx-auto px-4 -mt-20 z-20">
         <div className="bg-white rounded-md shadow-2xl shadow-black/10 p-8 lg:p-16 border border-gray-100">
           <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
-            <div data-aos="fade-up">
+            <div data-aos="fade-up" suppressHydrationWarning>
               <h2 className="text-4xl md:text-5xl font-black text-gray-900 mb-6 tracking-tight">
                 Favorite <span className="text-[#FF5200]">Cuisines</span>
               </h2>
@@ -131,13 +133,18 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-10 animate-in fade-in slide-in-from-bottom-4 duration-1000">
-            {featuredMeals.map((meal) => (
-              <MealCard key={meal.id} meal={meal} />
-            ))}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-10 animate-in fade-in slide-in-from-bottom-4 duration-1000 min-h-[400px]">
+            {isLoading && featuredMeals.length === 0 ? (
+              // Show skeleton or simple placeholder instead of FullPageLoader
+              Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="h-80 bg-gray-50 rounded-md animate-pulse"></div>
+              ))
+            ) : (
+              featuredMeals.map((meal) => (
+                <MealCard key={meal.id} meal={meal} />
+              ))
+            )}
           </div>
-
-          {isLoading && <FullPageLoader transparent />}
 
           <div className="mt-20 text-center">
             <Link href="/meals">
@@ -159,7 +166,7 @@ export default function HomePage() {
                 className="rounded-md shadow-3xl shadow-black/20 w-full object-cover h-[500px] lg:h-[650px] relative transition-transform duration-700 group-hover:scale-[1.02]"
                 alt="Why Choose Us"
               />
-              <div className="absolute -bottom-10 -right-10 bg-white p-8 rounded-md shadow-2xl border border-gray-100 hidden md:block" data-aos="fade-left">
+              <div className="absolute -bottom-10 -right-10 bg-white p-8 rounded-md shadow-2xl border border-gray-100 hidden md:block" data-aos="fade-left" suppressHydrationWarning>
                 <div className="flex items-center space-x-4">
                   <div className="h-14 w-14 bg-green-50 rounded-md flex items-center justify-center text-green-500">
                     <Clock size={28} />

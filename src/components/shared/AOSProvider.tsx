@@ -6,10 +6,19 @@ import "aos/dist/aos.css";
 
 export const AOSProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
-    AOS.init({
-      duration: 800,
-      once: false,
-    });
+    const initAOS = () => {
+      AOS.init({
+        duration: 800,
+        once: false,
+      });
+    };
+
+    if (document.readyState === 'complete') {
+      initAOS();
+    } else {
+      window.addEventListener('load', initAOS);
+      return () => window.removeEventListener('load', initAOS);
+    }
   }, []);
 
   return <>{children}</>;

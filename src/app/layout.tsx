@@ -7,7 +7,6 @@ import { Toaster } from "react-hot-toast";
 import { Navbar } from "@/components/shared/Navbar";
 import { Footer } from "@/components/shared/Footer";
 import NextTopLoader from 'nextjs-toploader';
-import { GlobalLoader } from "@/components/shared/GlobalLoader";
 import { AOSProvider } from "@/components/shared/AOSProvider";
 
 const geistSans = Geist({
@@ -32,21 +31,20 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased font-sans`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased font-sans`} suppressHydrationWarning>
         <NextTopLoader
           color="#FF5200"
           initialPosition={0.08}
-          crawlSpeed={200}
-          height={4}
+          crawlSpeed={100}
+          height={3}
           crawl={true}
-          showSpinner={true}
-          easing="ease-in-out"
-          speed={300}
-          shadow="0 0 15px #FF5200, 0 0 5px #FF5200"
+          showSpinner={false}
+          easing="ease"
+          speed={200}
+          shadow="0 0 10px #FF5200"
           zIndex={99999}
           showAtBottom={false}
         />
-        <GlobalLoader />
         <AuthProvider>
           <CartProvider>
             <AOSProvider>

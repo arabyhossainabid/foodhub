@@ -24,7 +24,7 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
     }
   }, [user, loading, router, allowedRoles]);
 
-  if (loading) {
+  if (loading && !user) {
     return <FullPageLoader message="Verifying Access" transparent />;
   }
 

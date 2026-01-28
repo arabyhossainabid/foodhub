@@ -10,7 +10,7 @@ export function GlobalLoader() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setLoading(false);
-    }, 1200);
+    }, 100);
 
     return () => clearTimeout(timer);
   }, []);

@@ -57,8 +57,8 @@ export function ManagementPage({
           {children}
         </div>
 
-        {/* Global Loading Overlay */}
-        {loading && <FullPageLoader transparent />}
+        {/* Localized Loading Overlay to keep user on page */}
+        {loading && <FullPageLoader transparent mode="local" />}
       </div>
     </DashboardLayout>
   );

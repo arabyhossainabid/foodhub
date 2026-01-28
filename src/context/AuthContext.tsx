@@ -29,21 +29,24 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       if (storedToken) {
         try {
+          let parsedUser: User | null = null;
+
+          // If we have cached user, show it immediately and resolve loading
           if (storedUser) {
-            setUser(JSON.parse(storedUser));
+            parsedUser = JSON.parse(storedUser);
+            setUser(parsedUser);
             setToken(storedToken);
+            setLoading(false); // Resolve loading immediately to show UI
           }
 
+          // Fetch fresh profile in background
           const res = await api.get("/auth/me");
           setUser(res.data.data);
           setToken(storedToken);
           localStorage.setItem("user", JSON.stringify(res.data.data));
         } catch (error: any) {
           if (error.response?.status === 401 || error.response?.status === 403) {
-            console.error("Auth session invalid:", error);
             logout();
-          } else {
-            console.error("Profile fetch failed (non-auth error):", error);
           }
         }
       }

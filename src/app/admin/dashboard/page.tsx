@@ -1,8 +1,7 @@
 "use client";
 
-import { LayoutDashboard, Users, Grid, Settings, TrendingUp, UserPlus, Package, DollarSign, ShoppingBag, ShieldAlert } from "lucide-react";
-import { useEffect, useState } from "react";
-import api from "@/lib/axios";
+import { LayoutDashboard, Users, Grid, UserPlus, Package, DollarSign, ShoppingBag, ShieldAlert } from "lucide-react";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatCurrency } from "@/lib/utils";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
@@ -25,41 +24,21 @@ export default function AdminDashboard() {
 }
 
 function AdminDashboardContent() {
-  const [stats, setStats] = useState<any>(null);
-  const [health, setHealth] = useState<any>(null);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [statsRes, healthRes, usersRes] = await Promise.all([
-          api.get("/admin/stats"),
-          api.get("/health"),
-          api.get("/admin/users")
-        ]);
-
-        const users = usersRes.data.data || [];
-        const activeUsersCount = users.filter((u: any) => u.isActive && u.role !== 'PROVIDER').length;
-        const providersCount = users.filter((u: any) => u.role === 'PROVIDER').length;
-
-        setStats({
-          ...statsRes.data.data,
-          activeUsersCount,
-          providersCount
-        });
-        setHealth(healthRes.data.data);
-      } catch (error) {
-        console.error("Failed to fetch dashboard data");
-      }
-    };
-    fetchData();
-  }, []);
+  // Since the current backend does not expose /admin/stats, /admin/users, or /health,
+  // we use safe fallback values to avoid 404 errors and keep the UI stable.
+  const [stats] = useState<any>({
+    totalRevenue: 0,
+    totalOrders: 0,
+    activeUsersCount: 0,
+    providersCount: 0,
+  });
 
   return (
     <ManagementPage
       title="Admin Control"
       description="Global overview and system-wide management."
       items={adminNavItems}
-      loading={!stats}
+      loading={false}
     >
       <div className="space-y-10">
         {/* Stats Grid */}
