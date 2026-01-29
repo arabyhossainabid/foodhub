@@ -4,14 +4,13 @@ import { Button } from "@/components/ui/button";
 import { UtensilsCrossed, ArrowRight, Star, Clock, ShieldCheck, MapPin, Search } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import api from "@/lib/axios";
+import { mealService } from "@/services/mealService";
 import { Category, Meal } from "@/types";
 import { MealCard } from "@/components/meals/MealCard";
-import { cn } from "@/lib/utils";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import { useAuth } from "@/context/AuthContext";
-import { FullPageLoader } from "@/components/shared/FullPageLoader";
+import Image from "next/image";
 
 export default function HomePage() {
   const { user } = useAuth();
@@ -22,19 +21,22 @@ export default function HomePage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [catRes, mealRes] = await Promise.all([
-          api.get("/categories"),
-          api.get("/meals?limit=8"),
+        const [categoriesData, mealsData] = await Promise.all([
+          mealService.getCategories(),
+          mealService.getMeals({ limit: 4 }),
         ]);
-        setCategories(catRes.data.data.slice(0, 6));
-        setFeaturedMeals(mealRes.data.data.slice(0, 4));
+
+        setCategories(categoriesData.slice(0, 6));
+        setFeaturedMeals(mealsData);
       } catch (error) {
-        console.error("Failed to fetch home data", error);
+        console.error("Failed to fetch home data:", error);
       } finally {
         setIsLoading(false);
       }
     };
+
     fetchData();
+
     const timer = setTimeout(() => {
       AOS.refresh();
     }, 1000);
@@ -43,13 +45,15 @@ export default function HomePage() {
 
   return (
     <div className="flex flex-col pb-32">
-      <section className="relative h-[50vh] min-h-[600px] flex items-center overflow-hidden">
+      <section className="relative h-[70vh] min-h-[40rem] flex items-center overflow-hidden">
         <div className="absolute inset-0 z-0">
-          <img
-            src="/foodhub_banner_bg_1769511486315.png"
+          <Image
+            src="/foodhub_banner.png"
             alt="Delicious Food Background"
-            className="w-full h-full object-cover scale-105"
+            fill
+            className="object-cover scale-105"
           />
+
           <div className="absolute inset-0 bg-linear-to-r from-black/80 via-black/50 to-transparent"></div>
         </div>
 
@@ -153,13 +157,15 @@ export default function HomePage() {
       {(!user || user.role === "CUSTOMER") && (
         <section className="container mx-auto px-4 py-32 border-t border-gray-100">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
-            <div className="relative group">
+            <div className="relative group aspect-square md:aspect-auto md:min-h-11/12">
               <div className="absolute -inset-4 bg-orange-500/10 rounded-md scale-95 opacity-0 group-hover:opacity-100 group-hover:scale-100 transition-all duration-700 blur-2xl"></div>
-              <img
-                src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?q=80&w=1981&auto=format&fit=crop"
-                className="rounded-md shadow-3xl shadow-black/20 w-full object-cover h-[500px] lg:h-[650px] relative transition-transform duration-700 group-hover:scale-[1.02]"
+              <Image
+                src="/pizza.avif"
+                fill
+                className="rounded-md shadow-3xl shadow-black/20 object-cover relative transition-transform duration-700 group-hover:scale-[1.02]"
                 alt="Why Choose Us"
               />
+
               <div className="absolute -bottom-10 -right-10 bg-white p-8 rounded-md shadow-2xl border border-gray-100 hidden md:block" data-aos="fade-left" suppressHydrationWarning>
                 <div className="flex items-center space-x-4">
                   <div className="h-14 w-14 bg-green-50 rounded-md flex items-center justify-center text-green-500">
@@ -174,9 +180,9 @@ export default function HomePage() {
             </div>
             <div className="space-y-16">
               <div className="space-y-6">
-                <span className="text-orange-500 font-black uppercase tracking-[0.2em] text-sm">Our Difference</span>
-                <h2 className="text-6xl font-black text-gray-900 leading-[1.1]">We Focus on <br /> The <span className="text-orange-500">Experience</span></h2>
-                <p className="text-gray-500 text-xl font-medium leading-relaxed">
+                <span className="text-orange-500 font-black uppercase tracking-widest text-sm">Our Difference</span>
+                <h2 className="md:text-6xl text-4xl font-black text-gray-900 leading-tight">We Focus on <br /> The <span className="text-orange-500">Experience</span></h2>
+                <p className="text-gray-500 md:text-xl text-lg font-medium leading-relaxed">
                   Beyond just delivery, we provide a seamless bridge between you and the culinary masters in your neighborhood.
                 </p>
               </div>

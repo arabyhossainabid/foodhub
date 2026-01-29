@@ -2,7 +2,8 @@
 
 import { Grid, LayoutDashboard, Users, Plus, Edit, Trash2, Hash, ShoppingBag, ShieldAlert } from "lucide-react";
 import { useEffect, useState } from "react";
-import api from "@/lib/axios";
+import { mealService } from "@/services/mealService";
+import { adminService } from "@/services/adminService";
 import { Category } from "@/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -39,10 +40,12 @@ function AdminCategoriesContent() {
   const fetchCategories = async () => {
     setLoading(true);
     try {
-      const res = await api.get("/categories");
-      setCategories(res.data.data);
+      // Use mealService for shared category fetching
+      const categoriesData = await mealService.getCategories();
+      setCategories(categoriesData);
     } catch (error) {
-      toast.error("Failed to load categories");
+      console.error("Categories fetch failed:", error);
+      toast.error("Failed to load platform categories.");
     } finally {
       setLoading(false);
     }
@@ -54,36 +57,44 @@ function AdminCategoriesContent() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!catName.trim()) return;
+    const normalizedName = catName.trim();
+    if (!normalizedName) return;
 
     setIsSubmitting(true);
     try {
       if (editingCat) {
-        await api.put(`/categories/${editingCat.id}`, { name: catName });
-        toast.success("Category updated");
+        // Update category using professional admin service
+        await adminService.categories.update(editingCat.id, normalizedName);
+        toast.success(`Category "${normalizedName}" updated!`);
       } else {
-        await api.post("/categories", { name: catName });
-        toast.success("Category created");
+        // Create new category using professional admin service
+        await adminService.categories.create(normalizedName);
+        toast.success(`Category "${normalizedName}" created!`);
       }
+
       setCatName("");
       setEditingCat(null);
       setIsFormOpen(false);
       fetchCategories();
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Operation failed");
+      console.error("Category operation failed:", error);
+      toast.error(error.response?.data?.message || "Operation failed. Category name might already exist.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!window.confirm("Are you sure? This may affect meals linked to this category.")) return;
+    const confirmMessage = "Are you absolutely sure? Deleting this category might hide meals associated with it until they are re-categorized.";
+    if (!window.confirm(confirmMessage)) return;
+
     try {
-      await api.delete(`/categories/${id}`);
-      toast.success("Category deleted");
+      await adminService.categories.delete(id);
+      toast.success("Category permanently removed.");
       fetchCategories();
-    } catch (error) {
-      toast.error("Failed to delete category");
+    } catch (error: any) {
+      console.error("Category deletion failed:", error);
+      toast.error("Cannot delete category with active meals. Remove meals first.");
     }
   };
 

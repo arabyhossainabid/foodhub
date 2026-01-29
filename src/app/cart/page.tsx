@@ -9,8 +9,6 @@ import { formatCurrency } from "@/lib/utils";
 import { Trash2, Plus, Minus, ShoppingBag, ArrowLeft, CreditCard } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
-import api from "@/lib/axios";
-import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { FullPageLoader } from "@/components/shared/FullPageLoader";
@@ -29,41 +27,6 @@ function CartPageContent() {
   const router = useRouter();
   const [address, setAddress] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-
-  const handleCheckout = async () => {
-    if (!user) {
-      toast.error("Please login to place an order");
-      router.push("/login");
-      return;
-    }
-
-    if (!address) {
-      toast.error("Please provide a delivery address");
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      const orderItems = cart.map(item => ({
-        mealId: item.id,
-        quantity: item.quantity,
-        price: item.price
-      }));
-
-      await api.post("/orders", {
-        address,
-        orderItems
-      });
-
-      toast.success("Order placed successfully!");
-      clearCart();
-      router.push("/orders/success");
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Checkout failed");
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   if (cart.length === 0) {
     return (

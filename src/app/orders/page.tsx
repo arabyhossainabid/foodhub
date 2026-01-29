@@ -2,7 +2,7 @@
 
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { useEffect, useState } from "react";
-import api from "@/lib/axios";
+import { orderService } from "@/services/orderService";
 import { Order } from "@/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -33,11 +33,14 @@ export default function MyOrdersPage() {
   const [reviewOrder, setReviewOrder] = useState<{ mealId: string, orderId: string, title: string } | null>(null);
 
   const fetchOrders = async () => {
+    setLoading(true);
     try {
-      const res = await api.get("/orders");
-      setOrders(res.data.data);
+      // Use our professional order service to fetch customer's order history
+      const ordersData = await orderService.getMyOrders();
+      setOrders(ordersData);
     } catch (error) {
-      toast.error("Failed to load orders");
+      console.error("Order history load failed:", error);
+      toast.error("Failed to load your order history. Please check your connection.");
     } finally {
       setLoading(false);
     }

@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { User } from "@/types";
-import api from "@/lib/axios";
+import { authService } from "@/services/authService";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 
@@ -29,22 +29,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       if (storedToken) {
         try {
-          let parsedUser: User | null = null;
-
-          // If we have cached user, show it immediately and resolve loading
           if (storedUser) {
-            parsedUser = JSON.parse(storedUser);
+            const parsedUser = JSON.parse(storedUser);
             setUser(parsedUser);
             setToken(storedToken);
-            setLoading(false); // Resolve loading immediately to show UI
+            setLoading(false);
           }
 
-          // Fetch fresh profile in background
-          const res = await api.get("/auth/me");
-          setUser(res.data.data);
+          const freshUserResponse = await authService.getProfile();
+          const freshUser = freshUserResponse.data.data;
+
+          setUser(freshUser);
           setToken(storedToken);
-          localStorage.setItem("user", JSON.stringify(res.data.data));
+          localStorage.setItem("user", JSON.stringify(freshUser));
         } catch (error: any) {
+          console.error("Session verification failed:", error);
           if (error.response?.status === 401 || error.response?.status === 403) {
             logout();
           }

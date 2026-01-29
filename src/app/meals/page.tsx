@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import api from "@/lib/axios";
 import { Category, Meal } from "@/types";
+import { mealService } from "@/services/mealService";
 import { MealCard } from "@/components/meals/MealCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -28,10 +28,10 @@ function MealsContent() {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await api.get("/categories");
-        setCategories(res.data.data);
+        const categoriesData = await mealService.getCategories();
+        setCategories(categoriesData);
       } catch (error) {
-        console.error("Failed to fetch categories");
+        console.error("Failed to load categories:", error);
       }
     };
     fetchCategories();
@@ -41,19 +41,20 @@ function MealsContent() {
     const fetchMeals = async () => {
       setLoading(true);
       try {
-        const params = new URLSearchParams();
-        if (searchTerm) params.append("search", searchTerm);
-        if (selectedCat) params.append("categoryId", selectedCat);
+        const params: any = {};
+        if (searchTerm) params.search = searchTerm;
+        if (selectedCat) params.categoryId = selectedCat;
 
-        const res = await api.get(`/meals?${params.toString()}`);
-        setMeals(res.data.data);
+        const mealsData = await mealService.getMeals(params);
+        setMeals(mealsData);
       } catch (error) {
-        console.error("Failed to fetch meals");
+        console.error("Failed to load meals:", error);
       } finally {
         setLoading(false);
       }
     };
     fetchMeals();
+
     // Refresh AOS once components are likely rendered
     setTimeout(() => {
       AOS.refresh();

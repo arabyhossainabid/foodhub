@@ -2,7 +2,7 @@
 
 import { LayoutDashboard, Utensils, ShoppingCart, Clock, ShoppingBag, Star } from "lucide-react";
 import { useEffect, useState } from "react";
-import api from "@/lib/axios";
+import { orderService } from "@/services/orderService";
 import { Order } from "@/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { formatCurrency, cn } from "@/lib/utils";
@@ -33,10 +33,12 @@ export default function ProviderOrdersPage() {
   const fetchOrders = async () => {
     setLoading(true);
     try {
-      const res = await api.get("/provider/orders");
-      setOrders(res.data.data);
+      // Use our professional order service to fetch provider-specific orders
+      const ordersData = await orderService.getProviderOrders();
+      setOrders(ordersData);
     } catch (error) {
-      toast.error("Failed to load your orders");
+      console.error("Orders load failed:", error);
+      toast.error("Failed to load your orders. Please refresh.");
     } finally {
       setLoading(false);
     }
@@ -48,11 +50,13 @@ export default function ProviderOrdersPage() {
 
   const updateStatus = async (orderId: string, status: string) => {
     try {
-      await api.patch(`/provider/orders/${orderId}`, { status });
-      toast.success(`Order is now ${status}`);
+      // Professional status update using centralized service
+      await orderService.updateOrderStatus(orderId, status);
+      toast.success(`Success! Order status updated to ${status}.`);
       fetchOrders();
     } catch (error: any) {
-      toast.error("Failed to update status");
+      console.error("Status update failed:", error);
+      toast.error(error.response?.data?.message || "Failed to update status. Please try again.");
     }
   };
 

@@ -2,7 +2,7 @@
 
 import { LayoutDashboard, Utensils, ShoppingCart, Star, MessageSquare, User, Calendar } from "lucide-react";
 import { useEffect, useState } from "react";
-import api from "@/lib/axios";
+import { mealService } from "@/services/mealService";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
@@ -33,19 +33,18 @@ export default function ProviderReviewsPage() {
     const fetchReviews = async () => {
       setLoading(true);
       try {
-        // Fetch provider's meals first
-        const mealsRes = await api.get("/provider/meals");
-        const meals = mealsRes.data.data;
+        // Fetch provider's meals using our service
+        const meals = await mealService.getProviderMeals();
 
-        // Fetch reviews for each meal
+        // Fetch reviews for each meal using our service
         const reviewPromises = meals.map((meal: any) =>
-          api.get(`/reviews/meal/${meal.id}`).catch(() => ({ data: { data: [] } }))
+          mealService.getMealReviews(meal.id).catch(() => [])
         );
-        const reviewsResponses = await Promise.all(reviewPromises);
+        const reviewsDatas = await Promise.all(reviewPromises);
 
         // Combine all reviews with meal info
-        const allReviews = reviewsResponses.flatMap((res, idx) =>
-          res.data.data.map((review: any) => ({
+        const allReviews = reviewsDatas.flatMap((data, idx) =>
+          data.map((review: any) => ({
             ...review,
             meal: meals[idx],
           }))
@@ -69,7 +68,8 @@ export default function ProviderReviewsPage() {
           oneStars: allReviews.filter((r: any) => r.rating === 1).length,
         });
       } catch (error) {
-        toast.error("Failed to load reviews");
+        console.error("Provider reviews load failed:", error);
+        toast.error("Failed to load customer feedback. Please try again.");
       } finally {
         setLoading(false);
       }

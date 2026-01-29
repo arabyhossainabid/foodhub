@@ -2,7 +2,7 @@
 
 import { LayoutDashboard, Users, Grid, ShoppingBag, Star, Trash2, ShieldAlert, User as UserIcon, Calendar, MessageSquare } from "lucide-react";
 import { useEffect, useState } from "react";
-import api from "@/lib/axios";
+import { adminService } from "@/services/adminService";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { toast } from "react-hot-toast";
@@ -25,10 +25,12 @@ export default function AdminReviewsPage() {
   const fetchReviews = async () => {
     setLoading(true);
     try {
-      const res = await api.get("/admin/reviews");
-      setReviews(res.data.data);
+      // Use platform service for cross-system feedback management
+      const data = await adminService.reviews.getAll();
+      setReviews(data);
     } catch (error) {
-      toast.error("Failed to load platform reviews");
+      console.error("Global reviews load failed:", error);
+      toast.error("Failed to load platform-wide reviews.");
     } finally {
       setLoading(false);
     }
@@ -39,13 +41,15 @@ export default function AdminReviewsPage() {
   }, []);
 
   const handleDeleteReview = async (id: string) => {
-    if (!window.confirm("Are you sure you want to permanently delete this review?")) return;
+    if (!window.confirm("Are you sure you want to permanently delete this review? This action cannot be undone.")) return;
     try {
-      await api.delete(`/admin/reviews/${id}`);
-      toast.success("Review deleted successfully");
+      // Clean up reviews using professional admin service
+      await adminService.reviews.delete(id);
+      toast.success("Review deleted successfully.");
       fetchReviews();
-    } catch (error) {
-      toast.error("Failed to delete review");
+    } catch (error: any) {
+      console.error("Review deletion failed:", error);
+      toast.error(error.response?.data?.message || "Failed to delete review.");
     }
   };
 

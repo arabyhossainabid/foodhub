@@ -107,7 +107,7 @@ export function NewMealForm({
             </label>
             <Input
               name="image"
-              placeholder="https://example.com/image.jpg"
+              placeholder="e.g. /images/my-meal.jpg"
               value={formData.image}
               onChange={handleChange}
               className="h-12"

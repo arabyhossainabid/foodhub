@@ -1,8 +1,8 @@
 "use client";
 
-import { LayoutDashboard, Users, Grid, ShoppingBag, Search, Calendar, MapPin, User, ShieldAlert } from "lucide-react";
 import { useEffect, useState } from "react";
-import api from "@/lib/axios";
+import { LayoutDashboard, Users, Grid, ShoppingBag, Search, Calendar, MapPin, User, ShieldAlert } from "lucide-react";
+import { adminService } from "@/services/adminService";
 import { Order } from "@/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -37,10 +37,12 @@ export default function AdminOrdersPage() {
   const fetchOrders = async () => {
     setLoading(true);
     try {
-      const res = await api.get("/admin/orders");
-      setOrders(res.data.data);
+      // Monitor every transaction across the ecosystem
+      const ordersData = await adminService.getAllOrders();
+      setOrders(ordersData);
     } catch (error) {
-      toast.error("Failed to load platform orders");
+      console.error("Global order audit failed:", error);
+      toast.error("Failed to load platform transaction records.");
     } finally {
       setLoading(false);
     }
@@ -50,7 +52,7 @@ export default function AdminOrdersPage() {
     fetchOrders();
   }, []);
 
-  const filteredOrders = orders.filter(o => {
+  const filteredOrders = orders.filter((o: Order) => {
     const matchesSearch = o.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
       o.user?.name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === "ALL" || o.status === statusFilter;
@@ -92,7 +94,7 @@ export default function AdminOrdersPage() {
     >
       <div className="space-y-6">
         {filteredOrders.length > 0 ? (
-          filteredOrders.map((order, idx) => (
+          filteredOrders.map((order: Order, idx: number) => (
             <motion.div
               key={order.id}
               initial={{ opacity: 0, y: 10 }}

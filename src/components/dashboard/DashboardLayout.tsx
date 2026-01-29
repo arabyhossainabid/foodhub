@@ -44,7 +44,7 @@ export function DashboardLayout({ children, items }: { children: React.ReactNode
       {/* Sidebar Overlay for Mobile */}
       {isSidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/60 z-[110] lg:hidden backdrop-blur-md"
+          className="fixed inset-0 bg-black/60 z-20 lg:hidden backdrop-blur-md"
           onClick={() => setIsSidebarOpen(false)}
         />
       )}
@@ -54,7 +54,7 @@ export function DashboardLayout({ children, items }: { children: React.ReactNode
         "w-80 bg-white border-r border-gray-100 flex flex-col fixed lg:sticky transition-transform duration-500 ease-in-out",
         "h-screen lg:h-[calc(100vh-80px)]",
         "top-0 lg:top-20",
-        "z-[120] lg:z-10", // High z-index on mobile drawer, low on desktop
+        "z-20 lg:z-10",
         isSidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
       )}>
         <div className="flex items-center justify-between p-8 border-b border-gray-50 lg:hidden">

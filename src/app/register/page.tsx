@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
-import api from "@/lib/axios";
+import { authService } from "@/services/authService";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
@@ -57,6 +57,7 @@ export default function RegisterPage() {
   const onSubmit = async (data: RegisterFormValues) => {
     setIsLoading(true);
     try {
+      // Cleanly structure the registration payload
       const payload = {
         name: data.name,
         email: data.email,
@@ -65,14 +66,18 @@ export default function RegisterPage() {
         ...(data.role === "PROVIDER" ? {
           shopName: data.shopName,
           address: data.address,
+          cuisine: data.cuisine,
         } : {})
       };
 
-      await api.post("/auth/register", payload);
-      toast.success("Account created successfully! Please login.");
+      // Call our centralized auth service
+      await authService.register(payload);
+
+      toast.success("Account created successfully! Welcome to FoodHub.");
       router.push("/login");
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Registration failed");
+      const errorMsg = error.response?.data?.message || "Registration failed. Please try again.";
+      toast.error(errorMsg);
     } finally {
       setIsLoading(false);
     }

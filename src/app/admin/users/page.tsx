@@ -2,7 +2,7 @@
 
 import { Search, ShieldAlert, ShieldCheck, Mail, User as UserIcon, Users, LayoutDashboard, Grid, ShoppingBag } from "lucide-react";
 import { useEffect, useState } from "react";
-import api from "@/lib/axios";
+import { adminService } from "@/services/adminService";
 import { User } from "@/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -28,10 +28,12 @@ export default function AdminUsersPage() {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      const res = await api.get("/admin/users");
-      setUsers(res.data.data);
+      // Use our platform service to fetch the user directory
+      const usersData = await adminService.getAllUsers();
+      setUsers(usersData);
     } catch (error) {
-      toast.error("Failed to load users");
+      console.error("Global user list load failed:", error);
+      toast.error("Failed to load system users. Please check your admin privileges.");
     } finally {
       setLoading(false);
     }
@@ -43,11 +45,14 @@ export default function AdminUsersPage() {
 
   const toggleStatus = async (userId: string, currentStatus: boolean) => {
     try {
-      await api.patch(`/admin/users/${userId}`, { isActive: !currentStatus });
-      toast.success(currentStatus ? "User suspended" : "User activated");
+      // High-level access management using admin service
+      await adminService.updateUserStatus(userId, !currentStatus);
+      const actionLabel = currentStatus ? "Suspended" : "Activated";
+      toast.success(`User access successfully ${actionLabel}.`);
       fetchUsers();
-    } catch (error) {
-      toast.error("Failed to update user status");
+    } catch (error: any) {
+      console.error("User status update failed:", error);
+      toast.error(error.response?.data?.message || "Failed to modify user access.");
     }
   };
 

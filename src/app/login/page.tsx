@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
-import api from "@/lib/axios";
+import { authService } from "@/services/authService";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
 import { FullPageLoader } from "@/components/shared/FullPageLoader";
@@ -31,11 +31,12 @@ export default function LoginPage() {
   const onSubmit = async (data: LoginFormValues) => {
     setIsLoading(true);
     try {
-      const response = await api.post("/auth/login", data);
+      const response = await authService.login(data);
       const { token, user } = response.data.data;
+
       login(token, user);
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Login failed");
+      toast.error(error.response?.data?.message || "Login failed. Please check your credentials.");
     } finally {
       setIsLoading(false);
     }

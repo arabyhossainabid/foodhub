@@ -2,7 +2,9 @@
 
 import { LayoutDashboard, Utensils, ShoppingCart, Star, Clock, ArrowUpRight, ArrowDownRight, Package } from "lucide-react";
 import { useEffect, useState } from "react";
-import api from "@/lib/axios";
+import { mealService } from "@/services/mealService";
+import { orderService } from "@/services/orderService";
+import api from "@/lib/axios"; // Kept for reviews if no service yet
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatCurrency } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
@@ -45,17 +47,17 @@ function ProviderDashboardContent() {
     const fetchStats = async () => {
       setIsLoading(true);
       try {
-        const [mealsRes, ordersRes] = await Promise.all([
-          api.get("/provider/meals"),
-          api.get("/provider/orders")
+        // Fetch meals and orders using our professional services
+        const [meals, orders] = await Promise.all([
+          mealService.getProviderMeals(),
+          orderService.getProviderOrders()
         ]);
 
-        const meals = mealsRes.data.data;
-        const orders = ordersRes.data.data;
-
+        // Fetching reviews for all meals to calculate stats
         const reviewPromises = meals.map((meal: any) =>
           api.get(`/reviews/meal/${meal.id}`).catch(() => ({ data: { data: [] } }))
         );
+
         const reviewsResponses = await Promise.all(reviewPromises);
         const allReviews = reviewsResponses.flatMap((res) => res.data.data);
 
@@ -64,11 +66,16 @@ function ProviderDashboardContent() {
           ? allReviews.reduce((acc: number, r: any) => acc + r.rating, 0) / totalReviews
           : 0;
 
+        // Calculate earnings from delivered orders only
+        const totalEarnings = orders.reduce((acc: number, o: any) =>
+          o.status === 'DELIVERED' ? acc + Number(o.totalAmount) : acc, 0
+        );
+
         setStats({
           totalMeals: meals.length,
           totalOrders: orders.length,
           averageRating,
-          earnings: orders.reduce((acc: number, o: any) => o.status === 'DELIVERED' ? acc + Number(o.totalAmount) : acc, 0),
+          earnings: totalEarnings,
           totalReviews,
           fiveStars: allReviews.filter((r: any) => r.rating === 5).length,
           fourStars: allReviews.filter((r: any) => r.rating === 4).length,
@@ -76,6 +83,8 @@ function ProviderDashboardContent() {
           twoStars: allReviews.filter((r: any) => r.rating === 2).length,
           oneStars: allReviews.filter((r: any) => r.rating === 1).length,
         });
+      } catch (error) {
+        console.error("Dashboard statistics loading failed:", error);
       } finally {
         setIsLoading(false);
       }

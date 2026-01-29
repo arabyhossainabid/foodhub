@@ -1,7 +1,8 @@
 "use client";
 
 import { LayoutDashboard, Users, Grid, UserPlus, Package, DollarSign, ShoppingBag, ShieldAlert, TrendingUp } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { adminService } from "@/services/adminService";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatCurrency } from "@/lib/utils";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
@@ -24,19 +25,31 @@ export default function AdminDashboard() {
 }
 
 function AdminDashboardContent() {
-  const [stats] = useState<any>({
-    totalRevenue: 0,
-    totalOrders: 0,
-    activeUsersCount: 0,
-    providersCount: 0,
-  });
+  const [stats, setStats] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchAdminStats = async () => {
+      setLoading(true);
+      try {
+        // Fetch platform-wide statistics using our professional admin service
+        const data = await adminService.getStats();
+        setStats(data);
+      } catch (error) {
+        console.error("System statistics fetch failed:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAdminStats();
+  }, []);
 
   return (
     <ManagementPage
       title="Admin Control"
       description="Global overview and system-wide management."
       items={adminNavItems}
-      loading={false}
+      loading={loading}
     >
       <div className="space-y-10">
         {/* Stats Grid */}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, use } from "react";
-import api from "@/lib/axios";
+import { orderService } from "@/services/orderService";
 import { Order } from "@/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -39,11 +39,14 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
 
   useEffect(() => {
     const fetchOrder = async () => {
+      setLoading(true);
       try {
-        const res = await api.get(`/orders/${id}`);
-        setOrder(res.data.data);
+        // Fetch granular order details using our professional service
+        const orderData = await orderService.getOrderDetails(id);
+        setOrder(orderData);
       } catch (error) {
-        toast.error("Failed to load order details");
+        console.error("Order details fetch failed:", error);
+        toast.error("Failed to load order journey. Please try again.");
       } finally {
         setLoading(false);
       }

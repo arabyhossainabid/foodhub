@@ -76,9 +76,9 @@ export default function MealDetailsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
         {/* Left: Image */}
         <div className="space-y-6">
-          <div className="aspect-square rounded-[3rem] overflow-hidden shadow-2xl shadow-gray-200/50 relative">
+          <div className="aspect-square rounded-3xl overflow-hidden shadow-2xl shadow-gray-200/50 relative">
             <img
-              src={meal.image || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=1760&auto=format&fit=crop"}
+              src={meal.image || "/default-meal.jpg"}
               className="w-full h-full object-cover"
               alt={meal.title}
             />
@@ -92,7 +92,7 @@ export default function MealDetailsPage() {
           <div className="grid grid-cols-3 gap-4">
             {[1, 2, 3].map(i => (
               <div key={i} className="aspect-square rounded-md bg-gray-100 overflow-hidden cursor-pointer hover:ring-4 ring-orange-500 transition-all">
-                <img src={meal.image || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=1760&auto=format&fit=crop"} className="w-full h-full object-cover opacity-50" alt="Thumbnail" />
+                <img src={meal.image || "/default-meal.jpg"} className="w-full h-full object-cover opacity-50" alt="Thumbnail" />
               </div>
             ))}
           </div>
@@ -101,7 +101,7 @@ export default function MealDetailsPage() {
         {/* Right: Info */}
         <div className="space-y-10">
           <div className="space-y-4">
-            <span className="text-xs font-black uppercase tracking-[0.3em] text-orange-500">{meal.category?.name || "Delicious Meal"}</span>
+            <span className="text-xs font-black uppercase tracking-widest text-orange-500">{meal.category?.name || "Delicious Meal"}</span>
             <h1 className="text-5xl md:text-6xl font-black text-gray-900 leading-tight">{meal.title}</h1>
             <div className="flex items-center space-x-6">
               <div className="flex items-center text-orange-500 bg-orange-50 px-3 py-1.5 rounded-md font-bold">
@@ -138,7 +138,7 @@ export default function MealDetailsPage() {
                 <Utensils size={28} />
               </div>
               <div>
-                <p className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Provided By</p>
+                <p className="text-xs font-black uppercase text-gray-400 tracking-widest">Provided By</p>
                 <Link href={`/providers/${meal.providerId}`}>
                   <p className="text-xl font-bold text-gray-900 hover:text-orange-500 transition-colors">{meal.provider?.shopName || meal.provider?.user.name || "FoodHub Kitchen"}</p>
                 </Link>
@@ -178,7 +178,7 @@ export default function MealDetailsPage() {
                       </div>
                       <div>
                         <p className="font-bold text-gray-900">{review.user?.name}</p>
-                        <p className="text-[10px] font-black uppercase text-gray-400 tracking-[0.2em]">{new Date(review.createdAt).toLocaleDateString()}</p>
+                        <p className="text-xs font-black uppercase text-gray-400 tracking-widest">{new Date(review.createdAt).toLocaleDateString()}</p>
                       </div>
                     </div>
                     <div className="flex items-center text-orange-500">
@@ -193,7 +193,7 @@ export default function MealDetailsPage() {
             ))}
           </div>
         ) : (
-          <div className="py-24 text-center bg-gray-50 rounded-[3rem] border border-dashed border-gray-200">
+          <div className="py-24 text-center bg-gray-50 rounded-3xl border border-dashed border-gray-200">
             <Star size={48} className="mx-auto text-gray-200 mb-4" />
             <h3 className="text-2xl font-bold text-gray-900">No reviews yet</h3>
             <p className="text-gray-400">Be the first to order and leave a review!</p>

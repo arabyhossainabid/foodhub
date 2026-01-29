@@ -2,13 +2,13 @@
 
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
+import { orderService } from "@/services/orderService";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { formatCurrency } from "@/lib/utils";
 import { MapPin, ShoppingBag, ArrowLeft, ShieldCheck, CreditCard } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import api from "@/lib/axios";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
@@ -36,35 +36,41 @@ function CheckoutPageContent() {
   }, [cart, router]);
 
   const handlePlaceOrder = async () => {
+    // Basic validation
     if (!user) {
-      toast.error("Please login to place an order");
+      toast.error("Authentication required. Please login.");
       router.push("/login");
       return;
     }
 
-    if (!address.trim()) {
-      toast.error("Please provide a delivery address");
+    if (!address.trim() || address.length < 10) {
+      toast.error("Please provide a complete delivery address (min 10 chars).");
       return;
     }
 
     setIsLoading(true);
+
     try {
+      // Map cart items to the format expected by the API
       const orderItems = cart.map(item => ({
         mealId: item.id,
         quantity: item.quantity,
         price: item.price
       }));
 
-      await api.post("/orders", {
-        address,
-        items: orderItems
+      // Use our centralized order service for the API call
+      await orderService.createOrder({
+        address: address.trim(),
+        orderItems: orderItems // Correct field name usually matches backend schema
       });
 
-      toast.success("Order placed successfully!");
+      toast.success("Hooray! Your order has been placed.");
       clearCart();
       router.push("/orders/success");
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Checkout failed");
+      console.error("Checkout process failed:", error);
+      const errorMessage = error.response?.data?.message || "Something went wrong during checkout. Please try again.";
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }

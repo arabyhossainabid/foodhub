@@ -19,7 +19,7 @@ export function MealCard({ meal }: MealCardProps) {
     <Card className="group overflow-hidden border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 bg-white">
       <div className="relative h-56 overflow-hidden">
         <img
-          src={meal.image || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=1760&auto=format&fit=crop"}
+          src={meal.image || "/default-meal.jpg"}
           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
           alt={meal.title}
         />

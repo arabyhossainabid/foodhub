@@ -2,8 +2,8 @@
 
 import { LayoutDashboard, Utensils, ShoppingCart, Plus, Edit, Trash2, ImageOff, ChefHat, Star } from "lucide-react";
 import { useEffect, useState } from "react";
-import api from "@/lib/axios";
 import { Category, Meal } from "@/types";
+import { mealService } from "@/services/mealService";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { formatCurrency, cn } from "@/lib/utils";
@@ -29,14 +29,17 @@ export default function ProviderMenuPage() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [mealsRes, catRes] = await Promise.all([
-        api.get("/provider/meals"),
-        api.get("/categories")
+      // Use our professional meal service to fetch categorized data
+      const [mealsData, categoriesData] = await Promise.all([
+        mealService.getProviderMeals(),
+        mealService.getCategories()
       ]);
-      setMeals(mealsRes.data.data);
-      setCategories(catRes.data.data);
+
+      setMeals(mealsData);
+      setCategories(categoriesData);
     } catch (error) {
-      toast.error("Failed to load your menu");
+      console.error("Menu data fetch failed:", error);
+      toast.error("Failed to load your menu. Please refresh.");
     } finally {
       setLoading(false);
     }
@@ -50,30 +53,35 @@ export default function ProviderMenuPage() {
     setIsSubmitting(true);
     try {
       if (editingMeal) {
-        await api.put(`/provider/meals/${editingMeal.id}`, data);
-        toast.success("Masterpiece updated successfully");
+        // Update existing masterpiece
+        await mealService.updateMeal(editingMeal.id, data);
+        toast.success(`"${data.title}" updated successfully!`);
       } else {
-        await api.post("/provider/meals", data);
-        toast.success("New dish added to your menu");
+        // Create new culinary delight
+        await mealService.createMeal(data);
+        toast.success(`"${data.title}" added to your menu!`);
       }
       setIsFormOpen(false);
       setEditingMeal(null);
       fetchData();
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Operation failed");
+      console.error("Meal operation failed:", error);
+      toast.error(error.response?.data?.message || "Operation failed. Please check your inputs.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!window.confirm("Are you sure you want to remove this dish?")) return;
+    if (!window.confirm("Are you sure you want to remove this dish from your menu?")) return;
+
     try {
-      await api.delete(`/provider/meals/${id}`);
-      toast.success("Meal removed from menu");
+      await mealService.deleteMeal(id);
+      toast.success("Meal removed successfully.");
       fetchData();
     } catch (error: any) {
-      toast.error("Failed to delete meal");
+      console.error("Delete operation failed:", error);
+      toast.error("Failed to delete meal. It might be linked to active orders.");
     }
   };
 
