@@ -45,7 +45,7 @@ export default function HomePage() {
 
   return (
     <div className="flex flex-col pb-32">
-      <section className="relative h-[70vh] min-h-[40rem] flex items-center overflow-hidden">
+      <section className="relative h-[70vh] min-h-10/12 flex items-center overflow-hidden">
         <div className="absolute inset-0 z-0">
           <Image
             src="/foodhub_banner.png"
