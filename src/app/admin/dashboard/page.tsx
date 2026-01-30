@@ -57,6 +57,7 @@ function AdminDashboardContent() {
       try {
         // Fetch platform-wide statistics using our professional admin service
         const data = await adminService.getStats();
+        console.log('Admin stats received:', data);
         setStats(data);
       } catch (error) {
         console.error('System statistics fetch failed:', error);
@@ -86,13 +87,23 @@ function AdminDashboardContent() {
             },
             {
               title: 'Active Users',
-              value: stats?.activeUsersCount || 0,
+              value:
+                stats?.activeUsersCount ||
+                stats?.activeUsers ||
+                stats?.usersCount ||
+                stats?.totalUsers ||
+                0,
               icon: <UserPlus className='text-orange-500' />,
               color: 'border-orange-500',
             },
             {
               title: 'Active Providers',
-              value: stats?.providersCount || 0,
+              value:
+                stats?.providersCount ||
+                stats?.activeProviders ||
+                stats?.activeProvidersCount ||
+                stats?.totalProviders ||
+                0,
               icon: <TrendingUp className='text-blue-500' />,
               color: 'border-blue-500',
             },
