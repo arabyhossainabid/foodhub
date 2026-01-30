@@ -1,14 +1,14 @@
-import api from "@/lib/axios";
-import { Meal, Category } from "@/types";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import api from '@/lib/axios';
 
 export const mealService = {
   getCategories: async () => {
-    const response = await api.get("/categories");
+    const response = await api.get('/categories');
     return response.data.data;
   },
 
   getMeals: async (params?: any) => {
-    const response = await api.get("/meals", { params });
+    const response = await api.get('/meals', { params });
     return response.data.data;
   },
 
@@ -18,24 +18,22 @@ export const mealService = {
   },
 
   getProviderMeals: async () => {
-    const response = await api.get("/provider/meals");
+    const response = await api.get('/provider/meals');
     return response.data.data;
   },
 
   createMeal: async (data: any) => {
-    return api.post("/provider/meals", data);
+    const response = await api.post('/provider/meals', data);
+    return response.data;
   },
 
   updateMeal: async (id: string, data: any) => {
-    return api.put(`/provider/meals/${id}`, data);
+    const response = await api.put(`/provider/meals/${id}`, data);
+    return response.data;
   },
 
   deleteMeal: async (id: string) => {
-    return api.delete(`/provider/meals/${id}`);
+    const response = await api.delete(`/provider/meals/${id}`);
+    return response.data;
   },
-
-  getMealReviews: async (mealId: string) => {
-    const response = await api.get(`/reviews/meal/${mealId}`);
-    return response.data.data;
-  }
 };
