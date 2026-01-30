@@ -81,7 +81,10 @@ function AdminCategoriesContent() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const normalizedName = catName.trim();
-    if (!normalizedName) return;
+    if (!normalizedName) {
+      toast.error('Please enter a category name');
+      return;
+    }
 
     setIsSubmitting(true);
     try {
@@ -91,7 +94,6 @@ function AdminCategoriesContent() {
         toast.success(`Category "${normalizedName}" updated!`);
       } else {
         await adminService.categories.create(normalizedName);
-
         toast.success(`Category "${normalizedName}" created!`);
       }
 
@@ -101,10 +103,18 @@ function AdminCategoriesContent() {
       fetchCategories();
     } catch (error: any) {
       console.error('Category operation failed:', error);
-      toast.error(
+      console.error('Error response:', error.response);
+      console.error('Error data:', error.response?.data);
+
+      const errorMessage =
         error.response?.data?.message ||
-          'Operation failed. Category name might already exist.'
-      );
+        error.response?.data?.error ||
+        error.userMessage ||
+        (error.code === 'ERR_NETWORK'
+          ? 'Cannot connect to server. Please check if backend is running.'
+          : 'Operation failed. Category name might already exist.');
+
+      toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
