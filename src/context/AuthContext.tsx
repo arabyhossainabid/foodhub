@@ -1,10 +1,13 @@
-"use client";
+/* eslint-disable react-hooks/exhaustive-deps */
 
-import React, { createContext, useContext, useState, useEffect } from "react";
-import { User } from "@/types";
-import { authService } from "@/services/authService";
-import { useRouter } from "next/navigation";
-import { toast } from "react-hot-toast";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+'use client';
+
+import { authService } from '@/services/authService';
+import { User } from '@/types';
+import { useRouter } from 'next/navigation';
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { toast } from 'react-hot-toast';
 
 interface AuthContextType {
   user: User | null;
@@ -24,8 +27,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     const fetchProfile = async () => {
-      const storedToken = localStorage.getItem("token");
-      const storedUser = localStorage.getItem("user");
+      const storedToken = localStorage.getItem('token');
+      const storedUser = localStorage.getItem('user');
 
       if (storedToken) {
         try {
@@ -41,10 +44,26 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
           setUser(freshUser);
           setToken(storedToken);
-          localStorage.setItem("user", JSON.stringify(freshUser));
+          localStorage.setItem('user', JSON.stringify(freshUser));
         } catch (error: any) {
-          console.error("Session verification failed:", error);
-          if (error.response?.status === 401 || error.response?.status === 403) {
+          console.error('Session verification failed:', error);
+
+          if (
+            error.code === 'ERR_NETWORK' ||
+            error.message === 'Network Error'
+          ) {
+            console.warn('Network unavailable. Using cached user data.');
+            // Keep the cached user data and continue
+            if (storedUser) {
+              const parsedUser = JSON.parse(storedUser);
+              setUser(parsedUser);
+              setToken(storedToken);
+            }
+          } else if (
+            error.response?.status === 401 ||
+            error.response?.status === 403
+          ) {
+            // Only logout on authentication errors, not network errors
             logout();
           }
         }
@@ -57,12 +76,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const login = (newToken: string, newUser: User) => {
     setToken(newToken);
     setUser(newUser);
-    localStorage.setItem("token", newToken);
-    localStorage.setItem("user", JSON.stringify(newUser));
+    localStorage.setItem('token', newToken);
+    localStorage.setItem('user', JSON.stringify(newUser));
 
-    if (newUser.role === "ADMIN") router.push("/admin/dashboard");
-    else if (newUser.role === "PROVIDER") router.push("/provider/dashboard");
-    else router.push("/");
+    if (newUser.role === 'ADMIN') router.push('/admin/dashboard');
+    else if (newUser.role === 'PROVIDER') router.push('/provider/dashboard');
+    else router.push('/');
 
     toast.success(`Welcome back, ${newUser.name}!`);
   };
@@ -70,10 +89,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const logout = () => {
     setToken(null);
     setUser(null);
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    router.push("/login");
-    toast.success("Logged out successfully");
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    router.push('/login');
+    toast.success('Logged out successfully');
   };
 
   return (
@@ -86,7 +105,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider");
+    throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
 };
