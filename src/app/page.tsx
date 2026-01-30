@@ -37,6 +37,9 @@ export default function HomePage() {
         setFeaturedMeals(mealsData);
       } catch (error) {
         console.error('Failed to fetch home data:', error);
+        // Gracefully handle API errors - show empty state instead of crashing
+        setCategories([]);
+        setFeaturedMeals([]);
       } finally {
         setIsLoading(false);
       }
