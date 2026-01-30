@@ -12,7 +12,8 @@ export const adminService = {
   },
 
   updateUserStatus: async (id: string, isActive: boolean) => {
-    return api.patch(`/admin/users/${id}`, { isActive });
+    const response = await api.patch(`/admin/users/${id}`, { isActive });
+    return response.data;
   },
   getAllOrders: async () => {
     const response = await api.get('/admin/orders');
@@ -40,7 +41,8 @@ export const adminService = {
       return response.data.data;
     },
     delete: async (id: string) => {
-      return api.delete(`/admin/reviews/${id}`);
+      const response = await api.delete(`/admin/reviews/${id}`);
+      return response.data;
     },
   },
 };
