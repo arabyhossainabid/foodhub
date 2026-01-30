@@ -22,15 +22,15 @@ export const adminService = {
 
   categories: {
     create: async (name: string) => {
-      const response = await api.post('/categories', { name });
+      const response = await api.post('/admin/categories', { name });
       return response.data;
     },
     update: async (id: string, name: string) => {
-      const response = await api.put(`/categories/${id}`, { name });
+      const response = await api.put(`/admin/categories/${id}`, { name });
       return response.data;
     },
     delete: async (id: string) => {
-      const response = await api.delete(`/categories/${id}`);
+      const response = await api.delete(`/admin/categories/${id}`);
       return response.data;
     },
   },
