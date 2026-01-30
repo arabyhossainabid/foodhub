@@ -1,12 +1,14 @@
-import api from "@/lib/axios";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import api from '@/lib/axios';
 
 export const orderService = {
   createOrder: async (orderData: any) => {
-    return api.post("/orders", orderData);
+    const response = await api.post('/orders', orderData);
+    return response.data;
   },
 
   getMyOrders: async () => {
-    const response = await api.get("/orders");
+    const response = await api.get('/orders');
     return response.data.data;
   },
 
@@ -16,11 +18,12 @@ export const orderService = {
   },
 
   getProviderOrders: async () => {
-    const response = await api.get("/provider/orders");
+    const response = await api.get('/provider/orders');
     return response.data.data;
   },
 
   updateOrderStatus: async (id: string, status: string) => {
-    return api.patch(`/provider/orders/${id}`, { status });
-  }
+    const response = await api.patch(`/provider/orders/${id}`, { status });
+    return response.data;
+  },
 };
