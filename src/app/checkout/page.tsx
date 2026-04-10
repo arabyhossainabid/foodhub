@@ -8,9 +8,11 @@ import { useAuth } from '@/context/AuthContext';
 import { useCart } from '@/context/CartContext';
 import { formatCurrency } from '@/lib/utils';
 import { orderService } from '@/services/orderService';
+import { metaService } from '@/services/metaService';
+import { paymentService } from '@/services/paymentService';
 import { ArrowLeft, CreditCard, MapPin, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
 
@@ -26,14 +28,43 @@ function CheckoutPageContent() {
   const { cart, totalPrice, clearCart } = useCart();
   const { user } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [address, setAddress] = useState('');
+  const [offerCode, setOfferCode] = useState('');
+  const [applyingOffer, setApplyingOffer] = useState(false);
+  const [appliedOffer, setAppliedOffer] = useState<{
+    code: string;
+    discountAmount: number;
+    finalTotal: number;
+  } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<'COD' | 'STRIPE'>('COD');
 
   useEffect(() => {
     if (cart.length === 0) {
       router.push('/meals');
     }
   }, [cart, router]);
+
+  useEffect(() => {
+    const code = searchParams.get('offerCode');
+    if (!code || cart.length === 0) return;
+
+    const applyFromQuery = async () => {
+      try {
+        const result = await metaService.validateOfferCode(code, totalPrice);
+        setOfferCode(result.code);
+        setAppliedOffer({
+          code: result.code,
+          discountAmount: result.discountAmount,
+          finalTotal: result.finalTotal,
+        });
+      } catch {
+        setAppliedOffer(null);
+      }
+    };
+    applyFromQuery();
+  }, [searchParams, totalPrice, cart.length]);
 
   const handlePlaceOrder = async () => {
     // Basic validation
@@ -59,10 +90,24 @@ function CheckoutPageContent() {
       }));
 
       // Use our centralized order service for the API call
-      await orderService.createOrder({
+      const created = await orderService.createOrder({
         address: address.trim(),
         items: items, // Backend expects 'items' field
+        offerCode: appliedOffer?.code,
       });
+
+      if (paymentMethod === 'STRIPE') {
+        const orderId = created?.data?.id;
+        if (!orderId) {
+          throw new Error('Order ID missing for payment');
+        }
+        const session = await paymentService.createCheckoutSession(orderId);
+        if (!session?.url) {
+          throw new Error('Stripe checkout URL not found');
+        }
+        window.location.href = session.url;
+        return;
+      }
 
       toast.success('Hooray! Your order has been placed.');
       clearCart();
@@ -79,8 +124,33 @@ function CheckoutPageContent() {
     }
   };
 
+  const handleApplyOffer = async () => {
+    const code = offerCode.trim().toUpperCase();
+    if (!code) {
+      toast.error('Enter an offer code first');
+      return;
+    }
+    setApplyingOffer(true);
+    try {
+      const result = await metaService.validateOfferCode(code, totalPrice);
+      setAppliedOffer({
+        code: result.code,
+        discountAmount: result.discountAmount,
+        finalTotal: result.finalTotal,
+      });
+      toast.success(`Offer ${result.code} applied`);
+    } catch (error: any) {
+      setAppliedOffer(null);
+      toast.error(error?.response?.data?.message || 'Invalid offer code');
+    } finally {
+      setApplyingOffer(false);
+    }
+  };
+
+  const payableTotal = appliedOffer ? appliedOffer.finalTotal : totalPrice;
+
   return (
-    <div className='container mx-auto px-4 py-12 max-w-6xl'>
+    <div className='container mx-auto px-4 pt-32 pb-16 max-w-6xl'>
       {isLoading && (
         <FullPageLoader message='Placing your order...' transparent />
       )}
@@ -130,17 +200,64 @@ function CheckoutPageContent() {
               </div>
               <h2 className='text-xl font-bold'>Payment Method</h2>
             </div>
-            <div className='p-4 bg-orange-50/50 rounded-md border border-orange-100 flex items-center justify-between'>
-              <div className='flex items-center space-x-4'>
-                <div className='h-4 w-4 rounded-full bg-orange-500'></div>
-                <span className='font-bold text-gray-900'>
-                  Cash on Delivery
+            <div className='space-y-3'>
+              <button
+                type='button'
+                onClick={() => setPaymentMethod('COD')}
+                className={`w-full p-4 rounded-md border flex items-center justify-between ${paymentMethod === 'COD' ? 'bg-orange-50 border-orange-300' : 'bg-gray-50 border-gray-200'}`}
+              >
+                <div className='flex items-center space-x-4'>
+                  <div className={`h-4 w-4 rounded-full ${paymentMethod === 'COD' ? 'bg-orange-500' : 'bg-gray-300'}`}></div>
+                  <span className='font-bold text-gray-900'>
+                    Cash on Delivery
+                  </span>
+                </div>
+                <span className='text-xs font-bold text-orange-500 uppercase tracking-wider'>
+                  COD
                 </span>
-              </div>
-              <span className='text-xs font-bold text-orange-500 uppercase tracking-wider'>
-                Default
-              </span>
+              </button>
+              <button
+                type='button'
+                onClick={() => setPaymentMethod('STRIPE')}
+                className={`w-full p-4 rounded-md border flex items-center justify-between ${paymentMethod === 'STRIPE' ? 'bg-orange-50 border-orange-300' : 'bg-gray-50 border-gray-200'}`}
+              >
+                <div className='flex items-center space-x-4'>
+                  <div className={`h-4 w-4 rounded-full ${paymentMethod === 'STRIPE' ? 'bg-orange-500' : 'bg-gray-300'}`}></div>
+                  <span className='font-bold text-gray-900'>
+                    Pay with Card (Stripe)
+                  </span>
+                </div>
+                <span className='text-xs font-bold text-orange-500 uppercase tracking-wider'>
+                  CARD
+                </span>
+              </button>
             </div>
+          </div>
+
+          <div className='bg-white p-8 rounded-md shadow-lg border border-gray-100 space-y-4'>
+            <h2 className='text-xl font-bold'>Coupon / Offer</h2>
+            <div className='flex gap-2'>
+              <input
+                placeholder='Enter offer code (e.g. SAVE20)'
+                className='flex-1 h-11 rounded-md border border-gray-200 px-3 text-sm font-semibold uppercase'
+                value={offerCode}
+                onChange={(e) => setOfferCode(e.target.value)}
+              />
+              <Button
+                variant='outline'
+                onClick={handleApplyOffer}
+                isLoading={applyingOffer}
+                className='h-11'
+              >
+                Apply
+              </Button>
+            </div>
+            {appliedOffer && (
+              <p className='text-sm font-bold text-green-600'>
+                {appliedOffer.code} applied, you saved{' '}
+                {formatCurrency(appliedOffer.discountAmount)}
+              </p>
+            )}
           </div>
         </div>
 
@@ -190,13 +307,21 @@ function CheckoutPageContent() {
                   <span>Delivery</span>
                   <span className='text-green-600 font-bold'>FREE</span>
                 </div>
+                {appliedOffer && (
+                  <div className='flex justify-between text-sm text-gray-600'>
+                    <span>Discount ({appliedOffer.code})</span>
+                    <span className='text-green-600 font-bold'>
+                      -{formatCurrency(appliedOffer.discountAmount)}
+                    </span>
+                  </div>
+                )}
                 <div className='flex justify-between items-end pt-4'>
                   <div className='flex flex-col'>
                     <span className='text-xs text-gray-400 font-bold uppercase tracking-wider mb-1'>
                       Total Amount
                     </span>
                     <span className='text-3xl font-black text-orange-500'>
-                      {formatCurrency(totalPrice)}
+                      {formatCurrency(payableTotal)}
                     </span>
                   </div>
                 </div>
@@ -207,7 +332,7 @@ function CheckoutPageContent() {
                 onClick={handlePlaceOrder}
                 isLoading={isLoading}
               >
-                Place Secure Order
+                {paymentMethod === 'STRIPE' ? 'Continue to Card Payment' : 'Place Secure Order'}
               </Button>
             </Card>
 

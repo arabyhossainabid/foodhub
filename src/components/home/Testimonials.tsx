@@ -3,9 +3,10 @@
 import { Star, Quote } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { reviewService } from '@/services/reviewService';
+import { Review } from '@/types';
 
 export function Testimonials() {
-  const [testimonials, setTestimonials] = useState<any[]>([]);
+  const [testimonials, setTestimonials] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

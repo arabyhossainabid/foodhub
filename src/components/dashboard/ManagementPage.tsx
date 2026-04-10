@@ -1,14 +1,15 @@
 'use client';
-
 import { FullPageLoader } from '@/components/shared/FullPageLoader';
 import { cn } from '@/lib/utils';
 import React from 'react';
 import { DashboardLayout } from './DashboardLayout';
+import { useAuth } from '@/context/AuthContext';
+import { getNavigationForRole } from '@/constants/navigation';
 
 interface ManagementPageProps {
   title: string;
   description: string;
-  items: {
+  items?: {
     title: string;
     href: string;
     icon: React.ReactNode;
@@ -28,22 +29,27 @@ export function ManagementPage({
   action,
   className,
 }: ManagementPageProps) {
+  const { user } = useAuth();
+  const navItems = items || (user ? getNavigationForRole(user.role) : []);
+
   return (
-    <DashboardLayout items={items}>
-      <div className={cn('space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-700', className)}>
-        {/* Responsive Header Section */}
-        <div className='flex flex-col sm:flex-row justify-between items-start sm:items-end gap-8 pb-8 border-b border-gray-100'>
-          <div className='space-y-2'>
-            <div className="flex items-center gap-3 mb-2">
-               <div className="h-1.5 w-8 bg-orange-500 rounded-full"></div>
-               <span className="text-[10px] font-black uppercase text-gray-400 tracking-[0.4em]">Dashboard Console</span>
+    <DashboardLayout items={navItems}>
+      <div className={cn('space-y-12 animate-in fade-in slide-in-from-bottom-6 duration-1000', className)}>
+        {/* Premium Header Section */}
+        <div className='flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8 pb-8 border-b border-gray-100/50'>
+          <div className='space-y-4'>
+            <div className="flex items-center gap-4">
+               <div className="h-2 w-12 bg-orange-500 rounded-full shadow-glow"></div>
+               <span className="text-[10px] font-black uppercase text-gray-400 tracking-[0.4em]">Integrated Hub</span>
             </div>
-            <h1 className='text-3xl md:text-4xl font-black text-gray-950 tracking-tight leading-none'>
-               {title}
-            </h1>
-            <p className='text-sm font-medium text-gray-500 max-w-lg'>{description}</p>
+            <div>
+              <h1 className='text-4xl md:text-5xl font-black text-gray-950 tracking-tighter leading-none mb-3'>
+                 {title}
+              </h1>
+              <p className='text-sm font-medium text-gray-500 max-w-xl leading-relaxed'>{description}</p>
+            </div>
           </div>
-          {action && <div className='shrink-0'>{action}</div>}
+          {action && <div className='shrink-0 w-full lg:w-auto'>{action}</div>}
         </div>
 
         {/* Dynamic Content Buffer */}

@@ -14,8 +14,8 @@ import { useAuth } from '@/context/AuthContext';
 import { authService } from '@/services/authService';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-hot-toast';
 import * as z from 'zod';
@@ -26,7 +26,7 @@ const registerSchema = z
     name: z.string().min(2, 'Name must be at least 2 characters'),
     email: z.string().email('Invalid email address'),
     password: z.string().min(6, 'Password must be at least 6 characters'),
-    role: z.enum(['CUSTOMER', 'PROVIDER']),
+    role: z.enum(['CUSTOMER', 'PROVIDER', 'MANAGER', 'ORGANIZER']),
     shopName: z.string().optional(),
     address: z.string().optional(),
     cuisine: z.string().optional(),
@@ -48,8 +48,12 @@ type RegisterFormValues = z.infer<typeof registerSchema>;
 
 export default function RegisterPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const { user, loading } = useAuth();
+  const initialRole = (searchParams.get('role') as RegisterFormValues["role"]) || 'CUSTOMER';
+
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedRole, setSelectedRole] = useState<'CUSTOMER' | 'PROVIDER'>('CUSTOMER');
+  const [selectedRole, setSelectedRole] = useState<RegisterFormValues["role"]>(initialRole);
 
   const {
     register,
@@ -58,10 +62,12 @@ export default function RegisterPage() {
     setValue,
   } = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
-    defaultValues: { role: 'CUSTOMER' },
+    defaultValues: { role: initialRole },
   });
 
-  const handleRoleChange = (role: 'CUSTOMER' | 'PROVIDER') => {
+  const handleRoleChange = (
+    role: 'CUSTOMER' | 'PROVIDER' | 'MANAGER' | 'ORGANIZER'
+  ) => {
     setSelectedRole(role);
     setValue('role', role);
   };
@@ -76,12 +82,29 @@ export default function RegisterPage() {
       await authService.register(payload);
       toast.success('Account created! Please login.');
       router.push('/login');
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Registration failed');
+    } catch (error) {
+      const message =
+        (error as { userMessage?: string })?.userMessage || 'Registration failed';
+      toast.error(message);
     } finally {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (!loading && user) {
+      if (user.role === 'ADMIN') router.replace('/admin/dashboard');
+      else if (user.role === 'PROVIDER') router.replace('/provider/dashboard');
+      else if (user.role === 'MANAGER') router.replace('/dashboard/manager');
+      else if (user.role === 'ORGANIZER') router.replace('/dashboard/organizer');
+      else if (user.role === 'CUSTOMER') router.replace('/dashboard/customer');
+      else router.replace('/dashboard/customer');
+    }
+  }, [loading, user, router]);
+
+  if (loading || user) {
+    return <FullPageLoader transparent />;
+  }
 
   return (
     <div className='min-h-screen flex items-center justify-center bg-gray-50 pt-32 pb-20 px-4 relative overflow-hidden'>
@@ -100,26 +123,18 @@ export default function RegisterPage() {
           </div>
 
           <CardContent className='p-8 md:p-12 space-y-8'>
-            {/* Role Switcher */}
-            <div className='flex p-1.5 bg-gray-100 rounded-2xl'>
-              <button
-                type='button'
-                className={`flex-1 py-3 text-xs font-bold rounded-xl transition-all uppercase tracking-widest ${
-                  selectedRole === 'CUSTOMER' ? 'bg-white text-orange-500 shadow-sm' : 'text-gray-400 hover:text-gray-600'
-                }`}
-                onClick={() => handleRoleChange('CUSTOMER')}
+            <div className="space-y-2">
+              <label className="text-xs font-bold uppercase tracking-widest text-gray-500">Role</label>
+              <select
+                value={selectedRole}
+                onChange={(e) => handleRoleChange(e.target.value as RegisterFormValues["role"])}
+                className="w-full h-12 rounded-xl border border-gray-100 bg-gray-50 px-4 text-sm font-medium outline-none focus:border-orange-500"
               >
-                Customer
-              </button>
-              <button
-                type='button'
-                className={`flex-1 py-3 text-xs font-bold rounded-xl transition-all uppercase tracking-widest ${
-                  selectedRole === 'PROVIDER' ? 'bg-white text-orange-500 shadow-sm' : 'text-gray-400 hover:text-gray-600'
-                }`}
-                onClick={() => handleRoleChange('PROVIDER')}
-              >
-                Provider
-              </button>
+                <option value="CUSTOMER">Customer</option>
+                <option value="PROVIDER">Provider</option>
+                <option value="MANAGER">Manager</option>
+                <option value="ORGANIZER">Organizer</option>
+              </select>
             </div>
 
             <form onSubmit={handleSubmit(onSubmit)} className='space-y-5'>

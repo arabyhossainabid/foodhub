@@ -22,26 +22,6 @@ import {
 import { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
 
-const adminNavItems = [
-  {
-    title: 'Dashboard',
-    href: '/admin/dashboard',
-    icon: <LayoutDashboard size={20} />,
-  },
-  { title: 'User Management', href: '/admin/users', icon: <Users size={20} /> },
-  { title: 'Categories', href: '/admin/categories', icon: <Grid size={20} /> },
-  {
-    title: 'All Orders',
-    href: '/admin/orders',
-    icon: <ShoppingBag size={20} />,
-  },
-  {
-    title: 'Moderation',
-    href: '/admin/reviews',
-    icon: <ShieldAlert size={20} />,
-  },
-];
-
 const statusConfig = {
   PLACED: { color: 'bg-blue-100 text-blue-700', label: 'New Order' },
   PREPARING: { color: 'bg-orange-100 text-orange-700', label: 'In Kitchen' },
@@ -86,7 +66,6 @@ export default function AdminOrdersPage() {
     <ManagementPage
       title='Global Orders'
       description='Monitoring every transaction across the platform.'
-      items={adminNavItems}
       loading={loading}
       action={
         <div className='flex flex-col sm:flex-row gap-2 w-full md:w-auto'>

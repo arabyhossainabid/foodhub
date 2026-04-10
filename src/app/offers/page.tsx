@@ -1,21 +1,45 @@
 "use client";
 
-import { Ticket, Percent, Zap, Gift, Copy, CheckCircle2, ChevronRight } from "lucide-react";
+import { Ticket, Zap, Copy, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { toast } from "react-hot-toast";
+import { useEffect, useState } from "react";
+import { metaService } from "@/services/metaService";
+import Link from "next/link";
 
-const offers = [
-  { id: 1, title: 'Welcome FoodHub', code: 'WELCOME25', discount: '25% OFF', desc: 'Valid on your first order over $20.', type: 'VOUCHER' },
-  { id: 2, title: 'Summer Bites', code: 'SUMMER50', discount: '50% OFF', desc: 'Limited time summer delivery deal.', type: 'DEAL' },
-  { id: 3, title: 'Weekend Party', code: 'WEEKEND30', discount: '30% OFF', desc: 'Active on Friday and Saturday nights.', type: 'VOUCHER' },
-  { id: 4, title: 'Free Choice', code: 'DELIVERY0', discount: 'FREE DELIVERY', desc: 'Valid at selected premium restaurants.', type: 'SHIPPING' },
-];
+type OfferItem = {
+  id: string;
+  title: string;
+  description: string;
+  tag?: string;
+  code: string;
+  discountType: "PERCENTAGE" | "FIXED";
+  discountValue: number;
+};
 
 export default function OffersPage() {
-  const copyToClipboard = (code: string) => {
-    navigator.clipboard.writeText(code);
-    toast.success(`Code ${code} copied!`);
+  const [offers, setOffers] = useState<OfferItem[]>([]);
+
+  useEffect(() => {
+    const fetchOffers = async () => {
+      try {
+        const data = await metaService.getOffers();
+        setOffers(data || []);
+      } catch {
+        setOffers([]);
+      }
+    };
+    fetchOffers();
+  }, []);
+
+  const copyToClipboard = async (code: string) => {
+    try {
+      await navigator.clipboard.writeText(code);
+      toast.success(`Code ${code} copied!`);
+    } catch {
+      toast.error("Unable to copy code");
+    }
   };
 
   return (
@@ -36,7 +60,12 @@ export default function OffersPage() {
 
          {/* Grid */}
          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {offers.map((offer) => (
+            {offers.length === 0 ? (
+              <div className="md:col-span-2 p-10 rounded-3xl border border-dashed border-gray-200 text-center bg-white">
+                <p className="text-base font-semibold text-gray-700">No active offers available</p>
+                <p className="text-sm text-gray-500 mt-2">Admin can add offers from the Admin Offers page.</p>
+              </div>
+            ) : offers.map((offer) => (
               <Card key={offer.id} className="relative overflow-hidden group border-none shadow-xl bg-white rounded-3xl p-8 transition-all hover:-translate-y-1">
                  {/* Decorative Circle */}
                  <div className="absolute -top-10 -right-10 w-32 h-32 bg-orange-50 rounded-full group-hover:bg-orange-500 transition-colors duration-500"></div>
@@ -44,16 +73,20 @@ export default function OffersPage() {
                  <div className="relative z-10 flex flex-col h-full justify-between">
                     <div className="space-y-4">
                        <div className="flex justify-between items-center">
-                          <div className={`h-10 w-10 rounded-xl flex items-center justify-center ${offer.type === 'VOUCHER' ? 'bg-orange-100 text-orange-600' : 'bg-gray-100 text-gray-950'}`}>
-                             {offer.type === 'VOUCHER' ? <Ticket size={20} /> : offer.type === 'DEAL' ? <Percent size={20} /> : <Gift size={20} />}
+                          <div className="h-10 w-10 rounded-xl flex items-center justify-center bg-orange-100 text-orange-600">
+                             <Ticket size={20} />
                           </div>
-                          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{offer.type}</span>
+                          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{offer.tag || "OFFER"}</span>
                        </div>
                        
                        <div>
-                          <p className="text-2xl font-black text-orange-500 mb-1">{offer.discount}</p>
+                          <p className="text-2xl font-black text-orange-500 mb-1">
+                            {offer.discountType === "PERCENTAGE"
+                              ? `${offer.discountValue}% OFF`
+                              : `${offer.discountValue} OFF`}
+                          </p>
                           <h3 className="text-xl font-bold text-gray-900 group-hover:text-orange-500 transition-colors">{offer.title}</h3>
-                          <p className="text-gray-500 font-medium text-xs mt-2">{offer.desc}</p>
+                          <p className="text-gray-500 font-medium text-xs mt-2">{offer.description}</p>
                        </div>
                     </div>
 
@@ -64,9 +97,11 @@ export default function OffersPage() {
                              <Copy size={16} />
                           </button>
                        </div>
-                       <Button variant="ghost" className="text-sm font-bold text-gray-400 hover:text-gray-950 group/btn">
-                          Details <ChevronRight size={14} className="ml-1 group-hover/btn:translate-x-1 transition-transform" />
-                       </Button>
+                       <Link href="/meals">
+                         <Button variant="ghost" className="text-sm font-bold text-gray-400 hover:text-gray-950 group/btn">
+                            Explore <ChevronRight size={14} className="ml-1 group-hover/btn:translate-x-1 transition-transform" />
+                         </Button>
+                       </Link>
                     </div>
                  </div>
               </Card>

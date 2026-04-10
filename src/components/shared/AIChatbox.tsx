@@ -13,6 +13,8 @@ interface Message {
   timestamp: Date;
 }
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
+
 export function AIChatbox() {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState("");
@@ -47,33 +49,37 @@ export function AIChatbox() {
     setInput("");
     setIsTyping(true);
 
-    // Dynamic AI response simulation based on keywords
-    setTimeout(() => {
-      let aiResponse = "I'm analyzing the menu for you...";
-      const query = input.toLowerCase();
+    try {
+      const res = await fetch(`${API_URL}/ai/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: userMessage.content }),
+      });
 
-      if (query.includes("pizza")) {
-        aiResponse = "We have some amazing Italian wood-fired pizzas today! Check out the 'Margherita Special' from Chef Mario.";
-      } else if (query.includes("healthy") || query.includes("vegan")) {
-        aiResponse = "Looking for something healthy? Our 'Green Earth' category has freshly sourced vegan bowls and sprout salads.";
-      } else if (query.includes("delivery")) {
-        aiResponse = "Our average delivery time is currently 25 minutes. All orders are tracked in real-time.";
-      } else if (query.includes("offer") || query.includes("discount")) {
-        aiResponse = "You're in luck! Use code 'HUB25' for 25% off your next order over $30.";
-      } else {
-        aiResponse = "That sounds delicious! You can explore all our options in the 'Explore' tab or search for specific ingredients in our menu.";
+      const payload = await res.json();
+      if (!res.ok || !payload?.success) {
+        throw new Error(payload?.message || 'AI request failed');
       }
 
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'ai',
-        content: aiResponse,
-        timestamp: new Date()
+        content: payload.data,
+        timestamp: new Date(),
       };
 
-      setMessages(prev => [...prev, aiMessage]);
+      setMessages((prev) => [...prev, aiMessage]);
+    } catch (error: any) {
+      const fallbackMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: 'ai',
+        content: error?.message || 'I could not connect to the AI service right now. Please try again in a moment.',
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, fallbackMessage]);
+    } finally {
       setIsTyping(false);
-    }, 1500);
+    }
   };
 
   return (
@@ -154,7 +160,7 @@ export function AIChatbox() {
                 <input 
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSend()}
                   placeholder="Ask about recommendations..."
                   className="w-full pl-6 pr-14 py-4 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-bold focus:bg-white focus:ring-4 ring-orange-500/5 outline-none transition-all"
                 />

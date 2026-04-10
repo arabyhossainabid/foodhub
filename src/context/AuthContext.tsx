@@ -25,29 +25,37 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const parseCachedUser = (raw: string | null): User | null => {
+    if (!raw) return null;
+    try {
+      return JSON.parse(raw) as User;
+    } catch {
+      localStorage.removeItem('user');
+      return null;
+    }
+  };
 
   useEffect(() => {
     const fetchProfile = async () => {
       const storedToken = localStorage.getItem('token');
       const storedUser = localStorage.getItem('user');
+      const parsedStoredUser = parseCachedUser(storedUser);
 
       if (storedToken) {
         try {
-          if (storedUser) {
-            const parsedUser = JSON.parse(storedUser);
-            setUser(parsedUser);
+          if (parsedStoredUser) {
+            setUser(parsedStoredUser);
             setToken(storedToken);
             setLoading(false);
           }
 
-          const freshUserResponse = await authService.getProfile();
-          const freshUser = freshUserResponse.data.data;
+          const freshUser = await authService.getProfile();
 
           setUser(freshUser);
           setToken(storedToken);
           localStorage.setItem('user', JSON.stringify(freshUser));
         } catch (error: any) {
-          console.error('Session verification failed:', error);
+          console.warn('Session verification issue:', error?.userMessage || error?.message);
 
           if (
             error.code === 'ERR_NETWORK' ||
@@ -55,9 +63,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           ) {
             console.warn('Network unavailable. Using cached user data.');
             // Keep the cached user data and continue
-            if (storedUser) {
-              const parsedUser = JSON.parse(storedUser);
-              setUser(parsedUser);
+            if (parsedStoredUser) {
+              setUser(parsedStoredUser);
               setToken(storedToken);
             }
           } else if (
@@ -82,6 +89,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     if (newUser.role === 'ADMIN') router.push('/admin/dashboard');
     else if (newUser.role === 'PROVIDER') router.push('/provider/dashboard');
+    else if (newUser.role === 'MANAGER') router.push('/dashboard/manager');
+    else if (newUser.role === 'ORGANIZER') router.push('/dashboard/organizer');
+    else if (newUser.role === 'CUSTOMER') router.push('/dashboard/customer');
     else router.push('/dashboard/customer');
 
     toast.success(`Welcome back, ${newUser.name}!`);
@@ -98,12 +108,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const resyncUser = async () => {
     try {
-      const response = await authService.getProfile();
-      const freshUser = response.data.data;
+      const freshUser = await authService.getProfile();
       setUser(freshUser);
       localStorage.setItem('user', JSON.stringify(freshUser));
     } catch (error) {
-      console.error('Identity resync failed:', error);
+      console.warn('Identity resync failed');
       throw error;
     }
   };

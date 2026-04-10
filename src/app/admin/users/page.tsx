@@ -12,14 +12,6 @@ import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { ManagementPage } from "@/components/dashboard/ManagementPage";
 
-const adminNavItems = [
-  { title: "Dashboard", href: "/admin/dashboard", icon: <LayoutDashboard size={20} /> },
-  { title: "User Management", href: "/admin/users", icon: <Users size={20} /> },
-  { title: "Categories", href: "/admin/categories", icon: <Grid size={20} /> },
-  { title: "All Orders", href: "/admin/orders", icon: <ShoppingBag size={20} /> },
-  { title: "Moderation", href: "/admin/reviews", icon: <ShieldAlert size={20} /> },
-];
-
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
@@ -50,9 +42,12 @@ export default function AdminUsersPage() {
       const actionLabel = currentStatus ? "Suspended" : "Activated";
       toast.success(`User access successfully ${actionLabel}.`);
       fetchUsers();
-    } catch (error: any) {
+    } catch (error) {
+      const message =
+        (error as { userMessage?: string })?.userMessage ||
+        "Failed to modify user access.";
       console.error("User status update failed:", error);
-      toast.error(error.response?.data?.message || "Failed to modify user access.");
+      toast.error(message);
     }
   };
 
@@ -65,7 +60,6 @@ export default function AdminUsersPage() {
     <ManagementPage
       title="User Directory"
       description="Manage all platform users and their access levels."
-      items={adminNavItems}
       loading={loading}
       action={
         <div className="relative w-full md:w-80">

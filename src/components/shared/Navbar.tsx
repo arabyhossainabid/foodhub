@@ -26,6 +26,8 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { SearchModal } from "./SearchModal";
+import { mealService } from "@/services/mealService";
+import { metaService } from "@/services/metaService";
 
 export function Navbar() {
   const { user, logout } = useAuth();
@@ -34,7 +36,14 @@ export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [activeMegaMenu, setActiveMegaMenu] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
+  const [popularCuisines, setPopularCuisines] = useState<{ id: string; name: string }[]>([]);
+  const [featuredOffer, setFeaturedOffer] = useState<{ title: string; description: string } | null>(null);
   const pathname = usePathname();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -42,6 +51,34 @@ export function Navbar() {
     };
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const loadMegaMenuData = async () => {
+      try {
+        const [categories, offers] = await Promise.all([
+          mealService.getCategories(),
+          metaService.getOffers(),
+        ]);
+        const cuisineNames = (categories || [])
+          .map((cat: any) => ({ id: cat?.id, name: cat?.name }))
+          .filter((cat: { id?: string; name?: string }) => Boolean(cat.id && cat.name))
+          .slice(0, 5);
+        setPopularCuisines(cuisineNames);
+        if (offers?.length) {
+          setFeaturedOffer({
+            title: offers[0].title,
+            description: offers[0].description,
+          });
+        } else {
+          setFeaturedOffer(null);
+        }
+      } catch {
+        setPopularCuisines([]);
+        setFeaturedOffer(null);
+      }
+    };
+    loadMegaMenuData();
   }, []);
 
   const navLinks = [
@@ -54,7 +91,7 @@ export function Navbar() {
     },
     { name: "Restaurants", href: "/providers" },
     { name: "Offers", href: "/offers" },
-    { name: "My Orders", href: "/orders", protected: true },
+    { name: "Contact", href: "/contact" },
     { name: "FAQ", href: "/faq" },
   ];
 
@@ -122,17 +159,21 @@ export function Navbar() {
                         <div>
                           <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-6">Popular Cuisines</h4>
                           <div className="space-y-2">
-                            {["Sushi Platter", "Italian Pizza", "Juicy Burgers", "Vegan Bowls", "Street Pasta"].map(cat => (
-                              <Link key={cat} href="/meals" className="flex items-center justify-between p-3 rounded-2xl hover:bg-gray-50 text-gray-700 hover:text-orange-500 font-bold text-sm transition-all group">
-                                {cat} <ChevronRight size={14} className="opacity-0 group-hover:opacity-100 transition-opacity" />
+                            {(popularCuisines.length ? popularCuisines : [{ id: "", name: "Cuisine" }]).map((cat) => (
+                              <Link
+                                key={`${cat.id}-${cat.name}`}
+                                href={cat.id ? `/meals?categoryId=${cat.id}` : "/meals"}
+                                className="flex items-center justify-between p-3 rounded-2xl hover:bg-gray-50 text-gray-700 hover:text-orange-500 font-bold text-sm transition-all group"
+                              >
+                                {cat.name} <ChevronRight size={14} className="opacity-0 group-hover:opacity-100 transition-opacity" />
                               </Link>
                             ))}
                           </div>
                         </div>
                         <div className="bg-gray-50 rounded-3xl p-6 flex flex-col justify-between">
                            <div>
-                            <p className="text-xs font-bold text-gray-900 mb-2">Weekend Special</p>
-                           <p className="text-[10px] text-gray-500 font-medium">Get 30% off on all party packs this Sunday.</p>
+                            <p className="text-xs font-bold text-gray-900 mb-2">{featuredOffer?.title || "Latest Offer"}</p>
+                           <p className="text-[10px] text-gray-500 font-medium line-clamp-3">{featuredOffer?.description || "Check available offers from our partner network."}</p>
                         </div>
                         <Link href="/become-provider" className="flex items-center gap-2 text-xs font-bold text-orange-500 hover:text-orange-600 mb-4 transition-colors">
                            Join as Partner <ChevronRight size={14} />
@@ -163,7 +204,7 @@ export function Navbar() {
                 <div className="h-10 w-10 rounded-xl bg-gray-50 border border-transparent group-hover:bg-orange-500 group-hover:text-white transition-all flex items-center justify-center">
                    <ShoppingBag size={18} />
                 </div>
-                {totalItems > 0 && (
+                {mounted && totalItems > 0 && (
                   <span className="absolute -top-1 -right-1 h-5 w-5 bg-orange-500 text-white text-[10px] flex items-center justify-center rounded-full border-2 border-white font-bold">
                     {totalItems}
                   </span>
@@ -174,12 +215,20 @@ export function Navbar() {
           <div className="flex items-center gap-3">
              {user ? (
                <div className="flex items-center gap-3 bg-gray-50 p-1.5 pr-4 rounded-2xl border border-transparent hover:border-gray-100 transition-all group cursor-pointer relative">
-                  <Link 
+                  <Link
                     href={
-                      user.role === "ADMIN" ? "/admin/dashboard" : 
-                      user.role === "PROVIDER" ? "/provider/dashboard" : 
-                      "/dashboard/customer"
-                    } 
+                      user.role === "ADMIN"
+                        ? "/admin/dashboard"
+                        : user.role === "PROVIDER"
+                          ? "/provider/dashboard"
+                          : user.role === "MANAGER"
+                            ? "/dashboard/manager"
+                              : user.role === "ORGANIZER"
+                                ? "/dashboard/organizer"
+                                : user.role === "CUSTOMER"
+                                  ? "/dashboard/customer"
+                                  : "/dashboard/customer"
+                    }
                     className="flex items-center gap-3"
                   >
                      <div className="h-10 w-10 bg-gray-950 rounded-xl flex items-center justify-center text-white font-black text-xs shadow-xl group-hover:rotate-6 transition-transform">

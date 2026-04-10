@@ -3,44 +3,20 @@
 
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { ManagementPage } from '@/components/dashboard/ManagementPage';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { formatCurrency } from '@/lib/utils';
 import { adminService } from '@/services/adminService';
 import {
   DollarSign,
-  Grid,
-  LayoutDashboard,
   Package,
-  ShieldAlert,
-  ShoppingBag,
   TrendingUp,
   UserPlus,
-  Users,
   ArrowUpRight,
   MoreVertical,
   Activity
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
-
-const adminNavItems = [
-  {
-    title: 'Dashboard',
-    href: '/admin/dashboard',
-    icon: <LayoutDashboard size={20} />,
-  },
-  { title: 'User Management', href: '/admin/users', icon: <Users size={20} /> },
-  { title: 'Categories', href: '/admin/categories', icon: <Grid size={20} /> },
-  {
-    title: 'All Orders',
-    href: '/admin/orders',
-    icon: <ShoppingBag size={20} />,
-  },
-  {
-    title: 'Moderation',
-    href: '/admin/reviews',
-    icon: <ShieldAlert size={20} />,
-  },
-];
 
 export default function AdminDashboard() {
   return (
@@ -52,14 +28,19 @@ export default function AdminDashboard() {
 
 function AdminDashboardContent() {
   const [stats, setStats] = useState<any>(null);
+  const [recentOrders, setRecentOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchAdminStats = async () => {
       setLoading(true);
       try {
-        const data = await adminService.getStats();
-        setStats(data);
+        const [statsData, ordersData] = await Promise.all([
+          adminService.getStats(),
+          adminService.getAllOrders(),
+        ]);
+        setStats(statsData);
+        setRecentOrders(Array.isArray(ordersData) ? ordersData.slice(0, 6) : []);
       } catch (error) {
         console.error('System statistics fetch failed:', error);
       } finally {
@@ -69,11 +50,19 @@ function AdminDashboardContent() {
     fetchAdminStats();
   }, []);
 
+  const roleCounts = (stats?.roleDistribution || []).reduce((acc: Record<string, number>, row: any) => {
+    acc[row.role] = row._count || 0;
+    return acc;
+  }, {});
+  const totalAccounts = Object.values(roleCounts).reduce((sum, v) => sum + Number(v || 0), 0);
+  const customerPct = totalAccounts ? Math.round(((roleCounts.CUSTOMER || roleCounts.USER || 0) / totalAccounts) * 100) : 0;
+  const providerPct = totalAccounts ? Math.round(((roleCounts.PROVIDER || roleCounts.VENDOR || 0) / totalAccounts) * 100) : 0;
+  const adminPct = Math.max(0, 100 - customerPct - providerPct);
+
   return (
     <ManagementPage
       title='Admin Control'
       description='Global overview and system-wide management.'
-      items={adminNavItems}
       loading={loading}
     >
       <div className='space-y-12 pb-12'>
@@ -82,30 +71,30 @@ function AdminDashboardContent() {
           {[
             {
               title: 'Platform Revenue',
-              value: formatCurrency(stats?.totalRevenue || 125000),
+              value: formatCurrency(stats?.totalRevenue || 0),
               icon: <DollarSign size={24} className='text-green-500' />,
-              trend: '+12.5%',
+              trend: 'Delivered only',
               color: 'bg-green-50'
             },
             {
               title: 'Active Customers',
-              value: stats?.totalUsers || 2450,
+              value: stats?.totalUsers || 0,
               icon: <UserPlus size={24} className='text-orange-500' />,
-              trend: '+24 new',
+              trend: 'Real users',
               color: 'bg-orange-50'
             },
             {
               title: 'Shop Partners',
-              value: stats?.totalProviders || 128,
+              value: stats?.totalProviders || 0,
               icon: <TrendingUp size={24} className='text-blue-500' />,
-              trend: 'Top Growth',
+              trend: 'Real providers',
               color: 'bg-blue-50'
             },
             {
               title: 'Fulfilled Orders',
-              value: stats?.totalOrders || 8420,
+              value: stats?.totalOrders || 0,
               icon: <Package size={24} className='text-purple-500' />,
-              trend: 'All time',
+              trend: 'All orders',
               color: 'bg-purple-50'
             },
           ].map((stat, i) => (
@@ -183,10 +172,10 @@ function AdminDashboardContent() {
               <div className="relative w-48 h-48 flex items-center justify-center">
                  <svg className="w-full h-full transform -rotate-90">
                     <circle cx="96" cy="96" r="80" stroke="#1f2937" strokeWidth="24" fill="transparent" />
-                    <circle cx="96" cy="96" r="80" stroke="#f97316" strokeWidth="24" strokeDasharray={`${3.14 * 160 * 0.7} ${3.14 * 160 * 0.3}`} fill="transparent" />
+                    <circle cx="96" cy="96" r="80" stroke="#f97316" strokeWidth="24" strokeDasharray={`${3.14 * 160 * (customerPct / 100)} ${3.14 * 160 * (1 - customerPct / 100)}`} fill="transparent" />
                  </svg>
                  <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="text-4xl font-black">70%</span>
+                    <span className="text-4xl font-black">{customerPct}%</span>
                     <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">Customers</span>
                  </div>
               </div>
@@ -194,15 +183,15 @@ function AdminDashboardContent() {
               <div className="w-full space-y-4 pt-4">
                  <div className="flex justify-between items-center text-xs font-black uppercase">
                     <span className="flex items-center gap-2"><div className="w-2 h-2 bg-orange-500 rounded-full"></div> Customers</span>
-                    <span>70%</span>
+                    <span>{customerPct}%</span>
                  </div>
                  <div className="flex justify-between items-center text-xs font-black uppercase">
                     <span className="flex items-center gap-2"><div className="w-2 h-2 bg-gray-700 rounded-full"></div> Providers</span>
-                    <span>25%</span>
+                    <span>{providerPct}%</span>
                  </div>
                  <div className="flex justify-between items-center text-xs font-black uppercase">
                     <span className="flex items-center gap-2"><div className="w-2 h-2 bg-gray-800 rounded-full"></div> Admins</span>
-                    <span>5%</span>
+                    <span>{adminPct}%</span>
                  </div>
               </div>
            </Card>
@@ -230,29 +219,30 @@ function AdminDashboardContent() {
                     </tr>
                  </thead>
                  <tbody className="divide-y divide-gray-50">
-                    {[
-                      { name: 'Sushi Platter Deluxe', user: 'Sarah Johnson', status: 'Completed', amount: '$124.50', date: '2 mins ago' },
-                      { name: 'Burger Party Pack', user: 'Mike Brown', status: 'Pending', amount: '$85.00', date: '15 mins ago' },
-                      { name: 'New Provider Signup', user: 'Taste of Italy', status: 'Verification', amount: '--', date: '1 hour ago' },
-                      { name: 'Bulk Order: Pizza', user: 'Google Office', status: 'Completed', amount: '$540.20', date: '3 hours ago' },
-                      { name: 'Withdrawal Request', user: 'Spicy Thai', status: 'Processing', amount: '$1,200', date: '5 hours ago' },
-                    ].map((row, i) => (
-                      <tr key={i} className="hover:bg-gray-50/30 transition-colors">
+                    {recentOrders.map((row, i) => (
+                      <tr key={row.id || i} className="hover:bg-gray-50/30 transition-colors">
                          <td className="px-8 py-6">
-                            <p className="font-bold text-gray-900">{row.name}</p>
-                            <p className="text-xs text-gray-400 font-medium">{row.user}</p>
+                            <p className="font-bold text-gray-900">{row.orderItems?.[0]?.meal?.title || 'Order'}</p>
+                            <p className="text-xs text-gray-400 font-medium">{row.user?.name || row.user?.email || 'Unknown user'}</p>
                          </td>
                          <td className="px-8 py-6">
                             <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${
-                               row.status === 'Completed' ? 'bg-green-50 text-green-600' :
-                               row.status === 'Pending' ? 'bg-orange-50 text-orange-600' :
+                               row.status === 'DELIVERED' ? 'bg-green-50 text-green-600' :
+                               row.status === 'PLACED' || row.status === 'PREPARING' ? 'bg-orange-50 text-orange-600' :
                                'bg-blue-50 text-blue-600'
-                            }`}>{row.status}</span>
+                            }`}>{String(row.status || '').replace(/_/g, ' ')}</span>
                          </td>
-                         <td className="px-8 py-6 font-black text-gray-900">{row.amount}</td>
-                         <td className="px-8 py-6 text-xs font-bold text-gray-400">{row.date}</td>
+                         <td className="px-8 py-6 font-black text-gray-900">{formatCurrency(row.totalAmount || 0)}</td>
+                         <td className="px-8 py-6 text-xs font-bold text-gray-400">{row.createdAt ? new Date(row.createdAt).toLocaleString() : '--'}</td>
                       </tr>
                     ))}
+                    {!loading && recentOrders.length === 0 && (
+                      <tr>
+                        <td colSpan={4} className="px-8 py-10 text-center text-sm text-gray-400 font-medium">
+                          No recent order activity found.
+                        </td>
+                      </tr>
+                    )}
                  </tbody>
               </table>
            </div>

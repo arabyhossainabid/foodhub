@@ -1,17 +1,15 @@
 "use client";
 
 import { useCart } from "@/context/CartContext";
-import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { formatCurrency } from "@/lib/utils";
+import { metaService } from "@/services/metaService";
 import { Trash2, Plus, Minus, ShoppingBag, ArrowLeft, CreditCard } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
-import { FullPageLoader } from "@/components/shared/FullPageLoader";
+import { toast } from "react-hot-toast";
 
 export default function CartPage() {
   return (
@@ -22,11 +20,39 @@ export default function CartPage() {
 }
 
 function CartPageContent() {
-  const { cart, removeFromCart, updateQuantity, totalPrice, clearCart } = useCart();
-  const { user } = useAuth();
-  const router = useRouter();
-  const [address, setAddress] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const { cart, removeFromCart, updateQuantity, totalPrice, clearCart, totalItems } = useCart();
+  const [offerCode, setOfferCode] = useState("");
+  const [applyingOffer, setApplyingOffer] = useState(false);
+  const [appliedOffer, setAppliedOffer] = useState<{
+    code: string;
+    discountAmount: number;
+    finalTotal: number;
+  } | null>(null);
+
+  const handleApplyOffer = async () => {
+    const code = offerCode.trim().toUpperCase();
+    if (!code) {
+      toast.error("Enter a coupon code first");
+      return;
+    }
+    setApplyingOffer(true);
+    try {
+      const result = await metaService.validateOfferCode(code, totalPrice);
+      setAppliedOffer({
+        code: result.code,
+        discountAmount: result.discountAmount,
+        finalTotal: result.finalTotal,
+      });
+      toast.success(`Coupon ${result.code} applied`);
+    } catch (error: any) {
+      setAppliedOffer(null);
+      toast.error(error?.response?.data?.message || "Invalid coupon code");
+    } finally {
+      setApplyingOffer(false);
+    }
+  };
+
+  const payableTotal = appliedOffer ? appliedOffer.finalTotal : totalPrice;
 
   if (cart.length === 0) {
     return (
@@ -35,7 +61,7 @@ function CartPageContent() {
           <ShoppingBag size={48} />
         </div>
         <h1 className="text-4xl font-black text-gray-900">Your Cart is Empty</h1>
-        <p className="text-gray-500 max-w-md">Looks like you haven't added anything to your cart yet. Explore our menu and find something delicious!</p>
+        <p className="text-gray-500 max-w-md">Looks like you haven&apos;t added anything to your cart yet. Explore our menu and find something delicious!</p>
         <Link href="/meals">
           <Button size="lg" className="rounded-md">Browse Meals</Button>
         </Link>
@@ -44,8 +70,7 @@ function CartPageContent() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-12">
-      {isLoading && <FullPageLoader message="Placing your order..." transparent />}
+    <div className="container mx-auto px-4 pt-32 pb-16">
       <div className="mb-10">
         <Link href="/meals" className="text-orange-500 font-bold flex items-center hover:translate-x-[-4px] transition-transform">
           <ArrowLeft size={18} className="mr-2" /> Continue Browsing
@@ -66,7 +91,7 @@ function CartPageContent() {
                 <div className="grow space-y-1">
                   <h3 className="text-xl font-bold text-gray-900 line-clamp-1">{item.title}</h3>
                   <p className="text-sm text-gray-400 font-bold uppercase tracking-wider">
-                    {item.provider?.user.name || "Provider"}
+                    {item.provider?.user?.name || "Provider"}
                   </p>
                   <p className="text-orange-500 font-black">{formatCurrency(item.price)}</p>
                 </div>
@@ -109,25 +134,57 @@ function CartPageContent() {
 
             <div className="space-y-4 mb-10">
               <div className="flex justify-between text-gray-400 font-medium">
-                <span>Items ({cart.length})</span>
-                <span className="text-white">{formatCurrency(totalPrice)}</span>
+                <span>Items ({totalItems})</span>
+                <span className="text-gray-950 font-bold">{formatCurrency(totalPrice)}</span>
               </div>
               <div className="flex justify-between text-gray-400 font-medium">
                 <span>Delivery Fee</span>
                 <span className="text-green-400 font-bold font-mono">FREE</span>
               </div>
-              <div className="pt-4 border-t border-gray-800 flex justify-between items-end">
+              {appliedOffer && (
+                <div className="flex justify-between text-gray-400 font-medium">
+                  <span>Discount ({appliedOffer.code})</span>
+                  <span className="text-green-500 font-bold">-{formatCurrency(appliedOffer.discountAmount)}</span>
+                </div>
+              )}
+              <div className="pt-4 border-t border-gray-100 flex justify-between items-end">
                 <div className="flex flex-col">
                   <span className="text-xs uppercase tracking-widest text-gray-500 font-bold mb-1">Total Amount</span>
                   <span className="text-3xl font-black text-orange-500">
-                    {formatCurrency(totalPrice)}
+                    {formatCurrency(payableTotal)}
                   </span>
                 </div>
               </div>
             </div>
 
             <div className="space-y-6">
-              <Link href="/checkout">
+              <div className="space-y-2">
+                <p className="text-xs uppercase tracking-widest text-gray-500 font-bold">Coupon Code</p>
+                <div className="flex gap-2">
+                  <input
+                    placeholder="Enter code"
+                    className="flex-1 h-11 rounded-md border border-gray-200 px-3 text-sm font-semibold uppercase"
+                    value={offerCode}
+                    onChange={(e) => setOfferCode(e.target.value)}
+                  />
+                  <Button
+                    variant="outline"
+                    className="h-11"
+                    onClick={handleApplyOffer}
+                    isLoading={applyingOffer}
+                  >
+                    Apply
+                  </Button>
+                </div>
+              </div>
+              <Button
+                variant="outline"
+                className="w-full h-12 rounded-md font-bold"
+                onClick={clearCart}
+              >
+                Clear Cart
+              </Button>
+              <Link href={appliedOffer ? `/checkout?offerCode=${encodeURIComponent(appliedOffer.code)}` : "/checkout"}>
                 <Button
                   className="w-full h-14 rounded-md text-lg flex items-center justify-center font-black"
                 >

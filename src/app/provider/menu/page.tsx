@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { LayoutDashboard, Utensils, ShoppingCart, Plus, Edit, Trash2, ImageOff, ChefHat, Star } from "lucide-react";
@@ -10,13 +11,6 @@ import { formatCurrency, cn } from "@/lib/utils";
 import { toast } from "react-hot-toast";
 import { ManagementPage } from "@/components/dashboard/ManagementPage";
 import { NewMealForm } from "@/components/provider/NewMealForm";
-
-const providerNavItems = [
-  { title: "Dashboard", href: "/provider/dashboard", icon: <LayoutDashboard size={20} /> },
-  { title: "Manage Menu", href: "/provider/menu", icon: <Utensils size={20} /> },
-  { title: "Order List", href: "/provider/orders", icon: <ShoppingCart size={20} /> },
-  { title: "Customer Reviews", href: "/provider/reviews", icon: <Star size={20} /> },
-];
 
 export default function ProviderMenuPage() {
   const [meals, setMeals] = useState<Meal[]>([]);
@@ -89,7 +83,6 @@ export default function ProviderMenuPage() {
     <ManagementPage
       title="Manage Menu"
       description="Add and update your delicious meal offerings."
-      items={providerNavItems}
       loading={loading}
       action={
         !isFormOpen && (

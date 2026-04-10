@@ -53,7 +53,7 @@ function ProfilePageContent() {
   ];
 
   return (
-    <div className="container mx-auto px-4 py-8 lg:py-16 max-w-6xl pt-24">
+    <div className="container mx-auto px-4 py-8 lg:py-16 max-w-6xl pt-32">
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
         {/* Sidebar */}
         <aside className="lg:col-span-1 space-y-6">
@@ -186,9 +186,6 @@ function ProfilePageContent() {
                                 <p className="text-2xl font-black">March 14, 2026</p>
                              </div>
                           </div>
-                          <Link href="/dashboard/customer" className="relative z-10">
-                            <Button className="h-14 px-10 rounded-2xl bg-white text-orange-600 font-black text-xs uppercase tracking-widest hover:bg-orange-50 shadow-xl active:scale-95 transition-all">Go to Dashboard</Button>
-                          </Link>
                        </div>
                     </div>
                  )}

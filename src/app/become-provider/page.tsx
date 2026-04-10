@@ -26,9 +26,11 @@ export default function BecomeProviderPage() {
                     every day. We provide the technology, the delivery, and the growth.
                  </p>
                  <div className="flex gap-4">
-                    <Button className="h-12 px-8 rounded-xl bg-gray-950 text-white font-bold hover:bg-orange-500 transition-all shadow-lg">
-                       Get Started Now
-                    </Button>
+                    <Link href="/register?role=PROVIDER">
+                      <Button className="h-12 px-8 rounded-xl bg-gray-950 text-white font-bold hover:bg-orange-500 transition-all shadow-lg">
+                         Get Started Now
+                      </Button>
+                    </Link>
                     <Link href="/faq">
                       <Button variant="outline" className="h-12 px-8 rounded-xl border-gray-200 text-gray-600 font-bold">
                          View Requirements
@@ -113,9 +115,11 @@ export default function BecomeProviderPage() {
                <h2 className="text-3xl md:text-5xl font-bold tracking-tight">Ready to serve the world?</h2>
                <p className="text-orange-50 font-medium text-lg max-w-2xl mx-auto">Join the FoodHub family today and discover why thousands of chefs choose us as their growth partner.</p>
                <div className="flex flex-wrap justify-center gap-4">
-                  <Button className="h-14 px-10 rounded-xl bg-white text-orange-600 font-bold hover:bg-orange-50 transition-all shadow-xl">
-                     Apply to Join
-                  </Button>
+                  <Link href="/register?role=PROVIDER">
+                     <Button className="h-14 px-10 rounded-xl bg-white text-orange-600 font-bold hover:bg-orange-50 transition-all shadow-xl">
+                        Apply to Join
+                     </Button>
+                  </Link>
                   <Button variant="outline" className="h-14 px-10 rounded-xl border-white/20 text-white hover:bg-white/10 transition-all">
                      Talk to an Agent
                   </Button>

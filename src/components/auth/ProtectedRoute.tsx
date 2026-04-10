@@ -2,30 +2,30 @@
 
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { FullPageLoader } from "@/components/shared/FullPageLoader";
+import { Role } from "@/types";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  allowedRoles?: ("CUSTOMER" | "PROVIDER" | "ADMIN")[];
+  allowedRoles?: Role[];
 }
 
 export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) {
   const { user, loading } = useAuth();
   const router = useRouter();
-  const [isReady, setIsReady] = useState(false);
+  const isAllowed = !!user && (!allowedRoles || allowedRoles.includes(user.role));
 
   useEffect(() => {
-    if (!loading) {
-      if (!user) {
-        router.push("/login");
-      } else if (allowedRoles && !allowedRoles.includes(user.role as any)) {
-        router.push("/");
-      } else {
-        setIsReady(true);
-      }
+    if (loading) return;
+    if (!user) {
+      router.push("/login");
+      return;
     }
-  }, [user, loading, router, allowedRoles]);
+    if (!isAllowed) {
+      router.push("/");
+    }
+  }, [user, loading, router, isAllowed]);
 
   // If still loading identity, show full loader
   if (loading) {
@@ -33,7 +33,7 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
   }
 
   // If not ready (redirecting), show nothing to prevent flickering
-  if (!isReady || !user || (allowedRoles && !allowedRoles.includes(user.role as any))) {
+  if (!user || !isAllowed) {
     return null;
   }
 

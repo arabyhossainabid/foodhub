@@ -9,24 +9,14 @@ import { orderService } from '@/services/orderService';
 import { Order } from '@/types';
 import {
   Clock,
-  LayoutDashboard,
   ShoppingBag,
-  ShoppingCart,
   Star,
-  Utensils,
   MapPin,
   ChevronRight,
   User
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
-
-const providerNavItems = [
-  { title: 'Dashboard', href: '/provider/dashboard', icon: <LayoutDashboard size={20} /> },
-  { title: 'Manage Menu', href: '/provider/menu', icon: <Utensils size={20} /> },
-  { title: 'Order List', href: '/provider/orders', icon: <ShoppingCart size={20} /> },
-  { title: 'Customer Reviews', href: '/provider/reviews', icon: <Star size={20} /> },
-];
 
 const statusStyles = {
   PLACED: 'bg-blue-50 text-blue-600',
@@ -74,7 +64,6 @@ export default function ProviderOrdersPage() {
     <ManagementPage
       title='Active Shipments'
       description='Coordinate and bridge your kitchen with the doorstep.'
-      items={providerNavItems}
       loading={loading}
       action={
         <div className='flex items-center gap-1 bg-gray-50 p-1.5 rounded-2xl border border-gray-100'>
@@ -98,14 +87,14 @@ export default function ProviderOrdersPage() {
       <div className='grid grid-cols-1 gap-8'>
         {filteredOrders.length > 0 ? (
           filteredOrders.map((order) => (
-            <Card key={order.id} className='border-none shadow-xl shadow-gray-200/40 rounded-[2.5rem] overflow-hidden bg-white'>
-              <CardContent className='p-8 flex flex-col xl:flex-row items-center gap-10'>
-                <div className='h-20 w-20 bg-gray-50 rounded-3xl flex items-center justify-center text-gray-400 shrink-0 group-hover:bg-orange-50 group-hover:text-orange-500 transition-colors'>
-                  <ShoppingBag size={32} />
+            <Card key={order.id} className='border-none shadow-xl shadow-gray-200/40 rounded-[2rem] overflow-hidden bg-white'>
+              <CardContent className='p-6 flex flex-col xl:flex-row items-start gap-6'>
+                <div className='h-16 w-16 bg-gray-50 rounded-2xl flex items-center justify-center text-gray-400 shrink-0 group-hover:bg-orange-50 group-hover:text-orange-500 transition-colors'>
+                  <ShoppingBag size={26} />
                 </div>
 
-                <div className='grid grid-cols-1 md:grid-cols-2 lg:flex grow gap-8 w-full items-center'>
-                  <div className='space-y-1 lg:w-48'>
+                <div className='grid grid-cols-1 md:grid-cols-2 lg:flex grow gap-5 w-full items-start'>
+                  <div className='space-y-1 lg:w-44'>
                      <div className="flex items-center gap-2 mb-2">
                         <User size={12} className="text-gray-300" />
                         <span className="text-[10px] font-black text-gray-300 uppercase tracking-widest">Client Identity</span>
@@ -114,7 +103,7 @@ export default function ProviderOrdersPage() {
                     <p className='text-[10px] font-bold text-gray-400 font-mono'>REF: {order.id.slice(-10).toUpperCase()}</p>
                   </div>
 
-                  <div className='space-y-1 lg:w-48'>
+                  <div className='space-y-1 lg:w-44'>
                      <div className="flex items-center gap-2 mb-2">
                         <MapPin size={12} className="text-gray-300" />
                         <span className="text-[10px] font-black text-gray-300 uppercase tracking-widest">Logistics Hub</span>
@@ -122,11 +111,11 @@ export default function ProviderOrdersPage() {
                     <p className='text-sm font-bold text-gray-500 line-clamp-2 leading-relaxed'>{order.address}</p>
                   </div>
 
-                  <div className='space-y-1 lg:w-32'>
+                  <div className='space-y-1 lg:w-28'>
                      <div className="flex items-center gap-2 mb-2">
                         <span className="text-[10px] font-black text-gray-300 uppercase tracking-widest">Valuation</span>
                      </div>
-                    <p className='text-2xl font-black text-gray-950'>{formatCurrency(order.totalAmount)}</p>
+                    <p className='text-xl font-black text-gray-950'>{formatCurrency(order.totalAmount)}</p>
                   </div>
 
                   <div className='space-y-1'>
@@ -140,44 +129,44 @@ export default function ProviderOrdersPage() {
                 </div>
 
                 {/* Items Summary */}
-                <div className='w-full xl:w-56 p-6 bg-gray-50 rounded-3xl space-y-4'>
+                <div className='w-full xl:w-48 p-4 bg-gray-50 rounded-2xl space-y-3'>
                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 pb-2">Manifest</p>
                    <div className="space-y-2">
                       {order.orderItems?.map((item, i) => (
-                        <div key={i} className="flex justify-between items-center text-xs">
+                        <div key={i} className="flex justify-between items-center text-[11px]">
                            <span className="font-bold text-gray-700 truncate mr-4">{item.meal?.title}</span>
-                           <span className="font-black text-orange-500 bg-orange-50 px-2 py-0.5 rounded-lg text-[10px]">x{item.quantity}</span>
+                           <span className="font-black text-orange-500 bg-orange-50 px-1.5 py-0.5 rounded-md text-[10px]">x{item.quantity}</span>
                         </div>
                       ))}
                    </div>
                 </div>
 
-                <div className='flex items-center gap-3 w-full xl:w-auto pt-6 xl:pt-0 border-t xl:border-t-0 border-gray-50'>
+                <div className='flex items-center gap-2 w-full xl:w-auto pt-4 xl:pt-0 border-t xl:border-t-0 border-gray-50'>
                    {order.status !== 'DELIVERED' && order.status !== 'CANCELLED' && (
-                     <div className="flex flex-wrap gap-2">
+                     <div className="flex flex-wrap gap-2 justify-start xl:justify-end">
                         {order.status === 'PLACED' && (
                           <Button 
-                            className="h-12 px-6 rounded-2xl bg-orange-500 hover:bg-orange-600 font-black text-[10px] uppercase tracking-widest"
+                            className="h-10 px-4 rounded-xl bg-orange-500 hover:bg-orange-600 font-black text-[10px] uppercase tracking-widest"
                             onClick={() => updateStatus(order.id, 'PREPARING')}
                           >Accept Packet</Button>
                         )}
                         {order.status === 'PREPARING' && (
                           <Button 
-                            className="h-12 px-6 rounded-2xl bg-purple-500 hover:bg-purple-600 font-black text-[10px] uppercase tracking-widest"
+                            className="h-10 px-4 rounded-xl bg-purple-500 hover:bg-purple-600 font-black text-[10px] uppercase tracking-widest"
                             onClick={() => updateStatus(order.id, 'READY')}
                           >Ready for Pickup</Button>
                         )}
                         {order.status === 'READY' && (
                           <Button 
-                            className="h-12 px-6 rounded-2xl bg-green-500 hover:bg-green-600 font-black text-[10px] uppercase tracking-widest"
+                            className="h-10 px-4 rounded-xl bg-green-500 hover:bg-green-600 font-black text-[10px] uppercase tracking-widest"
                             onClick={() => updateStatus(order.id, 'DELIVERED')}
                           >Confirm Delivery</Button>
                         )}
                         <Button 
                           variant="ghost" 
-                          className="h-12 px-6 rounded-2xl text-red-500 hover:bg-red-50 font-black text-[10px] uppercase tracking-widest"
+                          className="h-10 px-4 rounded-xl text-red-500 hover:bg-red-50 font-black text-[10px] uppercase tracking-widest"
                           onClick={() => updateStatus(order.id, 'CANCELLED')}
-                        >Void</Button>
+                        >Cancel Order</Button>
                      </div>
                    )}
                    {(order.status === 'DELIVERED' || order.status === 'CANCELLED') && (

@@ -47,7 +47,7 @@
 }
 
 :root {
-  --radius: 1.5rem;
+  --radius: 0.75rem;
   --background: #FFFFFF;
   --foreground: #0A0A0A;
   --card: #FFFFFF;
@@ -113,16 +113,16 @@
   }
 
   .premium-shadow {
-    box-shadow: 0 30px 60px -12px rgba(255, 82, 0, 0.15), 0 18px 36px -18px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 12px 24px -12px rgba(255, 82, 0, 0.12), 0 8px 18px -14px rgba(0, 0, 0, 0.08);
   }
 
   .premium-card {
-    @apply bg-white rounded-[2.5rem] border border-gray-100 hover:border-orange-500/20 transition-all duration-700 ease-out;
+    @apply bg-white rounded-2xl border border-gray-100 hover:border-orange-500/20 transition-all duration-500 ease-out;
   }
 
   .premium-card:hover {
-    @apply -translate-y-2;
-    box-shadow: 0 40px 80px -15px rgba(255, 82, 0, 0.12);
+    @apply -translate-y-0.5;
+    box-shadow: 0 16px 30px -20px rgba(255, 82, 0, 0.15);
   }
 
   .reveal-on-scroll {
@@ -132,6 +132,34 @@
   .reveal-on-scroll.active {
     @apply opacity-100 translate-y-0;
   }
+}
+
+/* Custom Premium Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 82, 0, 0.1);
+  border-radius: 10px;
+  transition: all 0.3s;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 82, 0, 0.3);
+}
+
+.shadow-glow {
+  box-shadow: 0 0 15px rgba(255, 82, 0, 0.5);
+}
+
+[data-slot="button"] {
+  border-radius: 0.625rem !important;
 }
 
 @keyframes float {

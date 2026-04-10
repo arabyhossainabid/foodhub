@@ -1,10 +1,28 @@
+/* eslint-disable @next/next/no-img-element */
+"use client";
+
 import { Calendar, ArrowRight, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import Link from 'next/link';
-import { blogPosts } from '@/data/blogPosts';
+import { useEffect, useState } from 'react';
+import { BlogPost, metaService } from '@/services/metaService';
 
 export default function BlogPage() {
+  const [posts, setPosts] = useState<BlogPost[]>([]);
+
+  useEffect(() => {
+    const fetchBlogs = async () => {
+      try {
+        const data = await metaService.getBlogs();
+        setPosts(data);
+      } catch {
+        setPosts([]);
+      }
+    };
+    fetchBlogs();
+  }, []);
+
   return (
     <div className="flex flex-col">
       {/* Blog Hero */}
@@ -32,7 +50,7 @@ export default function BlogPage() {
                  <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=1200" alt="Featured Post" className="w-full h-full object-cover" />
               </div>
               <div className="space-y-8">
-                 <span className="px-4 py-2 bg-orange-50 text-orange-600 text-[10px] font-black uppercase tracking-widest rounded-xl">Editor's Choice</span>
+                 <span className="px-4 py-2 bg-orange-50 text-orange-600 text-[10px] font-black uppercase tracking-widest rounded-xl">Editor&apos;s Choice</span>
                  <h2 className="text-5xl font-black text-gray-900 leading-tight">Mastering Global <br /> Flavors at Home</h2>
                  <p className="text-gray-500 text-lg leading-relaxed font-medium">
                     Learn how to incorporate exotic spices and traditional techniques into your daily cooking without needing a professional kitchen.
@@ -44,9 +62,11 @@ export default function BlogPage() {
                        <p className="text-xs font-bold text-gray-400">Head of Culinary Innovations</p>
                     </div>
                  </div>
-                 <Button className="h-14 px-8 rounded-2xl font-black bg-gray-950 hover:bg-orange-500 transition-all gap-4">
-                    Read Story <ArrowRight size={18} />
-                 </Button>
+                 <Link href="/blog/1">
+                   <Button className="h-14 px-8 rounded-2xl font-black bg-gray-950 hover:bg-orange-500 transition-all gap-4">
+                      Read Story <ArrowRight size={18} />
+                   </Button>
+                 </Link>
               </div>
            </div>
         </div>
@@ -67,7 +87,7 @@ export default function BlogPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
-            {blogPosts.map((post) => (
+            {posts.map((post) => (
               <div key={post.id} className="bg-white rounded-[40px] overflow-hidden border border-gray-100 group hover:shadow-2xl hover:shadow-gray-200/50 transition-all duration-500">
                 <div className="h-64 relative overflow-hidden">
                    <img src={post.image} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt={post.title} />
@@ -77,7 +97,7 @@ export default function BlogPage() {
                 </div>
                 <div className="p-10 space-y-6">
                    <div className="flex items-center gap-4 text-xs font-black uppercase tracking-widest text-gray-400">
-                      <span className="flex items-center gap-2"><Calendar size={14} className="text-orange-500" /> {post.date}</span>
+                      <span className="flex items-center gap-2"><Calendar size={14} className="text-orange-500" /> {post.createdAt ? new Date(post.createdAt).toLocaleDateString() : 'Recently published'}</span>
                    </div>
                    <h4 className="text-2xl font-black text-gray-900 group-hover:text-orange-500 transition-colors line-clamp-2 leading-tight">{post.title}</h4>
                    <p className="text-gray-500 font-medium leading-relaxed line-clamp-3">{post.excerpt}</p>

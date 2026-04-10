@@ -3,8 +3,12 @@ import api from '@/lib/axios';
 
 export const mealService = {
   getCategories: async () => {
-    const response = await api.get('/admin/categories');
-    return response.data.data;
+    try {
+      const response = await api.get('/admin/categories');
+      return response.data.data;
+    } catch {
+      return [];
+    }
   },
 
   getMeals: async (params?: any) => {

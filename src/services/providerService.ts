@@ -1,4 +1,9 @@
 import api from "@/lib/axios";
+import { ProviderProfile } from "@/types";
+
+type ProviderProfileUpdatePayload = Partial<
+  Pick<ProviderProfile, "shopName" | "address" | "cuisine">
+>;
 
 export const providerService = {
   getAll: async () => {
@@ -17,7 +22,7 @@ export const providerService = {
     const response = await api.get("/provider/profile");
     return response.data.data;
   },
-  updateProfile: async (data: any) => {
+  updateProfile: async (data: ProviderProfileUpdatePayload) => {
     const response = await api.patch("/provider/profile", data);
     return response.data;
   }

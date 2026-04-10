@@ -24,26 +24,6 @@ import { toast } from 'react-hot-toast';
 
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 
-const adminNavItems = [
-  {
-    title: 'Dashboard',
-    href: '/admin/dashboard',
-    icon: <LayoutDashboard size={20} />,
-  },
-  { title: 'User Management', href: '/admin/users', icon: <Users size={20} /> },
-  { title: 'Categories', href: '/admin/categories', icon: <Grid size={20} /> },
-  {
-    title: 'All Orders',
-    href: '/admin/orders',
-    icon: <ShoppingBag size={20} />,
-  },
-  {
-    title: 'Moderation',
-    href: '/admin/reviews',
-    icon: <ShieldAlert size={20} />,
-  },
-];
-
 export default function AdminCategoriesPage() {
   return (
     <ProtectedRoute allowedRoles={['ADMIN']}>
@@ -141,7 +121,6 @@ function AdminCategoriesContent() {
     <ManagementPage
       title='Food Categories'
       description='Organize meals into logical groups for better discovery.'
-      items={adminNavItems}
       loading={loading}
       action={
         !isFormOpen && (

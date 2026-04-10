@@ -9,38 +9,12 @@ import { Meal, Review } from '@/types';
 import { motion } from 'framer-motion';
 import {
   Calendar,
-  LayoutDashboard,
   MessageSquare,
-  ShoppingCart,
   Star,
   User,
-  Utensils,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
-
-const providerNavItems = [
-  {
-    title: 'Dashboard',
-    href: '/provider/dashboard',
-    icon: <LayoutDashboard size={20} />,
-  },
-  {
-    title: 'Manage Menu',
-    href: '/provider/menu',
-    icon: <Utensils size={20} />,
-  },
-  {
-    title: 'Order List',
-    href: '/provider/orders',
-    icon: <ShoppingCart size={20} />,
-  },
-  {
-    title: 'Customer Reviews',
-    href: '/provider/reviews',
-    icon: <Star size={20} />,
-  },
-];
 
 export default function ProviderReviewsPage() {
   const [reviews, setReviews] = useState<(Review & { meal: Meal })[]>([]);
@@ -110,7 +84,6 @@ export default function ProviderReviewsPage() {
     <ManagementPage
       title='Customer Reviews'
       description='See what your customers are saying about your meals'
-      items={providerNavItems}
       loading={loading}
     >
       <div className='space-y-12'>

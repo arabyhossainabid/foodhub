@@ -6,8 +6,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
-  CardHeader,
   CardTitle,
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -16,10 +14,11 @@ import { authService } from '@/services/authService';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Lock, Mail, ShieldCheck, User, Users, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-hot-toast';
 import * as z from 'zod';
+import { useRouter } from 'next/navigation';
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -29,8 +28,24 @@ const loginSchema = z.object({
 type LoginFormValues = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
-  const { login } = useAuth();
+  const { login, user, loading } = useAuth();
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (!loading && user) {
+      if (user.role === 'ADMIN') router.replace('/admin/dashboard');
+      else if (user.role === 'PROVIDER') router.replace('/provider/dashboard');
+      else if (user.role === 'MANAGER') router.replace('/dashboard/manager');
+      else if (user.role === 'ORGANIZER') router.replace('/dashboard/organizer');
+      else if (user.role === 'CUSTOMER') router.replace('/dashboard/customer');
+      else router.replace('/dashboard/customer');
+    }
+  }, [loading, user, router]);
+
+  if (loading || user) {
+    return <FullPageLoader transparent />;
+  }
 
   const {
     register,
@@ -44,19 +59,20 @@ export default function LoginPage() {
   const onSubmit = async (data: LoginFormValues) => {
     setIsLoading(true);
     try {
-      const response = await authService.login(data);
-      const { token, user } = response.data.data;
+      const { token, user } = await authService.login(data);
       login(token, user);
       toast.success(`Welcome back!`);
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Login failed');
+    } catch (error) {
+      const message =
+        (error as { userMessage?: string })?.userMessage || 'Login failed';
+      toast.error(message);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const setDemoCredentials = (role: 'USER' | 'ADMIN') => {
-    if (role === 'USER') {
+  const setDemoCredentials = (role: 'CUSTOMER' | 'ADMIN') => {
+    if (role === 'CUSTOMER') {
       setValue('email', 'customer@foodhub.com');
       setValue('password', 'password123');
     } else {
@@ -111,7 +127,7 @@ export default function LoginPage() {
               </div>
 
               <div className="flex justify-end">
-                 <Link href="#" className="text-xs font-bold text-orange-500 hover:underline">Forgot password?</Link>
+                 <Link href="/contact" className="text-xs font-bold text-orange-500 hover:underline">Need password help?</Link>
               </div>
 
               <Button type='submit' className='w-full h-12 rounded-xl bg-orange-500 hover:bg-orange-600 font-bold text-white shadow-lg transition-all active:scale-95 group'>
@@ -123,10 +139,10 @@ export default function LoginPage() {
             <div className='grid grid-cols-2 gap-3 pt-2'>
                <Button 
                  variant="outline" 
-                 onClick={() => setDemoCredentials('USER')}
+                 onClick={() => setDemoCredentials('CUSTOMER')}
                  className="h-11 rounded-xl font-bold border-gray-100 bg-gray-50 hover:bg-white transition-all text-xs gap-2"
                >
-                 <User size={14} className="text-orange-500" /> User Demo
+                 <User size={14} className="text-orange-500" /> Customer Demo
                </Button>
                <Button 
                  variant="outline" 

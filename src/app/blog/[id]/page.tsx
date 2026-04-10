@@ -1,19 +1,43 @@
-import { blogPosts } from '@/data/blogPosts';
+"use client";
+
+import { metaService, BlogPost } from '@/services/metaService';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
-import { notFound } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
-type Props = {
-  params: Promise<{ id: string }>;
-};
+export default function BlogDetailsPage() {
+  const params = useParams<{ id: string }>();
+  const router = useRouter();
+  const [post, setPost] = useState<BlogPost | null>(null);
+  const [loading, setLoading] = useState(true);
 
-export default async function BlogDetailsPage({ params }: Props) {
-  const { id } = await params;
-  const post = blogPosts.find((item) => item.id === Number(id));
+  useEffect(() => {
+    const fetchBlog = async () => {
+      try {
+        if (!params?.id) return;
+        const data = await metaService.getBlogById(params.id);
+        setPost(data);
+      } catch {
+        router.push('/blog');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchBlog();
+  }, [params?.id, router]);
+
+  if (loading) {
+    return <section className="min-h-screen bg-white pt-32 pb-20 px-4" />;
+  }
 
   if (!post) {
-    notFound();
+    return null;
   }
+
+  const publishedDate = post.createdAt
+    ? new Date(post.createdAt).toLocaleDateString()
+    : 'Recently published';
 
   return (
     <section className="min-h-screen bg-white pt-32 pb-20 px-4">
@@ -33,7 +57,7 @@ export default async function BlogDetailsPage({ params }: Props) {
             {post.category}
           </span>
           <h1 className="text-4xl md:text-5xl font-black text-gray-950 leading-tight">{post.title}</h1>
-          <p className="text-sm text-gray-500 font-medium">By {post.author} • {post.date}</p>
+          <p className="text-sm text-gray-500 font-medium">By {post.author} • {publishedDate}</p>
           <p className="text-lg text-gray-600 leading-relaxed">{post.content}</p>
         </div>
       </div>

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @next/next/no-img-element */
 'use client';
 
@@ -7,6 +8,8 @@ import { Testimonials } from '@/components/home/Testimonials';
 import { TrendingOffers } from '@/components/home/TrendingOffers';
 import { Button } from '@/components/ui/button';
 import { mealService } from '@/services/mealService';
+import { HomeContent, metaService } from '@/services/metaService';
+import { useAuth } from '@/context/AuthContext';
 import { Category, Meal } from '@/types';
 import {
   ArrowRight,
@@ -28,22 +31,38 @@ import { useEffect, useState } from 'react';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import { MealCard } from '@/components/meals/MealCard';
+import toast from 'react-hot-toast';
 
 export default function HomePage() {
+  const { user } = useAuth();
   const [categories, setCategories] = useState<Category[]>([]);
   const [featuredMeals, setFeaturedMeals] = useState<Meal[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [homeContent, setHomeContent] = useState<HomeContent | null>(null);
+  const [publicStats, setPublicStats] = useState<{
+    customers: number;
+    radius: number;
+  } | null>(null);
+  const [newsletterEmail, setNewsletterEmail] = useState('');
+  const [newsletterLoading, setNewsletterLoading] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [categoriesData, mealsData] = await Promise.all([
+        const [categoriesData, mealsData, homeContentData, statsData] = await Promise.all([
           mealService.getCategories(),
           mealService.getMeals({ limit: 4 }),
+          metaService.getHomeContent(),
+          metaService.getStats(),
         ]);
 
         setCategories(categoriesData.slice(0, 6));
         setFeaturedMeals(mealsData.data);
+        setHomeContent(homeContentData);
+        setPublicStats({
+          customers: Number(statsData?.customers || 0),
+          radius: Number(statsData?.radius || 0),
+        });
       } catch (error) {
         console.error('Failed to fetch home data:', error);
         setCategories([]);
@@ -56,10 +75,27 @@ export default function HomePage() {
     fetchData();
   }, []);
 
+  const handleNewsletterSubmit = async () => {
+    if (!newsletterEmail.trim()) {
+      toast.error('Please enter your email');
+      return;
+    }
+    setNewsletterLoading(true);
+    try {
+      await metaService.subscribeNewsletter(newsletterEmail.trim());
+      toast.success('Subscribed successfully');
+      setNewsletterEmail('');
+    } catch (error: any) {
+      toast.error(error?.userMessage || 'Subscription failed');
+    } finally {
+      setNewsletterLoading(false);
+    }
+  };
+
   return (
     <main className='min-h-screen overflow-hidden bg-white' suppressHydrationWarning>
       {/* 1. HERO SECTION (NORMALIZED) */}
-      <section className='relative min-h-[70vh] flex items-center pt-20 pb-16 overflow-hidden'>
+      <section className='relative min-h-[70vh] flex items-center pt-32 pb-16 overflow-hidden'>
         {/* Animated Background Elements */}
         <div className="absolute top-0 right-0 w-1/2 h-full bg-orange-500/5 blur-[120px] rounded-full translate-x-1/4 animate-glow"></div>
         <div className="absolute bottom-0 left-0 w-1/3 h-2/3 bg-orange-500/5 blur-[100px] rounded-full -translate-x-1/4"></div>
@@ -101,15 +137,15 @@ export default function HomePage() {
 
               <div className="flex items-center gap-10 pt-6 border-t border-gray-100 w-fit">
                  <div>
-                    <p className="text-3xl font-black text-gray-900">4.9/5</p>
+                    <p className="text-3xl font-black text-gray-900">{homeContent?.hero?.reviewRating || 4.9}/5</p>
                     <div className="flex text-orange-500 gap-1 mt-1">
                        {[1,2,3,4,5].map(s => <Star key={s} size={14} fill="currentColor" />)}
                     </div>
-                    <p className="text-[10px] font-black uppercase text-gray-400 tracking-widest mt-2">250k+ Reviews</p>
+                    <p className="text-[10px] font-black uppercase text-gray-400 tracking-widest mt-2">{homeContent?.hero?.reviewCountLabel || 'Real user reviews'}</p>
                  </div>
                  <div className="h-12 w-px bg-gray-100"></div>
                  <div>
-                    <p className="text-3xl font-black text-gray-900">20min</p>
+                    <p className="text-3xl font-black text-gray-900">{homeContent?.hero?.avgDeliveryTime || '20min'}</p>
                     <p className="text-[10px] font-black uppercase text-gray-400 tracking-widest mt-2 leading-none">Average</p>
                     <p className="text-[10px] font-black uppercase text-gray-400 tracking-widest mt-1">Delivery Time</p>
                  </div>
@@ -122,7 +158,7 @@ export default function HomePage() {
                   <div className="absolute inset-0 bg-linear-to-b from-orange-500/10 to-transparent rounded-[100px] transform rotate-3"></div>
                   <div className="relative animate-float">
                      <Image 
-                       src="/pizza.avif" 
+                       src={homeContent?.hero?.image || "/pizza.avif"} 
                        width={600} 
                        height={600} 
                        alt="Pizza Hero" 
@@ -139,7 +175,7 @@ export default function HomePage() {
                      </div>
                      <div className="absolute -bottom-10 -left-12 bg-gray-950 p-6 rounded-[32px] shadow-3xl text-white">
                         <div className="flex items-center gap-4">
-                           <div className="h-12 w-12 bg-orange-500 rounded-xl flex items-center justify-center text-white font-black">4.8</div>
+                           <div className="h-12 w-12 bg-orange-500 rounded-xl flex items-center justify-center text-white font-black">{homeContent?.hero?.trustScore || 4.8}</div>
                            <div>
                               <p className="text-[10px] font-black uppercase text-gray-500">Global Customer</p>
                               <p className="font-bold">Trust Score</p>
@@ -180,19 +216,22 @@ export default function HomePage() {
               <Link
                 key={cat.id}
                 href={`/meals?categoryId=${cat.id}`}
-                className='group bg-white p-8 rounded-2xl border border-gray-100 hover:border-orange-500/30 hover:shadow-xl transition-all duration-300 text-center flex flex-col items-center justify-center gap-4'
+                className='group bg-white p-6 rounded-2xl border border-gray-100 hover:border-orange-500/30 hover:shadow-xl transition-all duration-300 text-left flex flex-col justify-between min-h-[180px]'
                 data-aos="fade-up"
                 data-aos-delay={i * 100}
               >
-                <div className='text-4xl group-hover:scale-110 transition-transform duration-300'>
-                  {i % 2 === 0 ? '🍔' : '🍕'}
+                <div className="flex items-start justify-between">
+                  <span className="inline-flex items-center px-3 py-1 rounded-lg bg-orange-50 text-orange-600 text-[10px] font-black uppercase tracking-widest">
+                    Category
+                  </span>
+                  <ArrowRight size={16} className="text-gray-300 group-hover:text-orange-500 group-hover:translate-x-1 transition-all" />
                 </div>
-                <div className="space-y-1">
-                  <h4 className='font-bold text-gray-900 group-hover:text-orange-500 transition-colors tracking-tight text-sm'>
+                <div className="space-y-2">
+                  <h4 className='font-black text-gray-900 group-hover:text-orange-500 transition-colors tracking-tight text-lg'>
                     {cat.name}
                   </h4>
-                  <p className="text-[10px] font-black text-gray-300 uppercase tracking-widest">
-                    {(cat as any)._count?.meals || 0} Items
+                  <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">
+                    {(cat as any)._count?.meals || 0} items
                   </p>
                 </div>
               </Link>
@@ -207,30 +246,23 @@ export default function HomePage() {
           <div className="max-w-3xl mx-auto text-center space-y-4 mb-24" data-aos="fade-up">
              <p className="text-[10px] font-black uppercase text-orange-500 tracking-[0.4em]">Process</p>
              <h2 className='text-5xl md:text-6xl font-black text-gray-950 tracking-tight'>Simplest Way to <span className="italic">Order</span></h2>
+             <p className='text-sm md:text-base text-gray-500 font-medium max-w-xl mx-auto'>
+               A smooth 3-step flow powered by live platform data.
+             </p>
           </div>
-          <div className='grid grid-cols-1 md:grid-cols-3 gap-16 relative'>
-            <div className="absolute top-1/2 left-0 w-full h-px bg-gray-100 hidden md:block -z-10"></div>
-            {[
-              {
-                title: 'Choice',
-                desc: 'Pick your perfect meal from local chefs.',
-                icon: <Search className='text-orange-500' size={24} />,
-              },
-              {
-                title: 'Order',
-                desc: 'Pay securely and get real-time updates.',
-                icon: <Clock className='text-orange-500' size={24} />,
-              },
-              {
-                title: 'Enjoy',
-                desc: 'Fresh food delivered exactly on time.',
-                icon: <Utensils size={24} className='text-orange-500' />,
-              },
-            ].map((step, i) => (
-              <div key={i} className='bg-white p-8 rounded-2xl border border-gray-100 hover:shadow-xl transition-all duration-500 text-center relative group' data-aos="fade-up" data-aos-delay={i * 200}>
-                 <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-10 h-10 bg-gray-950 text-white rounded-xl flex items-center justify-center font-bold text-lg shadow-lg group-hover:bg-orange-500 transition-colors uppercase font-black">{i + 1}</div>
-                 <div className="h-16 w-16 bg-orange-50 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">{step.icon}</div>
-                 <h4 className='text-xl font-bold mb-3 group-hover:text-orange-500 transition-colors'>{step.title}</h4>
+          <div className='grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-10 relative'>
+            <div className="absolute top-11 left-0 w-full h-px bg-gradient-to-r from-transparent via-orange-200 to-transparent hidden md:block -z-10"></div>
+            {(homeContent?.processSteps || [
+              { title: 'Choice', desc: 'Pick your perfect meal from local chefs.' },
+              { title: 'Order', desc: 'Pay securely and get real-time updates.' },
+              { title: 'Enjoy', desc: 'Fresh food delivered exactly on time.' },
+            ]).map((step, i) => (
+              <div key={i} className='bg-white p-7 rounded-3xl border border-gray-100 hover:border-orange-200 hover:shadow-2xl hover:shadow-orange-500/10 transition-all duration-500 text-center relative group' data-aos="fade-up" data-aos-delay={i * 200}>
+                 <div className="w-11 h-11 mx-auto mb-4 bg-gray-950 text-white rounded-xl flex items-center justify-center font-bold text-sm shadow-lg group-hover:bg-orange-500 transition-colors uppercase font-black">{`0${i + 1}`}</div>
+                 <div className="h-16 w-16 bg-orange-50 rounded-2xl flex items-center justify-center mx-auto mb-5 group-hover:scale-110 transition-transform">
+                   {i === 0 ? <Search className='text-orange-500' size={24} /> : i === 1 ? <Clock className='text-orange-500' size={24} /> : <Utensils size={24} className='text-orange-500' />}
+                 </div>
+                 <h4 className='text-xl font-black mb-2 group-hover:text-orange-500 transition-colors tracking-tight'>{step.title}</h4>
                  <p className='text-gray-500 text-sm font-medium leading-relaxed'>{step.desc}</p>
               </div>
             ))}
@@ -246,8 +278,8 @@ export default function HomePage() {
         <div className='container mx-auto px-4'>
           <div className="flex flex-col md:flex-row justify-between items-end gap-6 mb-12" data-aos="fade-up">
             <div className="space-y-2">
-               <p className="text-xs font-bold uppercase text-orange-500 tracking-widest">Chef's Specials</p>
-               <h2 className='text-3xl md:text-4xl font-black text-gray-950 tracking-tight'>Today's Top Picks</h2>
+               <p className="text-xs font-bold uppercase text-orange-500 tracking-widest">Chef&apos;s Specials</p>
+               <h2 className='text-3xl md:text-4xl font-black text-gray-950 tracking-tight'>Today&apos;s Top Picks</h2>
             </div>
             <Link href="/meals">
               <Button variant="outline" className="h-11 rounded-xl border-gray-200 text-gray-600 font-bold px-6 group flex items-center gap-2">
@@ -277,34 +309,43 @@ export default function HomePage() {
             <div className='relative group' data-aos="fade-right">
               <div className="absolute inset-0 bg-orange-500/20 rounded-[60px] blur-3xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
               <img
-                src='https://images.unsplash.com/photo-1552566626-52f8b828add9?q=80&w=1200'
+                src={homeContent?.story?.image || 'https://images.unsplash.com/photo-1552566626-52f8b828add9?q=80&w=1200'}
                 className='rounded-[60px] shadow-3xl relative z-10 transition-all duration-1000 group-hover:scale-[1.02]'
                 alt='Brand Story'
               />
               <div className="absolute -bottom-10 -right-10 bg-white p-10 rounded-[48px] shadow-3xl z-20 border border-gray-50 hidden md:block">
-                 <p className="text-5xl font-black text-orange-500 mb-1">12+</p>
+                 <p className="text-5xl font-black text-orange-500 mb-1">{homeContent?.story?.yearsOfTrust || 12}+</p>
                  <p className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Years of Trust</p>
               </div>
             </div>
             <div className='space-y-10' data-aos="fade-left">
               <div className="space-y-4">
                  <p className="text-[10px] font-black uppercase text-orange-500 tracking-[0.4em]">Our Legacy</p>
-                 <h2 className='text-5xl md:text-7xl font-black text-gray-950 leading-[0.95] tracking-tight'>Connecting <br /> People through <br /> <span className="text-orange-500 italic">Plate & Palette.</span></h2>
+                 <h2 className='text-5xl md:text-7xl font-black text-gray-950 leading-[0.95] tracking-tight'>
+                   {homeContent?.story?.title || 'Connecting People through Plate & Palette.'}
+                 </h2>
               </div>
               <p className='text-gray-500 text-xl leading-relaxed font-medium'>
-                What started as a small kitchen project is now a global movement. We're on a mission to bring high-quality, chef-crafted meals to every household while empowering local talent to shine.
+                {homeContent?.story?.description || "What started as a small kitchen project is now a global movement. We're on a mission to bring high-quality, chef-crafted meals to every household while empowering local talent to shine."}
               </p>
               <div className="grid grid-cols-2 gap-10">
                  <div className="space-y-2">
-                    <p className="text-2xl font-black text-gray-900">1.2M+</p>
-                    <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Active Eaters</p>
+                    <p className="text-2xl font-black text-gray-900">
+                      {publicStats
+                        ? publicStats.customers >= 1000
+                          ? `${(publicStats.customers / 1000).toFixed(1)}K+`
+                          : `${publicStats.customers}`
+                        : homeContent?.story?.activeEatersValue || '0'}
+                    </p>
+                    <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">{homeContent?.story?.activeEatersLabel || 'Active Eaters'}</p>
                  </div>
                  <div className="space-y-2">
-                    <p className="text-2xl font-black text-gray-900">50+</p>
-                    <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Global Cities</p>
+                    <p className="text-2xl font-black text-gray-900">
+                      {publicStats ? `${publicStats.radius}` : homeContent?.story?.globalCitiesValue || '0'}
+                    </p>
+                    <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">{homeContent?.story?.globalCitiesLabel || 'Global Cities'}</p>
                  </div>
               </div>
-              <Button className="h-14 px-8 rounded-2xl font-black bg-gray-950 hover:bg-orange-500 transition-colors">Learn Our Core Values</Button>
             </div>
           </div>
         </div>
@@ -325,12 +366,12 @@ export default function HomePage() {
               </div>
               
               <ul className="space-y-4 inline-block text-left">
-                {[
+                {(homeContent?.mobileApp?.features || [
                   'Faster ordering process',
                   'Exclusive app-only discounts',
                   'Personalized recommendations',
                   'Real-time order tracking'
-                ].map((item, i) => (
+                ]).map((item, i) => (
                   <li key={i} className="flex items-center gap-3 font-bold text-gray-300">
                     <CheckCircle2 size={20} className="text-orange-500" /> {item}
                   </li>
@@ -341,7 +382,7 @@ export default function HomePage() {
                 <Button className="h-16 px-10 rounded-2xl bg-white text-black hover:bg-orange-500 hover:text-white transition-all font-black text-sm uppercase gap-4 group">
                    <Smartphone size={20} className="group-hover:scale-110 transition-transform" /> App Store
                 </Button>
-                <Button className="h-16 px-10 rounded-2xl border border-white/20 hover:border-orange-500 bg-transparent text-white hover:text-orange-500 transition-all font-black text-sm uppercase gap-4">
+                <Button className="h-16 px-10 rounded-2xl border border-white/20 hover:border-orange-500 bg-transparent text-white hover:bg-orange-500 hover:text-white transition-all font-black text-sm uppercase gap-4">
                    <Search size={20} /> Play Store
                 </Button>
               </div>
@@ -349,7 +390,7 @@ export default function HomePage() {
             <div className="relative group" data-aos="fade-left">
                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-orange-500/20 rounded-full blur-[100px] animate-pulse"></div>
                <img
-                src='https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?q=80&w=800'
+                src={homeContent?.mobileApp?.image || 'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?q=80&w=800'}
                 className='max-w-[100%] mx-auto relative z-10 translate-y-10 group-hover:translate-y-0 transition-transform duration-1000'
                 alt='Mobile App'
               />
@@ -367,9 +408,9 @@ export default function HomePage() {
               <div className="relative z-10 space-y-6">
                  <h3 className="text-3xl font-black text-gray-900 leading-tight">Hungry? <br /> Start Eating.</h3>
                  <p className="text-gray-600 font-medium">Create a customer account to unlock personalized recommendations and 25% off your first order.</p>
-                 <Link href="/register?role=CUSTOMER">
+                 <Link href={user ? (user.role === 'CUSTOMER' ? '/dashboard/customer' : '/dashboard/user') : "/register?role=CUSTOMER"}>
                    <Button className="h-12 px-8 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-bold group">
-                      Join as Customer <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" />
+                      {user ? 'Go to Dashboard' : 'Join as Customer'} <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" />
                    </Button>
                  </Link>
               </div>
@@ -381,9 +422,9 @@ export default function HomePage() {
               <div className="relative z-10 space-y-6">
                  <h3 className="text-3xl font-black text-white leading-tight">Cooking? <br /> Start Selling.</h3>
                  <p className="text-gray-400 font-medium">Join our network of elite chefs. List your kitchen and reach thousands of hungry souls today.</p>
-                 <Link href="/register?role=PROVIDER">
+                 <Link href={user ? (user.role === 'PROVIDER' ? '/provider/dashboard' : '/dashboard/user') : "/register?role=PROVIDER"}>
                    <Button className="h-12 px-8 rounded-xl bg-white text-gray-950 hover:bg-orange-500 hover:text-white font-bold group">
-                      Become a Provider <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" />
+                      {user ? 'Open Workspace' : 'Become a Provider'} <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" />
                    </Button>
                  </Link>
               </div>
@@ -412,10 +453,16 @@ export default function HomePage() {
                 <input 
                   type="email" 
                   placeholder="Enter your email" 
+                  value={newsletterEmail}
+                  onChange={(e) => setNewsletterEmail(e.target.value)}
                   className="flex-1 bg-white border-2 border-transparent focus:border-orange-500 rounded-[2rem] px-8 py-5 outline-none font-bold text-gray-900 shadow-xl shadow-gray-200/50 transition-all"
                 />
-                <Button className="h-auto py-5 px-12 rounded-[2rem] bg-gray-950 hover:bg-orange-500 text-white font-black text-lg transition-all active:scale-95 shadow-xl shadow-gray-200/50">
-                  Notify Me
+                <Button
+                  onClick={handleNewsletterSubmit}
+                  disabled={newsletterLoading}
+                  className="h-auto py-5 px-12 rounded-[2rem] bg-gray-950 hover:bg-orange-500 text-white font-black text-lg transition-all active:scale-95 shadow-xl shadow-gray-200/50"
+                >
+                  {newsletterLoading ? 'Submitting...' : 'Notify Me'}
                 </Button>
               </div>
            </div>

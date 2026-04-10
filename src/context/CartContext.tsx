@@ -21,14 +21,17 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider = ({ children }: { children: React.ReactNode }) => {
-  const [cart, setCart] = useState<CartItem[]>([]);
-
-  useEffect(() => {
+  const [cart, setCart] = useState<CartItem[]>(() => {
+    if (typeof window === "undefined") return [];
     const storedCart = localStorage.getItem("cart");
-    if (storedCart) {
-      setCart(JSON.parse(storedCart));
+    if (!storedCart) return [];
+    try {
+      return JSON.parse(storedCart) as CartItem[];
+    } catch {
+      localStorage.removeItem("cart");
+      return [];
     }
-  }, []);
+  });
 
   useEffect(() => {
     localStorage.setItem("cart", JSON.stringify(cart));

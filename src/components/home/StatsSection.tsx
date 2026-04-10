@@ -1,11 +1,18 @@
 "use client";
 
-import { Users, Utensils, Star, Globe, Loader2 } from 'lucide-react';
+import { Users, Utensils, Star, Globe } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { metaService } from '@/services/metaService';
 
+type PublicStats = {
+  customers: number;
+  chefs: number;
+  rating: number;
+  radius: number;
+};
+
 export function StatsSection() {
-  const [statsData, setStatsData] = useState<any>(null);
+  const [statsData, setStatsData] = useState<PublicStats | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -27,7 +34,7 @@ export function StatsSection() {
     { label: 'Happy Customers', value: statsData ? (statsData.customers >= 1000 ? `${(statsData.customers / 1000).toFixed(1)}K+` : statsData.customers.toLocaleString()) : null, icon: <Users size={20} />, desc: 'Global trust footprint' },
     { label: 'Expert Chefs', value: statsData ? statsData.chefs.toLocaleString() : null, icon: <Utensils size={20} />, desc: 'Vetted culinary masters' },
     { label: 'Platform Rating', value: statsData ? statsData.rating.toFixed(1) : null, icon: <Star size={20} />, desc: 'Community score' },
-    { label: 'Delivery Radius', value: statsData ? `${statsData.radius}+` : null, icon: <Globe size={20} />, desc: 'Major cities worldwide' },
+    { label: 'Delivery Radius', value: statsData ? `${statsData.radius}` : null, icon: <Globe size={20} />, desc: 'Active coverage cities' },
   ];
 
   return (

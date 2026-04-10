@@ -26,6 +26,7 @@ export default function MealDetailsPage() {
   const [relatedMeals, setRelatedMeals] = useState<Meal[]>([]);
   const [loading, setLoading] = useState(true);
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+  const [quantity, setQuantity] = useState(1);
   const { addToCart } = useCart();
   const { user } = useAuth();
 
@@ -51,7 +52,7 @@ export default function MealDetailsPage() {
 
         if (mealData.categoryId) {
           const related = await mealService.getMeals({ categoryId: mealData.categoryId });
-          setRelatedMeals(related.filter((m: Meal) => m.id !== id).slice(0, 4));
+          setRelatedMeals((related?.data || []).filter((m: Meal) => m.id !== id).slice(0, 4));
         }
       } catch {
         toast.error('Failed to load meal details');
@@ -103,18 +104,18 @@ export default function MealDetailsPage() {
             <div className="grid grid-cols-3 gap-4">
                <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100 flex flex-col items-center text-center gap-2">
                   <ShieldCheck className="text-green-500" size={20} />
-                  <p className="text-[10px] font-bold text-gray-400 uppercase">Nature</p>
-                  <p className="text-xs font-bold text-gray-900">100% Fresh</p>
+                  <p className="text-[10px] font-bold text-gray-400 uppercase">Status</p>
+                  <p className="text-xs font-bold text-gray-900">{meal.isAvailable ? 'Available' : 'Unavailable'}</p>
                </div>
                <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100 flex flex-col items-center text-center gap-2">
                   <Clock className="text-orange-500" size={20} />
-                  <p className="text-[10px] font-bold text-gray-400 uppercase">Speed</p>
-                  <p className="text-xs font-bold text-gray-900">25 Min</p>
+                  <p className="text-[10px] font-bold text-gray-400 uppercase">Category</p>
+                  <p className="text-xs font-bold text-gray-900">{meal.category?.name || 'General'}</p>
                </div>
                <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100 flex flex-col items-center text-center gap-2">
                   <Zap className="text-blue-500" size={20} />
-                  <p className="text-[10px] font-bold text-gray-400 uppercase">Energy</p>
-                  <p className="text-xs font-bold text-gray-900">450 Kcal</p>
+                  <p className="text-[10px] font-bold text-gray-400 uppercase">Reviews</p>
+                  <p className="text-xs font-bold text-gray-900">{reviews.length}</p>
                </div>
             </div>
           </div>
@@ -147,9 +148,19 @@ export default function MealDetailsPage() {
                      <p className='text-4xl font-bold text-gray-950'>{formatCurrency(meal.price)}</p>
                   </div>
                   <div className='flex items-center gap-3 bg-gray-50 p-2 rounded-xl'>
-                     <button className='w-8 h-8 rounded-lg flex items-center justify-center hover:bg-white font-bold transition-colors'>-</button>
-                     <span className='w-6 text-center font-bold text-sm'>1</span>
-                     <button className='w-8 h-8 rounded-lg flex items-center justify-center hover:bg-white font-bold transition-colors'>+</button>
+                     <button
+                       className='w-8 h-8 rounded-lg flex items-center justify-center hover:bg-white font-bold transition-colors'
+                       onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}
+                     >
+                       -
+                     </button>
+                     <span className='w-6 text-center font-bold text-sm'>{quantity}</span>
+                     <button
+                       className='w-8 h-8 rounded-lg flex items-center justify-center hover:bg-white font-bold transition-colors'
+                       onClick={() => setQuantity((prev) => prev + 1)}
+                     >
+                       +
+                     </button>
                   </div>
                </div>
 
@@ -169,11 +180,27 @@ export default function MealDetailsPage() {
 
             <Button
               className='w-full h-14 rounded-2xl text-md font-bold bg-orange-500 hover:bg-orange-600 shadow-xl shadow-orange-500/20'
-              onClick={() => { addToCart(meal); toast.success('Added to bag!'); }}
+              onClick={() => {
+                // Keep one toast while still supporting multi-quantity add.
+                addToCart(meal);
+                for (let i = 1; i < quantity; i += 1) addToCart(meal);
+              }}
               disabled={!meal.isAvailable}
             >
               <ShoppingBag size={20} className='mr-3' /> 
               {meal.isAvailable ? 'Add to bag' : 'Out of Stock'}
+            </Button>
+            <Button
+              variant="outline"
+              className="w-full h-12 rounded-2xl text-sm font-bold mt-3"
+              onClick={() => {
+                addToCart(meal);
+                for (let i = 1; i < quantity; i += 1) addToCart(meal);
+                router.push('/cart');
+              }}
+              disabled={!meal.isAvailable}
+            >
+              Add & Go to Cart
             </Button>
           </div>
         </div>
@@ -209,10 +236,10 @@ export default function MealDetailsPage() {
                   <div className='flex justify-between items-start'>
                      <div className='flex items-center gap-3'>
                         <div className='h-10 w-10 bg-gray-100 rounded-full flex items-center justify-center font-bold text-xs uppercase'>
-                           {review.user?.name.charAt(0)}
+                           {review.user?.name?.charAt(0) || 'U'}
                         </div>
                         <div>
-                           <p className='text-sm font-bold'>{review.user?.name}</p>
+                           <p className='text-sm font-bold'>{review.user?.name || 'Anonymous'}</p>
                            <p className='text-[10px] text-gray-400 font-medium'>{new Date(review.createdAt).toLocaleDateString()}</p>
                         </div>
                      </div>
@@ -220,7 +247,9 @@ export default function MealDetailsPage() {
                         <Star size={12} fill="currentColor" className="mr-1" /> {review.rating}
                      </div>
                   </div>
-                  <p className='text-gray-600 text-sm font-medium leading-relaxed italic'>&quot;{review.comment}&quot;</p>
+                  <p className='text-gray-600 text-sm font-medium leading-relaxed italic'>
+                    &quot;{review.comment || 'No comment provided.'}&quot;
+                  </p>
                 </Card>
               ))}
             </div>

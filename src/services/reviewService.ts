@@ -24,7 +24,11 @@ export const reviewService = {
     return response.data.data;
   },
   getPublicTestimonials: async () => {
-    const response = await api.get('/reviews/testimonials');
-    return response.data.data;
+    try {
+      const response = await api.get('/reviews/testimonials');
+      return response.data.data;
+    } catch {
+      return [];
+    }
   },
 };

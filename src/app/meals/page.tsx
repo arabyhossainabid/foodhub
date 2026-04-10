@@ -32,6 +32,14 @@ function MealsContent() {
   const itemsPerPage = 9;
 
   useEffect(() => {
+    const nextSearch = searchParams.get('search') || '';
+    const nextCategory = searchParams.get('categoryId') || '';
+    setSearchTerm(nextSearch);
+    setSelectedCat(nextCategory);
+    setPage(1);
+  }, [searchParams]);
+
+  useEffect(() => {
     const fetchCategories = async () => {
       try {
         const categoriesData = await mealService.getCategories();
@@ -81,7 +89,7 @@ function MealsContent() {
   };
 
   return (
-    <div className='container mx-auto px-4 py-12 min-h-screen'>
+    <div className='container mx-auto px-4 pt-32 pb-16 min-h-screen'>
       <div className='flex flex-col lg:flex-row gap-12'>
         {/* Sidebar Filters */}
         <aside className='w-full lg:w-72 space-y-8 shrink-0'>

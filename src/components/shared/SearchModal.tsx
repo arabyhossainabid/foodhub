@@ -1,9 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Search, X, Utensils, ArrowRight, Loader2, Star } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Input } from "@/components/ui/input";
 import { mealService } from "@/services/mealService";
 import { Meal } from "@/types";
 import Image from "next/image";
@@ -19,6 +18,44 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [results, setResults] = useState<Meal[]>([]);
   const [loading, setLoading] = useState(false);
+  const [keywordPool, setKeywordPool] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const loadSmartKeywords = async () => {
+      try {
+        const [mealResponse, categories] = await Promise.all([
+          mealService.getMeals({ limit: 60 }),
+          mealService.getCategories(),
+        ]);
+
+        const meals = Array.isArray(mealResponse?.data) ? mealResponse.data : [];
+        const pool = new Set<string>();
+
+        meals.forEach((meal: Meal) => {
+          if (meal.title) pool.add(meal.title.trim());
+          if (meal.description) {
+            meal.description
+              .split(/\s+/)
+              .map((word) => word.replace(/[^\w]/g, "").trim())
+              .filter((word) => word.length >= 4)
+              .forEach((word) => pool.add(word));
+          }
+        });
+
+        (Array.isArray(categories) ? categories : []).forEach((cat: { name?: string }) => {
+          if (cat?.name) pool.add(cat.name.trim());
+        });
+
+        setKeywordPool(Array.from(pool).slice(0, 200));
+      } catch {
+        setKeywordPool([]);
+      }
+    };
+
+    loadSmartKeywords();
+  }, [isOpen]);
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(async () => {
@@ -39,6 +76,19 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
 
     return () => clearTimeout(delayDebounceFn);
   }, [searchTerm]);
+
+  const smartSuggestions = useMemo(() => {
+    const q = searchTerm.trim().toLowerCase();
+    const fallback = keywordPool.slice(0, 6);
+    if (!q) return fallback;
+
+    const startsWith = keywordPool.filter((item) => item.toLowerCase().startsWith(q));
+    const includes = keywordPool.filter(
+      (item) => item.toLowerCase().includes(q) && !item.toLowerCase().startsWith(q)
+    );
+
+    return [...startsWith, ...includes].slice(0, 6);
+  }, [keywordPool, searchTerm]);
 
   // Handle escape key
   useEffect(() => {
@@ -118,13 +168,29 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                ) : searchTerm.trim().length > 1 && !loading ? (
                   <div className="py-20 text-center space-y-4">
                      <div className="h-16 w-16 bg-gray-50 rounded-2xl flex items-center justify-center text-gray-300 mx-auto"><Utensils size={32} /></div>
-                     <p className="text-gray-500 font-bold">No culinary matches for "{searchTerm}"</p>
+                     <p className="text-gray-500 font-bold">No culinary matches for &quot;{searchTerm}&quot;</p>
+                     {smartSuggestions.length > 0 && (
+                        <div className="pt-4">
+                           <p className="text-[10px] font-black uppercase text-gray-300 tracking-[0.3em] mb-4">Try these</p>
+                           <div className="flex flex-wrap justify-center gap-3">
+                              {smartSuggestions.map((tag) => (
+                                 <button
+                                    key={tag}
+                                    onClick={() => setSearchTerm(tag)}
+                                    className="px-6 py-2 bg-gray-50 hover:bg-orange-500 hover:text-white rounded-xl text-sm font-black transition-all border border-gray-100"
+                                 >
+                                    {tag}
+                                 </button>
+                              ))}
+                           </div>
+                        </div>
+                     )}
                   </div>
                ) : (
                   <div className="py-20 text-center space-y-6">
-                     <p className="text-[10px] font-black uppercase text-gray-300 tracking-[0.4em]">Suggested Searches</p>
+                     <p className="text-[10px] font-black uppercase text-gray-300 tracking-[0.4em]">Smart Suggestions</p>
                      <div className="flex flex-wrap justify-center gap-3">
-                        {['Pizza', 'Burger', 'Sushi', 'Vegan', 'Pasta', 'Dessert'].map(tag => (
+                        {smartSuggestions.map(tag => (
                            <button 
                              key={tag}
                              onClick={() => setSearchTerm(tag)}
@@ -133,6 +199,16 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                               {tag}
                            </button>
                         ))}
+                        {smartSuggestions.length === 0 &&
+                          ['Pizza', 'Burger', 'Sushi', 'Vegan', 'Pasta', 'Dessert'].map((tag) => (
+                            <button
+                              key={tag}
+                              onClick={() => setSearchTerm(tag)}
+                              className="px-6 py-2 bg-gray-50 hover:bg-orange-500 hover:text-white rounded-xl text-sm font-black transition-all border border-gray-100"
+                            >
+                              {tag}
+                            </button>
+                          ))}
                      </div>
                   </div>
                )}
