@@ -1,39 +1,10 @@
-import { Calendar, User, ArrowRight, Search, Tag } from 'lucide-react';
+import { Calendar, ArrowRight, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import Link from 'next/link';
+import { blogPosts } from '@/data/blogPosts';
 
 export default function BlogPage() {
-  const posts = [
-    {
-      id: 1,
-      title: 'Top 10 Hidden Gem Restaurants in New York',
-      excerpt: 'Discover the most underrated culinary experiences that only locals know about...',
-      image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=800&auto=format&fit=crop',
-      author: 'Alex Chen',
-      date: 'Aug 12, 2026',
-      category: 'Lifestyle'
-    },
-    {
-      id: 2,
-      title: 'The Art of Making Perfect Neapolitan Pizza',
-      excerpt: 'Everything you need to know about the dough, the sauce, and the heat...',
-      image: 'https://images.unsplash.com/photo-1574071318508-1cdbad80ad38?q=80&w=800&auto=format&fit=crop',
-      author: 'Chef Mario',
-      date: 'Aug 10, 2026',
-      category: 'Recipes'
-    },
-    {
-      id: 3,
-      title: 'How Delivery Apps are Balancing Speed and Sustainability',
-      excerpt: 'FoodHubs commitment to eco-friendly packaging and conscious delivery methods...',
-      image: 'https://images.unsplash.com/photo-1610348725531-843dff563e2c?q=80&w=800&auto=format&fit=crop',
-      author: 'Emma Wilson',
-      date: 'Aug 05, 2026',
-      category: 'Inside FoodHub'
-    }
-  ];
-
   return (
     <div className="flex flex-col">
       {/* Blog Hero */}
@@ -96,7 +67,7 @@ export default function BlogPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
-            {posts.map((post) => (
+            {blogPosts.map((post) => (
               <div key={post.id} className="bg-white rounded-[40px] overflow-hidden border border-gray-100 group hover:shadow-2xl hover:shadow-gray-200/50 transition-all duration-500">
                 <div className="h-64 relative overflow-hidden">
                    <img src={post.image} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt={post.title} />

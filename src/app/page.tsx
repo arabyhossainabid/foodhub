@@ -59,7 +59,7 @@ export default function HomePage() {
   return (
     <main className='min-h-screen overflow-hidden bg-white' suppressHydrationWarning>
       {/* 1. HERO SECTION (NORMALIZED) */}
-      <section className='relative min-h-[80vh] flex items-center pt-20 pb-16 overflow-hidden'>
+      <section className='relative min-h-[70vh] flex items-center pt-20 pb-16 overflow-hidden'>
         {/* Animated Background Elements */}
         <div className="absolute top-0 right-0 w-1/2 h-full bg-orange-500/5 blur-[120px] rounded-full translate-x-1/4 animate-glow"></div>
         <div className="absolute bottom-0 left-0 w-1/3 h-2/3 bg-orange-500/5 blur-[100px] rounded-full -translate-x-1/4"></div>
