@@ -6,19 +6,17 @@ import "aos/dist/aos.css";
 
 export const AOSProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
-    const initAOS = () => {
+    // Wait for hydration to stabilize before initializing AOS
+    const timer = setTimeout(() => {
       AOS.init({
         duration: 800,
         once: false,
+        mirror: false,
       });
-    };
+      AOS.refresh();
+    }, 100);
 
-    if (document.readyState === 'complete') {
-      initAOS();
-    } else {
-      window.addEventListener('load', initAOS);
-      return () => window.removeEventListener('load', initAOS);
-    }
+    return () => clearTimeout(timer);
   }, []);
 
   return <>{children}</>;

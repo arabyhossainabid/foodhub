@@ -8,6 +8,7 @@ import { Navbar } from "@/components/shared/Navbar";
 import { Footer } from "@/components/shared/Footer";
 import NextTopLoader from 'nextjs-toploader';
 import { AOSProvider } from "@/components/shared/AOSProvider";
+import { AIChatbox } from "@/components/shared/AIChatbox";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -51,8 +52,9 @@ export default function RootLayout({
               <Toaster position="top-right" />
               <div className="flex flex-col min-h-screen">
                 <Navbar />
-                <main className="grow">{children}</main>
+                <main className="grow pt-24 md:pt-32">{children}</main>
                 <Footer />
+                <AIChatbox />
               </div>
             </AOSProvider>
           </CartProvider>

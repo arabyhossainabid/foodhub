@@ -23,4 +23,8 @@ export const reviewService = {
     const response = await api.get('/reviews/my');
     return response.data.data;
   },
+  getPublicTestimonials: async () => {
+    const response = await api.get('/reviews/testimonials');
+    return response.data.data;
+  },
 };

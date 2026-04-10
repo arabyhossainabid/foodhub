@@ -1,6 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-'use client';
+"use client";
 
 import { FullPageLoader } from '@/components/shared/FullPageLoader';
 import { Button } from '@/components/ui/button';
@@ -21,6 +19,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-hot-toast';
 import * as z from 'zod';
+import { User, Mail, Lock, Building, MapPin, Utensils, Zap, ArrowRight } from "lucide-react";
 
 const registerSchema = z
   .object({
@@ -40,7 +39,7 @@ const registerSchema = z
       return true;
     },
     {
-      message: 'Shop Name, Address, and Cuisine are required for Providers',
+      message: 'Provider details are required',
       path: ['shopName'],
     }
   );
@@ -48,20 +47,9 @@ const registerSchema = z
 type RegisterFormValues = z.infer<typeof registerSchema>;
 
 export default function RegisterPage() {
-  const { login } = useAuth();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-
-  const searchParams =
-    typeof window !== 'undefined'
-      ? new URLSearchParams(window.location.search)
-      : null;
-  const initialRole =
-    searchParams?.get('role') === 'PROVIDER' ? 'PROVIDER' : 'CUSTOMER';
-
-  const [selectedRole, setSelectedRole] = useState<'CUSTOMER' | 'PROVIDER'>(
-    initialRole
-  );
+  const [selectedRole, setSelectedRole] = useState<'CUSTOMER' | 'PROVIDER'>('CUSTOMER');
 
   const {
     register,
@@ -70,7 +58,7 @@ export default function RegisterPage() {
     setValue,
   } = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
-    defaultValues: { role: initialRole },
+    defaultValues: { role: 'CUSTOMER' },
   });
 
   const handleRoleChange = (role: 'CUSTOMER' | 'PROVIDER') => {
@@ -81,176 +69,128 @@ export default function RegisterPage() {
   const onSubmit = async (data: RegisterFormValues) => {
     setIsLoading(true);
     try {
-      // Cleanly structure the registration payload
       const payload = {
-        name: data.name,
-        email: data.email,
-        password: data.password,
-        role: data.role,
-        ...(data.role === 'PROVIDER'
-          ? {
-              shopName: data.shopName,
-              address: data.address,
-              cuisine: data.cuisine,
-            }
-          : {}),
+        ...data,
+        ...(data.role === 'PROVIDER' ? {} : { shopName: undefined, address: undefined, cuisine: undefined })
       };
-
-      // Call our centralized auth service
       await authService.register(payload);
-
-      toast.success('Account created successfully! Welcome to FoodHub.');
+      toast.success('Account created! Please login.');
       router.push('/login');
     } catch (error: any) {
-      const errorMsg =
-        error.response?.data?.message ||
-        'Registration failed. Please try again.';
-      toast.error(errorMsg);
+      toast.error(error.response?.data?.message || 'Registration failed');
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className='min-h-[80vh] flex items-center justify-center py-12 px-4 bg-gray-50'>
-      {isLoading && (
-        <FullPageLoader message='Creating your account...' transparent />
-      )}
-      <div className='w-full max-w-lg'>
-        <Card className='shadow-xl border-gray-100'>
-          <CardHeader className='text-center pt-10 pb-6'>
-            <CardTitle className='text-3xl font-bold'>Create Account</CardTitle>
-            <CardDescription className='text-gray-500'>
-              Join the FoodHub community today
-            </CardDescription>
-          </CardHeader>
-          <CardContent className='pt-8 space-y-6'>
-            <div className='flex p-1 bg-gray-100 rounded-md'>
+    <div className='min-h-screen flex items-center justify-center bg-gray-50 pt-32 pb-20 px-4 relative overflow-hidden'>
+      {/* Decorative Circles */}
+      <div className="absolute top-0 right-0 w-96 h-96 bg-orange-500/5 blur-[120px] rounded-full translate-x-1/2 -translate-y-1/2"></div>
+      <div className="absolute bottom-0 left-0 w-96 h-96 bg-orange-500/5 blur-[120px] rounded-full -translate-x-1/2 translate-y-1/2"></div>
+
+      {isLoading && <FullPageLoader message='Assembling your profile...' transparent />}
+      
+      <div className='w-full max-w-xl relative z-10'>
+        <Card className='border-none shadow-2xl shadow-gray-200/50 rounded-[2.5rem] bg-white overflow-hidden'>
+          <div className="bg-gray-950 p-10 text-white text-center relative overflow-hidden">
+             <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/20 blur-3xl"></div>
+             <CardTitle className='text-3xl font-black italic tracking-tighter mb-2'>Join Food<span className="text-orange-500">Hub</span></CardTitle>
+             <CardDescription className='text-gray-400 font-medium'>Create an account to start your culinary journey</CardDescription>
+          </div>
+
+          <CardContent className='p-8 md:p-12 space-y-8'>
+            {/* Role Switcher */}
+            <div className='flex p-1.5 bg-gray-100 rounded-2xl'>
               <button
                 type='button'
-                className={`flex-1 py-3 text-sm font-bold rounded-lg transition-all ${
-                  selectedRole === 'CUSTOMER'
-                    ? 'bg-white text-orange-500 shadow-sm'
-                    : 'text-gray-500 hover:text-gray-700'
+                className={`flex-1 py-3 text-xs font-bold rounded-xl transition-all uppercase tracking-widest ${
+                  selectedRole === 'CUSTOMER' ? 'bg-white text-orange-500 shadow-sm' : 'text-gray-400 hover:text-gray-600'
                 }`}
                 onClick={() => handleRoleChange('CUSTOMER')}
               >
-                I am a Customer
+                Customer
               </button>
               <button
                 type='button'
-                className={`flex-1 py-3 text-sm font-bold rounded-lg transition-all ${
-                  selectedRole === 'PROVIDER'
-                    ? 'bg-white text-orange-500 shadow-sm'
-                    : 'text-gray-500 hover:text-gray-700'
+                className={`flex-1 py-3 text-xs font-bold rounded-xl transition-all uppercase tracking-widest ${
+                  selectedRole === 'PROVIDER' ? 'bg-white text-orange-500 shadow-sm' : 'text-gray-400 hover:text-gray-600'
                 }`}
                 onClick={() => handleRoleChange('PROVIDER')}
               >
-                I am a Provider
+                Provider
               </button>
             </div>
 
-            <form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>
-              <div className='space-y-2'>
-                <label className='text-sm font-medium leading-none'>
-                  Full Name
-                </label>
-                <Input placeholder='John Doe' {...register('name')} />
-                {errors.name && (
-                  <p className='text-xs text-red-500 font-medium'>
-                    {errors.name.message}
-                  </p>
-                )}
-              </div>
-
-              <div className='space-y-2'>
-                <label className='text-sm font-medium leading-none'>
-                  Email
-                </label>
-                <Input
-                  type='email'
-                  placeholder='asif@example.com'
-                  {...register('email')}
-                />
-                {errors.email && (
-                  <p className='text-xs text-red-500 font-medium'>
-                    {errors.email.message}
-                  </p>
-                )}
-              </div>
-
-              <div className='space-y-2'>
-                <label className='text-sm font-medium leading-none'>
-                  Password
-                </label>
-                <Input
-                  type='password'
-                  placeholder='••••••••'
-                  {...register('password')}
-                />
-                {errors.password && (
-                  <p className='text-xs text-red-500 font-medium'>
-                    {errors.password.message}
-                  </p>
-                )}
-              </div>
-
-              {selectedRole === 'PROVIDER' && (
-                <div className='space-y-4 pt-2 animate-in fade-in slide-in-from-top-2'>
-                  <div className='space-y-2'>
-                    <label className='text-sm font-medium leading-none'>
-                      Shop Name
-                    </label>
-                    <Input
-                      placeholder='My Delicious Food'
-                      {...register('shopName')}
-                    />
-                    {errors.shopName && (
-                      <p className='text-xs text-red-500 font-medium'>
-                        {errors.shopName.message}
-                      </p>
-                    )}
-                  </div>
-                  <div className='space-y-2'>
-                    <label className='text-sm font-medium leading-none'>
-                      Shop Address
-                    </label>
-                    <Input
-                      placeholder='123 Street, City'
-                      {...register('address')}
-                    />
-                    {errors.address && (
-                      <p className='text-xs text-red-500 font-medium'>
-                        {errors.address.message}
-                      </p>
-                    )}
-                  </div>
-                  <div className='space-y-2'>
-                    <label className='text-sm font-medium leading-none'>
-                      Cuisine Type
-                    </label>
-                    <Input
-                      placeholder='Italian, Bangladeshi, Fast Food...'
-                      {...register('cuisine')}
-                    />
-                  </div>
+            <form onSubmit={handleSubmit(onSubmit)} className='space-y-5'>
+              <div className='space-y-4'>
+                <div className="relative">
+                   <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300" size={18} />
+                   <Input 
+                    placeholder='Full Name' 
+                    className="h-12 pl-12 rounded-xl border-gray-100 bg-gray-50 focus:bg-white transition-all font-medium"
+                    {...register('name')} 
+                   />
                 </div>
-              )}
+                {errors.name && <p className='text-[10px] text-red-500 font-bold uppercase ml-2'>{errors.name.message}</p>}
 
-              <Button type='submit' className='w-full' isLoading={isLoading}>
-                Register
+                <div className="relative">
+                   <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300" size={18} />
+                   <Input 
+                    type="email"
+                    placeholder='Email Address' 
+                    className="h-12 pl-12 rounded-xl border-gray-100 bg-gray-50 focus:bg-white transition-all font-medium"
+                    {...register('email')} 
+                   />
+                </div>
+                {errors.email && <p className='text-[10px] text-red-500 font-bold uppercase ml-2'>{errors.email.message}</p>}
+
+                <div className="relative">
+                   <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300" size={18} />
+                   <Input 
+                    type="password"
+                    placeholder='Password' 
+                    className="h-12 pl-12 rounded-xl border-gray-100 bg-gray-50 focus:bg-white transition-all font-medium"
+                    {...register('password')} 
+                   />
+                </div>
+                {errors.password && <p className='text-[10px] text-red-500 font-bold uppercase ml-2'>{errors.password.message}</p>}
+
+                {selectedRole === 'PROVIDER' && (
+                  <div className='space-y-4 pt-2 animate-in fade-in slide-in-from-top-2'>
+                    <div className="p-4 bg-orange-50 rounded-2xl border border-orange-100 mb-4 flex items-center gap-3">
+                       <Zap size={20} className="text-orange-500" />
+                       <p className="text-[10px] font-bold text-orange-700 uppercase tracking-wider">Kitchen Details Required</p>
+                    </div>
+                    <div className="relative">
+                       <Building className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300" size={18} />
+                       <Input placeholder='Shop/Kitchen Name' className="h-12 pl-12 rounded-xl border-gray-100 bg-gray-50" {...register('shopName')} />
+                    </div>
+                    <div className="relative">
+                       <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300" size={18} />
+                       <Input placeholder='Operational Address' className="h-12 pl-12 rounded-xl border-gray-100 bg-gray-50" {...register('address')} />
+                    </div>
+                    <div className="relative">
+                       <Utensils className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300" size={18} />
+                       <Input placeholder='Cuisine Specialties' className="h-12 pl-12 rounded-xl border-gray-100 bg-gray-50" {...register('cuisine')} />
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <Button type='submit' className='w-full h-12 rounded-xl bg-orange-500 hover:bg-orange-600 font-bold text-white shadow-lg shadow-orange-500/20 transition-all active:scale-95 group'>
+                Create Account <ArrowRight size={18} className="ml-2 group-hover:translate-x-1 transition-transform" />
               </Button>
             </form>
 
-            <p className='text-center text-sm pb-4 text-gray-600'>
-              Already have an account?{' '}
-              <Link
-                href='/login'
-                className='text-orange-500 font-bold hover:underline'
-              >
-                Login Here
-              </Link>
-            </p>
+            <div className='text-center pt-4'>
+              <p className='text-gray-400 text-sm font-medium'>
+                Already a member?{' '}
+                <Link href='/login' className='text-gray-950 font-bold hover:underline underline-offset-4 decoration-orange-500 decoration-2 transition-all'>
+                  Sign In
+                </Link>
+              </p>
+            </div>
           </CardContent>
         </Card>
       </div>

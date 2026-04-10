@@ -1,84 +1,79 @@
+"use client";
+
+import { Facebook, Instagram, Twitter, Youtube, Mail, MapPin, Phone, ChevronRight, Zap } from "lucide-react";
 import Link from "next/link";
-import { UtensilsCrossed, Facebook, Twitter, Instagram, Youtube } from "lucide-react";
 
 export function Footer() {
   return (
-    <footer className="bg-[#1C1C1C] text-white pt-20 pb-10">
+    <footer className="bg-gray-950 text-white rounded-t-2xl mt-12 pt-12 pb-6 overflow-hidden relative">
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
-          {/* Brand */}
-          <div className="space-y-6">
-            <Link href="/" className="flex items-center space-x-2">
-              <div className="h-10 w-10 bg-orange-500 rounded-md flex items-center justify-center text-white">
-                <UtensilsCrossed size={22} strokeWidth={2.5} />
+        {/* Main Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 pb-10 border-b border-white/10">
+          <div className="space-y-4">
+            <Link href="/" className="flex items-center gap-2 group">
+              <div className="h-8 w-8 bg-orange-500 rounded-lg flex items-center justify-center">
+                <Zap size={16} fill="currentColor" />
               </div>
-              <span className="text-2xl font-bold tracking-tight">
-                Food<span className="text-orange-500">Hub</span>
-              </span>
+              <span className="text-xl font-bold tracking-tight">Food<span className="text-orange-500">Hub</span></span>
             </Link>
-            <p className="text-gray-400 leading-relaxed">
-              Order your favorite meals from the best local restaurants and food providers. Fast delivery and fresh food guaranteed.
+            <p className="text-gray-400 text-xs leading-relaxed max-w-xs">
+              Fresh food from best local restaurants delivered to your doorstep. Fast, fresh, and every time.
             </p>
-            <div className="flex items-center space-x-4">
-              <Link href="#" className="h-10 w-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-orange-500 transition-colors">
-                <Facebook size={18} />
-              </Link>
-              <Link href="#" className="h-10 w-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-orange-500 transition-colors">
-                <Twitter size={18} />
-              </Link>
-              <Link href="#" className="h-10 w-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-orange-500 transition-colors">
-                <Instagram size={18} />
-              </Link>
-              <Link href="#" className="h-10 w-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-orange-500 transition-colors">
-                <Youtube size={18} />
-              </Link>
+            <div className="flex gap-2">
+              {[Facebook, Instagram, Twitter, Youtube].map((Icon, i) => (
+                <Link key={i} href="#" className="h-8 w-8 bg-white/5 rounded-lg flex items-center justify-center hover:bg-orange-500 transition-all">
+                   <Icon size={14} />
+                </Link>
+              ))}
             </div>
           </div>
 
-          {/* Quick Links */}
-          <div>
-            <h4 className="text-lg font-bold mb-6">Quick Links</h4>
-            <ul className="space-y-4">
-              <li><Link href="/meals" className="text-gray-400 hover:text-white transition-colors">Browse Meals</Link></li>
-              <li><Link href="/login" className="text-gray-400 hover:text-white transition-colors">Sign In</Link></li>
-              <li><Link href="/register" className="text-gray-400 hover:text-white transition-colors">Join as Provider</Link></li>
-            </ul>
+          <div className="space-y-4">
+            <h4 className="text-xs font-bold uppercase tracking-widest text-orange-500">Links</h4>
+            <nav className="flex flex-col space-y-2">
+              {["Explore Menu", "Our Restaurants", "Offers", "Blog"].map(item => (
+                <Link key={item} href="#" className="text-gray-400 hover:text-white transition-colors text-xs font-medium flex items-center gap-1 group">
+                  <ChevronRight size={12} className="opacity-0 group-hover:opacity-100 transition-all -ml-2 group-hover:ml-0" /> {item}
+                </Link>
+              ))}
+            </nav>
           </div>
 
-          {/* Categories */}
-          <div>
-            <h4 className="text-lg font-bold mb-6">Popular Categories</h4>
-            <ul className="space-y-4">
-              <li><Link href="/meals?categoryId=burger" className="text-gray-400 hover:text-white transition-colors">Burgers</Link></li>
-              <li><Link href="/meals?categoryId=pizza" className="text-gray-400 hover:text-white transition-colors">Pizza</Link></li>
-              <li><Link href="/meals?categoryId=sushi" className="text-gray-400 hover:text-white transition-colors">Sushi</Link></li>
-              <li><Link href="/meals?categoryId=dessert" className="text-gray-400 hover:text-white transition-colors">Desserts</Link></li>
-            </ul>
+          <div className="space-y-4">
+            <h4 className="text-xs font-bold uppercase tracking-widest text-orange-500">Company</h4>
+            <nav className="flex flex-col space-y-2 text-gray-400 text-xs font-medium">
+              <Link href="/about" className="hover:text-white transition-colors">About Us</Link>
+              <Link href="/contact" className="hover:text-white transition-colors">Contact</Link>
+              <Link href="/faq" className="hover:text-white transition-colors">FAQ</Link>
+            </nav>
           </div>
 
-          {/* Newsletter */}
-          <div>
-            <h4 className="text-lg font-bold mb-6">Subscription</h4>
-            <p className="text-gray-400 mb-6 font-medium">Subscribe for weekly recipes and exclusive discounts.</p>
-            <div className="flex flex-col sm:flex-row gap-3">
-              <input
-                type="email"
-                placeholder="Enter your email"
-                className="bg-gray-800 border-none rounded-md px-4 py-3 text-sm focus:ring-1 focus:ring-orange-500 outline-none"
-              />
-              <button className="bg-orange-500 text-white py-3 rounded-md font-bold hover:bg-[#E64A00] transition-all px-8">
-                Join
-              </button>
+          <div className="space-y-4">
+            <h4 className="text-xs font-bold uppercase tracking-widest text-orange-500">Contact</h4>
+            <div className="space-y-3">
+              <div className="flex gap-2 items-start text-xs">
+                <MapPin className="text-orange-500 shrink-0" size={14} />
+                <p className="text-gray-400">123 Food Street, NY 10001</p>
+              </div>
+              <div className="flex gap-2 items-center text-xs">
+                <Phone className="text-orange-500 shrink-0" size={14} />
+                <p className="text-gray-400">+1 (800) FOOD-HUB</p>
+              </div>
+              <div className="flex gap-2 items-center text-xs">
+                <Mail className="text-orange-500 shrink-0" size={14} />
+                <p className="text-gray-400">hello@foodhub.com</p>
+              </div>
             </div>
           </div>
         </div>
 
-        <div className="pt-10 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0 text-gray-500 text-sm">
-          <p>© 2026 FoodHub. All rights reserved.</p>
-          <div className="flex space-x-8">
-            <Link href="#" className="hover:text-white">Privacy Policy</Link>
-            <Link href="#" className="hover:text-white">Terms of Service</Link>
-            <Link href="#" className="hover:text-white">Cookies</Link>
+        {/* Bottom */}
+        <div className="py-6 flex flex-col md:flex-row justify-between items-center gap-4 text-center">
+          <p className="text-[10px] text-gray-500">© 2026 FoodHub Inc. All Rights Reserved.</p>
+          <div className="flex gap-4 text-[10px] text-gray-500">
+             <Link href="#" className="hover:text-orange-500 transition-colors">Privacy</Link>
+             <Link href="#" className="hover:text-orange-500 transition-colors">Terms</Link>
+             <Link href="#" className="hover:text-orange-500 transition-colors">Cookies</Link>
           </div>
         </div>
       </div>

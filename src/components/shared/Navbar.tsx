@@ -3,16 +3,38 @@
 import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
 import { Button } from "@/components/ui/button";
-import { ShoppingBag, User, LogOut, Menu, X, UtensilsCrossed, Truck, ChevronRight } from "lucide-react";
+import { 
+  ShoppingBag, 
+  User, 
+  LogOut, 
+  Menu, 
+  X, 
+  UtensilsCrossed, 
+  Truck, 
+  ChevronDown, 
+  Search,
+  Zap,
+  Phone,
+  Info,
+  ChevronRight,
+  Flame,
+  LayoutDashboard,
+  MessageSquare
+} from "lucide-react";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { SearchModal } from "./SearchModal";
 
 export function Navbar() {
   const { user, logout } = useAuth();
   const { totalItems } = useCart();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [activeMegaMenu, setActiveMegaMenu] = useState<string | null>(null);
+  const pathname = usePathname();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -23,183 +45,206 @@ export function Navbar() {
   }, []);
 
   const navLinks = [
-    { name: "Browse Meals", href: "/meals" },
-    { name: "Our Kitchens", href: "/providers" },
+    { name: "Home", href: "/" },
+    { 
+      name: "Explore", 
+      href: "/meals", 
+      hasDropdown: true,
+      badge: "HOT"
+    },
+    { name: "Restaurants", href: "/providers" },
+    { name: "Offers", href: "/offers" },
+    { name: "My Orders", href: "/orders", protected: true },
+    { name: "FAQ", href: "/faq" },
   ];
-
-  if (user?.role === "PROVIDER") {
-    navLinks.push({ name: "My Dashboard", href: "/provider/dashboard" });
-    navLinks.push({ name: "My Menu", href: "/provider/menu" });
-  } else if (user?.role === "ADMIN") {
-    navLinks.push({ name: "Admin Panel", href: "/admin/dashboard" });
-  } else if (user?.role === "CUSTOMER") {
-    navLinks.push({ name: "My Orders", href: "/orders" });
-  }
 
   return (
     <nav className={cn(
-      "sticky top-0 z-50 w-full transition-all duration-300 border-b",
-      isScrolled ? "bg-white/95 backdrop-blur-md shadow-md h-16 border-gray-100/50" : "bg-white h-20 border-gray-100"
+      "fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-out",
+      isScrolled 
+        ? "py-2 px-6 md:px-10" 
+        : "py-3 px-4"
     )}>
-      <div className="container mx-auto px-2 md:px-4 h-full flex items-center justify-between">
+      <div className={cn(
+        "container mx-auto max-w-7xl transition-all duration-300 rounded-2xl flex items-center justify-between px-6 py-3 border border-transparent",
+        isScrolled 
+          ? "bg-white/90 backdrop-blur-xl shadow-lg border-white/20" 
+          : "bg-white border-gray-100 shadow-sm"
+      )}>
         {/* Logo */}
-        <Link href="/" className="flex items-center space-x-2">
-          <div className="md:h-10 md:w-10 h-8 w-8 bg-orange-500 rounded-md flex items-center justify-center text-white">
-            <UtensilsCrossed size={22} strokeWidth={2.5} />
+        <Link href="/" className="flex items-center space-x-2 group">
+          <div className="h-10 w-10 bg-orange-500 rounded-xl flex items-center justify-center text-white shadow-lg shadow-orange-500/20 group-hover:scale-105 transition-transform duration-300">
+            <Zap size={20} fill="currentColor" />
           </div>
-          <span className="md:text-2xl text-lg font-black text-gray-900 tracking-tight">
+          <span className="text-xl font-bold text-gray-900 tracking-tight hidden sm:block">
             Food<span className="text-orange-500">Hub</span>
           </span>
         </Link>
 
         {/* Desktop Navigation */}
-        <div className="hidden lg:flex items-center space-x-1">
-          {user?.role === "PROVIDER" ? (
-            <Link href="/provider/dashboard">
-              <Button variant="ghost" className="font-bold text-gray-600 hover:text-orange-500 rounded-md px-6">
-                Provider Dashboard
-              </Button>
-            </Link>
-          ) : user?.role === "ADMIN" ? (
-            <Link href="/admin/dashboard">
-              <Button variant="ghost" className="font-bold text-gray-600 hover:text-orange-500 rounded-md px-6">
-                Admin Dashboard
-              </Button>
-            </Link>
-          ) : (
-            <>
-              <Link href="/meals">
-                <Button variant="ghost" className="font-bold text-gray-600 hover:text-orange-500 rounded-md px-6">
-                  Explore Meals
-                </Button>
-              </Link>
-              <Link href="/providers">
-                <Button variant="ghost" className="font-bold text-gray-600 hover:text-orange-500 rounded-md px-6">
-                  Restaurants
-                </Button>
-              </Link>
-            </>
-          )}
+        <div className="hidden lg:flex items-center gap-1">
+          {navLinks.map((link) => {
+            if (link.protected && !user) return null;
+            const isActive = pathname === link.href;
+            return (
+              <div 
+                key={link.name} 
+                className="relative group/nav"
+                onMouseEnter={() => link.hasDropdown && setActiveMegaMenu(link.name)}
+                onMouseLeave={() => link.hasDropdown && setActiveMegaMenu(null)}
+              >
+                <Link href={link.href}>
+                  <Button 
+                    variant="ghost" 
+                    className={cn(
+                      "px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2",
+                      isActive ? "text-orange-500 bg-orange-50" : "text-gray-600 hover:text-gray-950 hover:bg-gray-50"
+                    )}
+                  >
+                    {link.name}
+                    {link.badge && (
+                      <span className="ml-1 px-1.5 py-0.5 bg-orange-500 text-white text-[8px] rounded-md animate-pulse">
+                        {link.badge}
+                      </span>
+                    )}
+                    {link.hasDropdown && <ChevronDown size={14} className={cn("transition-transform duration-500", activeMegaMenu === link.name && "rotate-180")} />}
+                  </Button>
+                </Link>
+
+                {/* Mega Menu Dropdown */}
+                {link.hasDropdown && (
+                  <div className={cn(
+                    "absolute top-full left-1/2 -translate-x-1/2 w-[500px] transition-all duration-300 origin-top pt-2",
+                    activeMegaMenu === link.name ? "scale-100 opacity-100 translate-y-0 visible" : "scale-95 opacity-0 -translate-y-2 invisible pointer-events-none"
+                  )}>
+                    <div className="bg-white rounded-[32px] shadow-3xl border border-gray-100 p-8">
+                      <div className="grid grid-cols-2 gap-10">
+                        <div>
+                          <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-6">Popular Cuisines</h4>
+                          <div className="space-y-2">
+                            {["Sushi Platter", "Italian Pizza", "Juicy Burgers", "Vegan Bowls", "Street Pasta"].map(cat => (
+                              <Link key={cat} href="/meals" className="flex items-center justify-between p-3 rounded-2xl hover:bg-gray-50 text-gray-700 hover:text-orange-500 font-bold text-sm transition-all group">
+                                {cat} <ChevronRight size={14} className="opacity-0 group-hover:opacity-100 transition-opacity" />
+                              </Link>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="bg-gray-50 rounded-3xl p-6 flex flex-col justify-between">
+                           <div>
+                            <p className="text-xs font-bold text-gray-900 mb-2">Weekend Special</p>
+                           <p className="text-[10px] text-gray-500 font-medium">Get 30% off on all party packs this Sunday.</p>
+                        </div>
+                        <Link href="/become-provider" className="flex items-center gap-2 text-xs font-bold text-orange-500 hover:text-orange-600 mb-4 transition-colors">
+                           Join as Partner <ChevronRight size={14} />
+                        </Link>
+                        <Link href="/offers">
+                          <Button className="w-full h-10 rounded-xl bg-orange-500 hover:bg-orange-600 text-xs font-bold">Claim Offer</Button>
+                        </Link>
+                     </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
 
         {/* Right Actions */}
-        <div className="flex items-center space-x-2">
-          {user ? (
-            <>
-              {/* Only Customers see the Cart */}
-              {user.role === "CUSTOMER" && (
-                <>
-                  <Link href="/orders">
-                    <Button variant="ghost" size="icon" className="hover:bg-orange-50 rounded-md" title="Track Orders">
-                      <Truck size={20} className="text-gray-600" />
-                    </Button>
-                  </Link>
-                  <Link href="/cart">
-                    <Button variant="ghost" size="icon" className="relative hover:bg-orange-50 rounded-md">
-                      <ShoppingBag size={20} className="text-gray-600" />
-                      {totalItems > 0 && (
-                        <span className="absolute -top-1 -right-1 h-5 w-5 bg-orange-500 text-white text-xs flex items-center justify-center rounded-full border-2 border-white font-bold animate-in zoom-in">
-                          {totalItems}
-                        </span>
-                      )}
-                    </Button>
-                  </Link>
-                </>
-              )}
+        <div className="flex items-center gap-4">
+          <div className="hidden lg:flex items-center gap-2 pr-2 border-r border-gray-100">
+             <button 
+               onClick={() => setIsSearchOpen(true)}
+               className="h-10 w-10 rounded-xl bg-gray-100 hover:bg-orange-500 hover:text-white transition-all flex items-center justify-center text-gray-500"
+             >
+                <Search size={18} />
+             </button>
+             <Link href="/cart" className="relative group">
+                <div className="h-10 w-10 rounded-xl bg-gray-50 border border-transparent group-hover:bg-orange-500 group-hover:text-white transition-all flex items-center justify-center">
+                   <ShoppingBag size={18} />
+                </div>
+                {totalItems > 0 && (
+                  <span className="absolute -top-1 -right-1 h-5 w-5 bg-orange-500 text-white text-[10px] flex items-center justify-center rounded-full border-2 border-white font-bold">
+                    {totalItems}
+                  </span>
+                )}
+             </Link>
+          </div>
 
-              <div className="h-8 w-px bg-gray-100 mx-2" />
-
-              <div className="flex items-center space-x-1">
-                <Link href="/profile">
-                  <Button variant="ghost" size="icon" className="hover:bg-orange-50 rounded-md" title="Profile">
-                    <User size={20} className="text-gray-600" />
+          <div className="flex items-center gap-3">
+             {user ? (
+               <div className="flex items-center gap-3 bg-gray-50 p-1.5 pr-4 rounded-2xl border border-transparent hover:border-gray-100 transition-all group cursor-pointer relative">
+                  <Link 
+                    href={
+                      user.role === "ADMIN" ? "/admin/dashboard" : 
+                      user.role === "PROVIDER" ? "/provider/dashboard" : 
+                      "/dashboard/customer"
+                    } 
+                    className="flex items-center gap-3"
+                  >
+                     <div className="h-10 w-10 bg-gray-950 rounded-xl flex items-center justify-center text-white font-black text-xs shadow-xl group-hover:rotate-6 transition-transform">
+                        {user.name.charAt(0)}
+                     </div>
+                     <div className="hidden md:block">
+                        <p className="text-[10px] font-black uppercase text-gray-400 leading-none mb-1">Authenticated</p>
+                        <p className="text-xs font-black text-gray-900">{user.name.split(' ')[0]}</p>
+                     </div>
+                  </Link>
+                  <Button variant="ghost" size="icon" onClick={logout} className="h-8 w-8 rounded-lg text-gray-300 hover:text-red-500 hover:bg-red-50 ml-2">
+                     <LogOut size={16} />
                   </Button>
-                </Link>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={logout}
-                  className="rounded-md border-gray-200 text-gray-600 hover:border-red-500 hover:text-red-500 hover:bg-red-50 font-bold transition-all"
-                >
-                  <LogOut size={18} className="mr-2" />
-                  <span className="hidden sm:inline">Logout</span>
-                </Button>
-              </div>
-            </>
-          ) : (
-            <div className="flex items-center space-x-3">
-              <Link href="/login">
-                <Button variant="ghost" className="font-bold rounded-md px-6">Login</Button>
-              </Link>
-              <Link href="/register">
-                <Button size="sm" className="rounded-md shadow-lg shadow-orange-500/30">Register</Button>
-              </Link>
-            </div>
-          )}
-        </div>
+               </div>
+             ) : (
+               <div className="flex items-center gap-2">
+                  <Link href="/login">
+                     <Button variant="ghost" className="rounded-2xl px-6 font-black text-[10px] uppercase tracking-widest text-gray-500">Login</Button>
+                  </Link>
+                  <Link href="/register">
+                     <Button className="rounded-2xl bg-gray-950 hover:bg-orange-500 text-white px-8 font-black text-[10px] uppercase tracking-widest shadow-xl shadow-gray-200 transition-all active:scale-95">Join Now</Button>
+                  </Link>
+               </div>
+             )}
+          </div>
 
-        {/* Mobile Toggle */}
-        <button
-          className="lg:hidden p-2 text-gray-600 hover:text-orange-500 transition-colors bg-gray-50 rounded-md"
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-        >
-          {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
+          {/* Mobile Toggle */}
+          <button
+            className="lg:hidden h-12 w-12 rounded-2xl bg-gray-50 flex items-center justify-center text-gray-900"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          >
+            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        </div>
       </div>
 
-      {/* Mobile Menu */}
-      <div className={cn(
-        "lg:hidden absolute top-full left-0 w-full bg-white border-b border-gray-100 shadow-2xl transition-all duration-300 ease-in-out origin-top",
-        isMenuOpen ? "scale-y-100 opacity-100 pointer-events-auto" : "scale-y-0 opacity-0 pointer-events-none"
-      )}>
-        <div className="container mx-auto px-4 py-8 flex flex-col space-y-6">
-          <div className="flex flex-col space-y-2">
-            <p className="text-[10px] font-black uppercase text-gray-400 tracking-widest pl-2">Navigation</p>
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={() => setIsMenuOpen(false)}
-                className="group flex items-center justify-between p-4 rounded-md hover:bg-orange-50 transition-all"
-              >
-                <span className="text-lg font-bold text-gray-800 group-hover:text-orange-500">{link.name}</span>
-                <ChevronRight size={18} className="text-gray-300 group-hover:text-orange-500 group-hover:translate-x-1 transition-all" />
-              </Link>
-            ))}
-          </div>
-          <div className="pt-4 flex flex-col space-y-3">
-            {user ? (
-              <>
-                <Link href="/orders" onClick={() => setIsMenuOpen(false)}>
-                  <Button variant="outline" className="w-full justify-start h-12">
-                    <Truck className="mr-3" size={20} />
-                    Track My Orders
-                  </Button>
+      <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
+
+      {/* Mobile Menu Overlay */}
+      {isMenuOpen && (
+        <div className="lg:hidden fixed inset-0 top-32 z-40 bg-white p-8 animate-in fade-in slide-in-from-top-10 duration-700 overflow-y-auto pb-40">
+          <div className="grid grid-cols-1 gap-6">
+            <p className="text-[10px] font-black uppercase text-gray-300 tracking-[0.4em] mb-4">Navigational Map</p>
+            {navLinks.map((link) => {
+               if (link.protected && !user) return null;
+               return (
+                <Link
+                  key={link.name}
+                  href={link.href}
+                  onClick={() => setIsMenuOpen(false)}
+                  className="flex items-center justify-between p-8 bg-gray-50 rounded-[2.5rem] font-black text-2xl text-gray-900 group active:bg-orange-500 active:text-white transition-all"
+                >
+                  {link.name}
+                  <ChevronRight className="text-gray-200 group-hover:text-orange-500" />
                 </Link>
-                <Link href="/cart" onClick={() => setIsMenuOpen(false)}>
-                  <Button variant="outline" className="w-full justify-start h-12">
-                    <ShoppingBag className="mr-3" size={20} />
-                    Cart ({totalItems})
-                  </Button>
-                </Link>
-                <Button variant="destructive" className="w-full justify-start h-12" onClick={() => { logout(); setIsMenuOpen(false); }}>
-                  <LogOut className="mr-3" size={20} />
-                  Sign Out
-                </Button>
-              </>
-            ) : (
-              <>
-                <Link href="/login" onClick={() => setIsMenuOpen(false)}>
-                  <Button variant="outline" className="w-full">Login</Button>
-                </Link>
-                <Link href="/register" onClick={() => setIsMenuOpen(false)}>
-                  <Button className="w-full">Register</Button>
-                </Link>
-              </>
+               )
+            })}
+             {user && (
+              <Button onClick={() => { logout(); setIsMenuOpen(false); }} className="w-full h-20 rounded-[2.5rem] bg-red-50 text-red-500 hover:bg-red-500 hover:text-white font-black text-xl gap-4">
+                 <LogOut size={24} /> Sign Out
+              </Button>
             )}
           </div>
         </div>
-      </div>
+      )}
     </nav>
   );
 }

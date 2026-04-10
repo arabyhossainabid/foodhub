@@ -9,7 +9,7 @@ export const mealService = {
 
   getMeals: async (params?: any) => {
     const response = await api.get('/meals', { params });
-    return response.data.data;
+    return response.data; // Now returns { success, meta, data }
   },
 
   getMealById: async (id: string) => {

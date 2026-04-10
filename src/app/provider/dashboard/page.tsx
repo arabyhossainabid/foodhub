@@ -3,10 +3,9 @@
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { ManagementPage } from '@/components/dashboard/ManagementPage';
 import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { formatCurrency } from '@/lib/utils';
-import { mealService } from '@/services/mealService';
-import { orderService } from '@/services/orderService';
-import { reviewService } from '@/services/reviewService';
+import { providerService } from '@/services/providerService';
 import {
   ArrowUpRight,
   LayoutDashboard,
@@ -14,30 +13,19 @@ import {
   ShoppingCart,
   Star,
   Utensils,
+  Plus,
+  TrendingUp,
+  Clock,
+  ChevronRight
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 
 const providerNavItems = [
-  {
-    title: 'Dashboard',
-    href: '/provider/dashboard',
-    icon: <LayoutDashboard size={20} />,
-  },
-  {
-    title: 'Manage Menu',
-    href: '/provider/menu',
-    icon: <Utensils size={20} />,
-  },
-  {
-    title: 'Order List',
-    href: '/provider/orders',
-    icon: <ShoppingCart size={20} />,
-  },
-  {
-    title: 'Customer Reviews',
-    href: '/provider/reviews',
-    icon: <Star size={20} />,
-  },
+  { title: 'Dashboard', href: '/provider/dashboard', icon: <LayoutDashboard size={20} /> },
+  { title: 'Manage Menu', href: '/provider/menu', icon: <Utensils size={20} /> },
+  { title: 'Order List', href: '/provider/orders', icon: <ShoppingCart size={20} /> },
+  { title: 'Customer Reviews', href: '/provider/reviews', icon: <Star size={20} /> },
 ];
 
 export default function ProviderDashboard() {
@@ -55,11 +43,6 @@ function ProviderDashboardContent() {
     averageRating: 0,
     earnings: 0,
     totalReviews: 0,
-    fiveStars: 0,
-    fourStars: 0,
-    threeStars: 0,
-    twoStars: 0,
-    oneStars: 0,
   });
 
   const [isLoading, setIsLoading] = useState(true);
@@ -68,45 +51,8 @@ function ProviderDashboardContent() {
     const fetchStats = async () => {
       setIsLoading(true);
       try {
-        // Fetch meals and orders using our professional services
-        const [meals, orders] = await Promise.all([
-          mealService.getProviderMeals(),
-          orderService.getProviderOrders(),
-        ]);
-
-        // Fetching reviews for all meals to calculate stats
-        const reviewPromises = meals.map((meal: { id: string }) =>
-          reviewService.getMealReviews(meal.id).catch(() => [])
-        );
-
-        const allReviews = (await Promise.all(reviewPromises)).flat();
-
-        const totalReviews = allReviews.length;
-        const averageRating =
-          totalReviews > 0
-            ? allReviews.reduce((acc: number, r) => acc + r.rating, 0) /
-              totalReviews
-            : 0;
-
-        // Calculate earnings from delivered orders only
-        const totalEarnings = orders.reduce(
-          (acc: number, o: { status: string; totalAmount: number }) =>
-            o.status === 'DELIVERED' ? acc + Number(o.totalAmount) : acc,
-          0
-        );
-
-        setStats({
-          totalMeals: meals.length,
-          totalOrders: orders.length,
-          averageRating,
-          earnings: totalEarnings,
-          totalReviews,
-          fiveStars: allReviews.filter((r) => r.rating === 5).length,
-          fourStars: allReviews.filter((r) => r.rating === 4).length,
-          threeStars: allReviews.filter((r) => r.rating === 3).length,
-          twoStars: allReviews.filter((r) => r.rating === 2).length,
-          oneStars: allReviews.filter((r) => r.rating === 1).length,
-        });
+        const data = await providerService.getStats();
+        setStats(data);
       } catch (error) {
         console.error('Dashboard statistics loading failed:', error);
       } finally {
@@ -118,75 +64,114 @@ function ProviderDashboardContent() {
 
   return (
     <ManagementPage
-      title='Provider Dashboard'
-      description="Monitor your shop's performance and orders."
+      title='Kitchen Control'
+      description="Monitor your shop's performance and coordinate orders."
       items={providerNavItems}
       loading={isLoading}
       action={
-        <div className='bg-white px-3 py-1.5 rounded-md border border-gray-100 flex items-center space-x-2 shadow-sm'>
-          <div className='h-2 w-2 bg-green-500 rounded-full animate-pulse'></div>
-          <span className='text-xs font-bold text-gray-700 uppercase tracking-tight'>
-            Kitchen Open
-          </span>
-        </div>
+        <Link href="/provider/menu">
+           <Button className="rounded-xl bg-orange-500 hover:bg-orange-600 font-bold text-xs h-10 px-5 shadow-lg shadow-orange-500/20">
+              <Plus size={16} className="mr-2" /> New Meal
+           </Button>
+        </Link>
       }
     >
-      <div className='space-y-10'>
+      <div className='space-y-12 pb-12'>
         {/* Stats Grid */}
-        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'>
+        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6'>
           {[
             {
-              title: 'Total Earnings',
+              title: 'Revenue Generated',
               value: formatCurrency(stats.earnings),
-              icon: <ArrowUpRight size={20} className='text-green-500' />,
-              sub: 'Lifetime',
+              icon: <TrendingUp size={24} />,
+              color: 'bg-green-50 text-green-600',
+              trend: '+8.4%'
             },
             {
               title: 'Active Meals',
               value: stats.totalMeals,
-              icon: <Utensils size={20} className='text-orange-500' />,
-              sub: 'In menu',
+              icon: <Utensils size={24} />,
+              color: 'bg-orange-50 text-orange-600',
+              trend: 'All live'
             },
             {
-              title: 'Orders',
+              title: 'Fulfilled Volume',
               value: stats.totalOrders,
-              icon: <Package size={20} className='text-blue-500' />,
-              sub: 'Total count',
+              icon: <Package size={24} />,
+              color: 'bg-blue-50 text-blue-600',
+              trend: 'Total'
             },
             {
-              title: 'Average Rating',
+              title: 'Avg Kitchen Score',
               value: stats.averageRating.toFixed(1),
-              icon: (
-                <Star
-                  size={20}
-                  className='text-yellow-500'
-                  fill='currentColor'
-                />
-              ),
-              sub: `Based on ${stats.totalReviews} reviews`,
+              icon: <Star size={24} fill="currentColor" />,
+              color: 'bg-yellow-50 text-yellow-600',
+              trend: `${stats.totalReviews} Feedbacks`
             },
           ].map((stat, i) => (
-            <Card
-              key={i}
-              className='border border-gray-100 shadow-sm rounded-md'
-            >
-              <CardContent className='p-6'>
-                <div className='flex justify-between items-start mb-4'>
-                  <div className='h-10 w-10 bg-gray-50 rounded-md flex items-center justify-center'>
-                    {stat.icon}
+            <Card key={i} className='border-none shadow-xl shadow-gray-200/50 p-8 rounded-3xl group hover:-translate-y-1 transition-all'>
+               <div className='flex justify-between items-start mb-6'>
+                  <div className={`h-14 w-14 ${stat.color} rounded-2xl flex items-center justify-center transition-transform group-hover:rotate-6`}>
+                     {stat.icon}
                   </div>
-                </div>
-                <div className='space-y-0.5'>
-                  <h3 className='text-2xl font-bold text-gray-900'>
-                    {stat.value}
-                  </h3>
-                  <p className='text-[10px] font-bold text-gray-400 uppercase tracking-tight'>
-                    {stat.title}
-                  </p>
-                </div>
-              </CardContent>
+                  <span className='px-3 py-1 bg-gray-50 text-[10px] font-black text-gray-400 rounded-lg'>{stat.trend}</span>
+               </div>
+               <div className='space-y-1'>
+                  <h3 className='text-3xl font-black text-gray-900 tracking-tight'>{stat.value}</h3>
+                  <p className='text-xs font-black text-gray-400 uppercase tracking-widest'>{stat.title}</p>
+               </div>
             </Card>
           ))}
+        </div>
+
+        {/* Chart Area Example */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+           <Card className="lg:col-span-2 border-none shadow-xl shadow-gray-200/50 p-8 rounded-[40px] bg-white">
+              <div className="flex justify-between items-center mb-10">
+                 <div>
+                    <h4 className="text-xl font-black text-gray-900">Performance Flow</h4>
+                    <p className="text-sm font-bold text-gray-400">Order volume over the past 6 days</p>
+                 </div>
+                 <div className="flex items-center gap-2 bg-gray-50 p-1 rounded-xl border border-gray-100">
+                    <button className="px-3 py-1.5 rounded-lg bg-white shadow-sm text-[10px] font-black uppercase">Orders</button>
+                    <button className="px-3 py-1.5 rounded-lg text-gray-400 text-[10px] font-black uppercase">Earnings</button>
+                 </div>
+              </div>
+              <div className="h-64 flex items-end justify-between gap-4 px-4">
+                 {(stats as any)?.earningsTrend?.map((item: any, i: number) => (
+                    <div key={i} className="flex-1 flex flex-col items-center gap-4 group">
+                       <div className="w-full bg-gray-50 rounded-full relative overflow-hidden h-full">
+                          <div className="absolute bottom-0 left-0 w-full bg-orange-500 rounded-full transition-all duration-1000 group-hover:bg-orange-600" style={{ height: `${(item.amount / 1500) * 100}%` }}></div>
+                       </div>
+                       <span className="text-[10px] font-black text-gray-300 uppercase">{item.day}</span>
+                    </div>
+                 ))}
+              </div>
+           </Card>
+
+           <Card className="bg-gray-950 rounded-[40px] p-8 text-white flex flex-col justify-between overflow-hidden relative shadow-2xl">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500 rounded-full blur-[100px] opacity-20"></div>
+              <div className="space-y-6 relative z-10">
+                 <div className="h-12 w-12 bg-orange-500 rounded-xl flex items-center justify-center"><Clock size={24} /></div>
+                 <h4 className="text-2xl font-black tracking-tight">Active Operation <br /><span className="text-orange-500">Protocol.</span></h4>
+                 <p className="text-sm text-gray-400 font-medium">Your kitchen is currently accepting new orders. Stay sharp!</p>
+              </div>
+              
+              <div className="space-y-4 pt-8">
+                 <Link href="/provider/orders" className="block p-4 rounded-2xl bg-white/5 hover:bg-white/10 transition-all group">
+                    <div className="flex items-center justify-between font-bold text-sm">
+                       <span>Live Orders</span>
+                       <ChevronRight size={18} className="text-gray-700 group-hover:text-orange-500" />
+                    </div>
+                 </Link>
+                 <Link href="/provider/menu" className="block p-4 rounded-2xl bg-white/5 hover:bg-white/10 transition-all group">
+                    <div className="flex items-center justify-between font-bold text-sm">
+                       <span>Menu Architect</span>
+                       <ChevronRight size={18} className="text-gray-700 group-hover:text-orange-500" />
+                    </div>
+                 </Link>
+              </div>
+           </Card>
         </div>
       </div>
     </ManagementPage>

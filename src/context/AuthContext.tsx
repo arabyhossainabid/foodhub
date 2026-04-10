@@ -13,8 +13,9 @@ interface AuthContextType {
   user: User | null;
   token: string | null;
   loading: boolean;
-  login: (token: string, user: User) => void;
+  login: (token: string, newUser: User) => void;
   logout: () => void;
+  resyncUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -81,7 +82,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     if (newUser.role === 'ADMIN') router.push('/admin/dashboard');
     else if (newUser.role === 'PROVIDER') router.push('/provider/dashboard');
-    else router.push('/');
+    else router.push('/dashboard/customer');
 
     toast.success(`Welcome back, ${newUser.name}!`);
   };
@@ -95,8 +96,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     toast.success('Logged out successfully');
   };
 
+  const resyncUser = async () => {
+    try {
+      const response = await authService.getProfile();
+      const freshUser = response.data.data;
+      setUser(freshUser);
+      localStorage.setItem('user', JSON.stringify(freshUser));
+    } catch (error) {
+      console.error('Identity resync failed:', error);
+      throw error;
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, logout }}>
+    <AuthContext.Provider value={{ user, token, loading, login, logout, resyncUser }}>
       {children}
     </AuthContext.Provider>
   );

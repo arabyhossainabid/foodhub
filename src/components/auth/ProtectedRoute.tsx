@@ -2,7 +2,7 @@
 
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { FullPageLoader } from "@/components/shared/FullPageLoader";
 
 interface ProtectedRouteProps {
@@ -13,6 +13,7 @@ interface ProtectedRouteProps {
 export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) {
   const { user, loading } = useAuth();
   const router = useRouter();
+  const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
     if (!loading) {
@@ -20,15 +21,19 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
         router.push("/login");
       } else if (allowedRoles && !allowedRoles.includes(user.role as any)) {
         router.push("/");
+      } else {
+        setIsReady(true);
       }
     }
   }, [user, loading, router, allowedRoles]);
 
-  if (loading && !user) {
-    return <FullPageLoader message="Verifying Access" transparent />;
+  // If still loading identity, show full loader
+  if (loading) {
+    return <FullPageLoader message="Authenticating Environment..." transparent />;
   }
 
-  if (!user || (allowedRoles && !allowedRoles.includes(user.role as any))) {
+  // If not ready (redirecting), show nothing to prevent flickering
+  if (!isReady || !user || (allowedRoles && !allowedRoles.includes(user.role as any))) {
     return null;
   }
 

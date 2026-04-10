@@ -13,6 +13,10 @@ export const authService = {
     return api.get("/auth/me");
   },
 
+  updateProfile: async (data: any) => {
+    return api.patch("/auth/update-profile", data);
+  },
+
   logout: async () => {
   }
 };
