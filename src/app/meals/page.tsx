@@ -30,6 +30,7 @@ function MealsContent() {
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   const itemsPerPage = 9;
+  const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
     const nextSearch = searchParams.get('search') || '';
@@ -90,9 +91,20 @@ function MealsContent() {
 
   return (
     <div className='container mx-auto px-4 pt-32 pb-16 min-h-screen'>
+      {/* Mobile Filter Toggle Button */}
+      <div className='lg:hidden mb-6'>
+        <Button
+          onClick={() => setShowFilters(!showFilters)}
+          className='w-full h-12 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-medium shadow-lg transition-all flex items-center justify-center gap-2'
+        >
+          <SlidersHorizontal size={18} />
+          {showFilters ? 'Hide Filters' : 'Show Filters'}
+        </Button>
+      </div>
+
       <div className='flex flex-col lg:flex-row gap-12'>
         {/* Sidebar Filters */}
-        <aside className='w-full lg:w-72 space-y-8 shrink-0'>
+        <aside className={`${showFilters ? 'block' : 'hidden'} lg:block w-full lg:w-72 space-y-8 shrink-0`}>
           <div className='bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-8'>
             <div className="flex items-center justify-between">
               <h3 className='text-lg font-bold text-gray-900 flex items-center tracking-tight'>

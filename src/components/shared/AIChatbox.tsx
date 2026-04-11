@@ -90,24 +90,24 @@ export function AIChatbox() {
             initial={{ opacity: 0, scale: 0.8, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.8, y: 20 }}
-            className="mb-6 w-[380px] h-[550px] bg-white rounded-[2.5rem] shadow-4xl border border-gray-100 flex flex-col overflow-hidden relative"
+            className="mb-6 w-[325px] h-[500px] bg-white rounded-[2.5rem] shadow-4xl border border-gray-100 flex flex-col overflow-hidden relative"
           >
             {/* Header */}
             <div className="p-6 bg-gray-950 text-white flex items-center justify-between">
               <div className="flex items-center gap-3">
-                 <div className="h-10 w-10 bg-orange-500 rounded-xl flex items-center justify-center text-white border-2 border-white/20 shadow-lg">
-                    <Sparkles size={20} />
-                 </div>
-                 <div>
-                    <h4 className="text-sm font-black tracking-tight">FoodHub Assistant</h4>
-                    <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest flex items-center gap-1">
-                       <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span> Systems Active
-                    </p>
-                 </div>
+                <div className="h-10 w-10 bg-orange-500 rounded-xl flex items-center justify-center text-white border-2 border-white/20 shadow-lg">
+                  <Sparkles size={20} />
+                </div>
+                <div>
+                  <h4 className="text-sm font-black tracking-tight">FoodHub Assistant</h4>
+                  <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span> Systems Active
+                  </p>
+                </div>
               </div>
-              <Button 
-                variant="ghost" 
-                size="icon" 
+              <Button
+                variant="ghost"
+                size="icon"
                 onClick={() => setIsOpen(false)}
                 className="text-gray-400 hover:text-white hover:bg-white/10"
               >
@@ -116,7 +116,7 @@ export function AIChatbox() {
             </div>
 
             {/* Messages */}
-            <div 
+            <div
               ref={scrollRef}
               className="flex-1 overflow-y-auto p-6 space-y-6 bg-gray-50/50"
             >
@@ -126,15 +126,15 @@ export function AIChatbox() {
                   m.role === 'user' ? "flex-row-reverse" : ""
                 )}>
                   <div className={cn(
-                    "flex-shrink-0 h-8 w-8 rounded-lg flex items-center justify-center text-xs shadow-sm",
+                    "shrink-0 h-8 w-8 rounded-lg flex items-center justify-center text-xs shadow-sm",
                     m.role === 'ai' ? "bg-orange-500 text-white" : "bg-gray-950 text-white"
                   )}>
                     {m.role === 'ai' ? <Bot size={16} /> : <User size={16} />}
                   </div>
                   <div className={cn(
                     "max-w-[80%] p-4 rounded-2xl text-sm font-medium shadow-sm",
-                    m.role === 'ai' 
-                      ? "bg-white text-gray-800 rounded-tl-none border border-gray-100" 
+                    m.role === 'ai'
+                      ? "bg-white text-gray-800 rounded-tl-none border border-gray-100"
                       : "bg-orange-500 text-white rounded-tr-none"
                   )}>
                     {m.content}
@@ -155,16 +155,16 @@ export function AIChatbox() {
             </div>
 
             {/* Input */}
-            <div className="p-6 bg-white border-t border-gray-100">
+            <div className="p-2 bg-white border-t border-gray-100">
               <div className="relative">
-                <input 
+                <input
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleSend()}
                   placeholder="Ask about recommendations..."
-                  className="w-full pl-6 pr-14 py-4 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-bold focus:bg-white focus:ring-4 ring-orange-500/5 outline-none transition-all"
+                  className="w-full pl-4 pr-10 py-4 bg-gray-50 border border-gray-100 rounded-xl text-sm font-bold focus:bg-white focus:ring-4 ring-orange-500/5 outline-none transition-all"
                 />
-                <Button 
+                <Button
                   onClick={handleSend}
                   disabled={!input.trim()}
                   className="absolute right-2 top-1/2 -translate-y-1/2 h-10 w-10 bg-gray-950 hover:bg-orange-500 rounded-xl flex items-center justify-center p-0 transition-all"
@@ -180,17 +180,17 @@ export function AIChatbox() {
       <Button
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          "h-16 w-16 rounded-[2rem] shadow-2xl flex items-center justify-center transition-all duration-500 hover:scale-110 active:scale-95 group relative",
+          "h-12 w-12 rounded-2xl shadow-xl flex items-center justify-center transition-all duration-500 hover:scale-110 active:scale-95 group relative",
           isOpen ? "bg-gray-950" : "bg-orange-500 shadow-orange-500/30"
         )}
       >
         <div className="absolute inset-0 bg-white/20 rounded-full scale-0 group-hover:scale-100 transition-transform duration-500"></div>
         {isOpen ? <X size={28} /> : <MessageSquare size={28} />}
         {!isOpen && (
-           <span className="absolute -top-1 -right-1 flex h-4 w-4">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-4 w-4 bg-orange-600"></span>
-           </span>
+          <span className="absolute -top-1 -right-1 flex h-4 w-4">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-4 w-4 bg-orange-600"></span>
+          </span>
         )}
       </Button>
     </div>
