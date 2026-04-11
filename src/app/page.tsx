@@ -308,7 +308,7 @@ export default function HomePage() {
             <div className='relative group' data-aos="fade-right">
               <div className="absolute inset-0 bg-orange-500/20 rounded-[60px] blur-3xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
               <img
-                src={homeContent?.story?.image || 'https://images.unsplash.com/photo-1552566626-52f8b828add9?q=80&w=1200'}
+                src={homeContent?.story?.image || "/shop.jpeg"}
                 className='rounded-[60px] shadow-3xl relative z-10 transition-all duration-1000 group-hover:scale-[1.02]'
                 alt='Brand Story'
               />
@@ -389,7 +389,7 @@ export default function HomePage() {
             <div className="relative group" data-aos="fade-left">
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-orange-500/20 rounded-full blur-[100px] animate-pulse"></div>
               <img
-                src={homeContent?.mobileApp?.image || 'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?q=80&w=800'}
+                src={homeContent?.mobileApp?.image || "/phone_web.jpeg"}
                 className='max-w-full mx-auto relative z-10 translate-y-10 group-hover:translate-y-0 transition-transform duration-1000'
                 alt='Mobile App'
               />

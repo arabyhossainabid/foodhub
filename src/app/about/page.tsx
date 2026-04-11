@@ -38,7 +38,7 @@ export default function AboutPage() {
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-orange-500/5 blur-[100px] rounded-full"></div>
               <div className="relative z-10 grid grid-cols-2 gap-6">
                  <div className="space-y-6 pt-12">
-                   <Image src="https://images.unsplash.com/photo-1556910103-1c02745aae4d?q=80&w=600" width={300} height={400} alt="Chef" className="rounded-3xl shadow-xl hover:scale-105 transition-transform duration-500" />
+                   <Image src="/food.jpeg" width={300} height={400} alt="Chef" className="rounded-3xl shadow-xl hover:scale-105 transition-transform duration-500" />
                    <div className="bg-gray-950 text-white p-6 rounded-3xl space-y-2">
                       <p className="text-2xl font-black">250k+</p>
                       <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Active Partners</p>
@@ -49,7 +49,7 @@ export default function AboutPage() {
                       <p className="text-2xl font-black">4.9/5</p>
                       <p className="text-[10px] font-bold text-orange-200 uppercase tracking-widest">Global Reviews</p>
                    </div>
-                   <Image src="https://images.unsplash.com/photo-1547592166-23ac45744acd?q=80&w=600" width={300} height={400} alt="Kitchen" className="rounded-3xl shadow-xl hover:scale-105 transition-transform duration-500" />
+                   <Image src="/shop.jpeg" width={300} height={400} alt="Kitchen" className="rounded-3xl shadow-xl hover:scale-105 transition-transform duration-500" />
                  </div>
               </div>
            </div>

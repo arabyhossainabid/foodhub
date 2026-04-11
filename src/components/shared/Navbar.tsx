@@ -10,12 +10,12 @@ import {
   X,
   ChevronDown,
   Search,
-  Zap,
   ChevronRight,
 } from "lucide-react";
 import { useState, useEffect, useSyncExternalStore } from "react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { SearchModal } from "./SearchModal";
 import { mealService } from "@/services/mealService";
@@ -114,9 +114,14 @@ export function Navbar() {
           : "bg-white border-gray-100 shadow-sm"
       )}>
         {/* Logo */}
-        <Link href="/" className="flex items-center space-x-2 group">
-          <div className="h-10 w-10 bg-orange-500 rounded-xl flex items-center justify-center text-white shadow-lg shadow-orange-500/20 group-hover:scale-105 transition-transform duration-300">
-            <Zap size={20} fill="currentColor" />
+        <Link href="/" className="flex items-center group">
+          <div className="relative h-14 w-14 rounded-xl overflow-hidden shadow-lg shadow-orange-500/20 group-hover:scale-105 transition-transform duration-300">
+            <Image 
+              src="/logo.png" 
+              alt="FoodHub Logo" 
+              fill
+              className="object-cover"
+            />
           </div>
           <span className="text-xl font-bold text-gray-900 tracking-tight hidden sm:block">
             Food<span className="text-orange-500">Hub</span>
