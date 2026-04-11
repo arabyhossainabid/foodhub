@@ -15,6 +15,11 @@ export const adminService = {
     const response = await api.patch(`/admin/users/${id}`, { isActive });
     return response.data;
   },
+
+  deleteUser: async (id: string) => {
+    const response = await api.delete(`/admin/users/${id}`);
+    return response.data;
+  },
   getAllOrders: async () => {
     const response = await api.get('/admin/orders');
     return response.data.data;

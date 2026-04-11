@@ -12,13 +12,25 @@ import { Input } from '@/components/ui/input';
 import { useAuth } from '@/context/AuthContext';
 import { authService } from '@/services/authService';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Lock, Mail, ShieldCheck, User, Users, ArrowRight } from 'lucide-react';
+import {
+  ArrowRight,
+  CalendarDays,
+  Lock,
+  Mail,
+  Shield,
+  ShieldCheck,
+  Utensils,
+  User,
+  Users,
+} from 'lucide-react';
+import { DEMO_ACCOUNTS, type DemoAccount } from '@/lib/demoAccounts';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-hot-toast';
 import * as z from 'zod';
 import { useRouter } from 'next/navigation';
+import { getGoogleAuthUrl } from '@/lib/apiUrl';
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -31,6 +43,15 @@ export default function LoginPage() {
   const { login, user, loading } = useAuth();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+  } = useForm<LoginFormValues>({
+    resolver: zodResolver(loginSchema),
+  });
 
   useEffect(() => {
     if (!loading && user) {
@@ -47,15 +68,6 @@ export default function LoginPage() {
     return <FullPageLoader transparent />;
   }
 
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    formState: { errors },
-  } = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
-  });
-
   const onSubmit = async (data: LoginFormValues) => {
     setIsLoading(true);
     try {
@@ -71,13 +83,45 @@ export default function LoginPage() {
     }
   };
 
-  const setDemoCredentials = (role: 'CUSTOMER' | 'ADMIN') => {
-    if (role === 'CUSTOMER') {
-      setValue('email', 'customer@foodhub.com');
-      setValue('password', 'password123');
-    } else {
-      setValue('email', 'admin@foodhub.com');
-      setValue('password', 'admin123');
+  const fillDemoFields = (acc: DemoAccount) => {
+    setValue('email', acc.email);
+    setValue('password', acc.password);
+  };
+
+  const loginAsDemo = async (acc: DemoAccount) => {
+    setIsLoading(true);
+    try {
+      const { token, user } = await authService.login({
+        email: acc.email,
+        password: acc.password,
+      });
+      login(token, user);
+      toast.success(`Signed in as ${acc.label}`);
+    } catch (error) {
+      const message =
+        (error as { userMessage?: string })?.userMessage ||
+        `Demo login failed for ${acc.label}. Run backend seed if users are missing.`;
+      toast.error(message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const demoIcon = (role: DemoAccount['role']) => {
+    const className = 'text-orange-500 shrink-0';
+    switch (role) {
+      case 'CUSTOMER':
+        return <User size={14} className={className} />;
+      case 'ADMIN':
+        return <Shield size={14} className={className} />;
+      case 'PROVIDER':
+        return <Utensils size={14} className={className} />;
+      case 'MANAGER':
+        return <Users size={14} className={className} />;
+      case 'ORGANIZER':
+        return <CalendarDays size={14} className={className} />;
+      default:
+        return <User size={14} className={className} />;
     }
   };
 
@@ -135,22 +179,43 @@ export default function LoginPage() {
               </Button>
             </form>
 
-            {/* Quick Demo Access */}
-            <div className='grid grid-cols-2 gap-3 pt-2'>
-               <Button 
-                 variant="outline" 
-                 onClick={() => setDemoCredentials('CUSTOMER')}
-                 className="h-11 rounded-xl font-bold border-gray-100 bg-gray-50 hover:bg-white transition-all text-xs gap-2"
-               >
-                 <User size={14} className="text-orange-500" /> Customer Demo
-               </Button>
-               <Button 
-                 variant="outline" 
-                 onClick={() => setDemoCredentials('ADMIN')}
-                 className="h-11 rounded-xl font-bold border-gray-100 bg-gray-50 hover:bg-white transition-all text-xs gap-2"
-               >
-                 <Users size={14} className="text-orange-500" /> Admin Demo
-               </Button>
+            {/* Demo logins — matches `src/lib/demoAccounts.ts` + `npm run seed` in backend */}
+            <div className='space-y-3 pt-2'>
+              <p className='text-center text-[10px] font-black uppercase tracking-widest text-gray-400'>
+                Demo login (one tap)
+              </p>
+              <div className='grid grid-cols-2 sm:grid-cols-3 gap-2'>
+                {DEMO_ACCOUNTS.map((acc) => (
+                  <div
+                    key={acc.email}
+                    className='rounded-xl border border-gray-100 bg-gray-50 p-2 flex flex-col gap-1.5'
+                  >
+                    <Button
+                      type='button'
+                      variant='outline'
+                      disabled={isLoading}
+                      onClick={() => loginAsDemo(acc)}
+                      className='h-10 rounded-lg border-gray-200 bg-white hover:bg-orange-50 font-black text-[10px] uppercase tracking-tight w-full'
+                    >
+                      <span className='flex items-center justify-center gap-1.5'>
+                        {demoIcon(acc.role)}
+                        {acc.label}
+                      </span>
+                    </Button>
+                    <button
+                      type='button'
+                      disabled={isLoading}
+                      className='text-[9px] font-medium text-gray-400 hover:text-orange-500 underline-offset-2 hover:underline text-center w-full py-0.5'
+                      onClick={() => {
+                        fillDemoFields(acc);
+                        toast.success('Credentials filled — press Sign In');
+                      }}
+                    >
+                      Fill form only
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
 
             <div className='relative py-2'>
@@ -161,7 +226,10 @@ export default function LoginPage() {
             <Button
               variant='outline'
               className='w-full h-11 rounded-xl border-gray-100 bg-gray-50 hover:bg-white font-bold flex gap-3 text-sm'
-              onClick={() => (window.location.href = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/auth/google`)}
+              type='button'
+              onClick={() => {
+                window.location.href = getGoogleAuthUrl();
+              }}
             >
               <img src='https://www.google.com/favicon.ico' className='w-4 h-4' alt='Google' />
               Google Authentication

@@ -11,6 +11,9 @@ export interface User {
   email: string;
   role: Role;
   isActive: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+  googleId?: string | null;
   providerProfile?: ProviderProfile;
 }
 

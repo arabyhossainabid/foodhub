@@ -1,23 +1,62 @@
+"use client";
+
 import { StandardRoleDashboard } from "@/components/dashboard/StandardRoleDashboard";
-import { LayoutDashboard, Megaphone, BadgePercent, Newspaper, MailQuestion, CalendarCheck, Users, Activity } from "lucide-react";
+import { BadgePercent, Newspaper, Users, Activity } from "lucide-react";
+import { useEffect, useState } from "react";
+import { organizerService, type OrganizerStats } from "@/services/organizerService";
 
 export default function OrganizerDashboardPage() {
+  const [stats, setStats] = useState<OrganizerStats | null>(null);
+
+  useEffect(() => {
+    organizerService
+      .getStats()
+      .then(setStats)
+      .catch(() => setStats(null));
+  }, []);
+
+  const statItems = [
+    {
+      title: "Active offers",
+      value: stats != null ? String(stats.activeOffers) : "—",
+      trend: "Live codes",
+      color: "bg-orange-50 text-orange-600",
+      icon: <BadgePercent size={20} />,
+    },
+    {
+      title: "Newsletter subscribers",
+      value: stats != null ? String(stats.newsletterSubscribers) : "—",
+      trend: "Audience",
+      color: "bg-blue-50 text-blue-600",
+      icon: <Users size={20} />,
+    },
+    {
+      title: "Published blogs",
+      value: stats != null ? String(stats.publishedBlogs) : "—",
+      trend: "Content",
+      color: "bg-green-50 text-green-600",
+      icon: <Newspaper size={20} />,
+    },
+    {
+      title: "Home sections live",
+      value: stats != null ? String(stats.homeContentActive) : "—",
+      trend: "Landing",
+      color: "bg-purple-50 text-purple-600",
+      icon: <Activity size={20} />,
+    },
+  ];
+
   return (
     <StandardRoleDashboard
       roles={["ORGANIZER"]}
       title="Organizer Dashboard"
-      description="Coordinate campaigns, events, and promotion activities."
-      statItems={[
-        { title: "Campaign Reach", value: "128K", trend: "+18%", color: "bg-green-50 text-green-600", icon: <Megaphone size={20} /> },
-        { title: "Active Campaigns", value: "9", trend: "running", color: "bg-orange-50 text-orange-600", icon: <CalendarCheck size={20} /> },
-        { title: "Subscribers", value: "6,420", trend: "+312", color: "bg-blue-50 text-blue-600", icon: <Users size={20} /> },
-        { title: "Engagement", value: "72%", trend: "good", color: "bg-purple-50 text-purple-600", icon: <Activity size={20} /> },
-      ]}
+      description="Campaigns, content, and growth signals from the live API."
+      statItems={statItems}
       quickLinks={[
-        { title: "Offers Page", href: "/offers", cta: "Open" },
-        { title: "Blog Manager", href: "/blog", cta: "View" },
-        { title: "Support Inbox", href: "/contact", cta: "Reply" },
-        { title: "FAQ Review", href: "/faq", cta: "Check" },
+        { title: "Public offers", href: "/offers", cta: "Open" },
+        { title: "Blog", href: "/blog", cta: "Open" },
+        { title: "Contact / help", href: "/contact", cta: "Open" },
+        { title: "Organizer profile", href: "/dashboard/organizer/profile", cta: "Edit" },
       ]}
     />
   );

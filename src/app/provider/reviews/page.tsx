@@ -12,6 +12,7 @@ import {
   MessageSquare,
   Star,
   User,
+  Utensils,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';

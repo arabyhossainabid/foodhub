@@ -50,13 +50,25 @@ function AdminDashboardContent() {
     fetchAdminStats();
   }, []);
 
-  const roleCounts = (stats?.roleDistribution || []).reduce((acc: Record<string, number>, row: any) => {
-    acc[row.role] = row._count || 0;
-    return acc;
-  }, {});
-  const totalAccounts = Object.values(roleCounts).reduce((sum, v) => sum + Number(v || 0), 0);
-  const customerPct = totalAccounts ? Math.round(((roleCounts.CUSTOMER || roleCounts.USER || 0) / totalAccounts) * 100) : 0;
-  const providerPct = totalAccounts ? Math.round(((roleCounts.PROVIDER || roleCounts.VENDOR || 0) / totalAccounts) * 100) : 0;
+  const roleDistribution = (stats?.roleDistribution || []) as {
+    role: string;
+    _count?: number;
+  }[];
+  const roleCounts: Record<string, number> = {};
+  for (const row of roleDistribution) {
+    roleCounts[row.role] = typeof row._count === 'number' ? row._count : 0;
+  }
+  const totalRoleCount = Object.values(roleCounts).reduce((sum, v) => sum + v, 0);
+  const customerPct = totalRoleCount
+    ? Math.round(
+        ((Number(roleCounts.CUSTOMER ?? roleCounts.USER ?? 0)) / totalRoleCount) * 100
+      )
+    : 0;
+  const providerPct = totalRoleCount
+    ? Math.round(
+        ((Number(roleCounts.PROVIDER ?? roleCounts.VENDOR ?? 0)) / totalRoleCount) * 100
+      )
+    : 0;
   const adminPct = Math.max(0, 100 - customerPct - providerPct);
 
   return (

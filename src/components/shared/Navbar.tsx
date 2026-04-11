@@ -3,25 +3,17 @@
 import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
 import { Button } from "@/components/ui/button";
-import { 
-  ShoppingBag, 
-  User, 
-  LogOut, 
-  Menu, 
-  X, 
-  UtensilsCrossed, 
-  Truck, 
-  ChevronDown, 
+import {
+  ShoppingBag,
+  LogOut,
+  Menu,
+  X,
+  ChevronDown,
   Search,
   Zap,
-  Phone,
-  Info,
   ChevronRight,
-  Flame,
-  LayoutDashboard,
-  MessageSquare
 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useSyncExternalStore } from "react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -36,14 +28,14 @@ export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [activeMegaMenu, setActiveMegaMenu] = useState<string | null>(null);
-  const [mounted, setMounted] = useState(false);
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
   const [popularCuisines, setPopularCuisines] = useState<{ id: string; name: string }[]>([]);
   const [featuredOffer, setFeaturedOffer] = useState<{ title: string; description: string } | null>(null);
   const pathname = usePathname();
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -61,7 +53,7 @@ export function Navbar() {
           metaService.getOffers(),
         ]);
         const cuisineNames = (categories || [])
-          .map((cat: any) => ({ id: cat?.id, name: cat?.name }))
+          .map((cat: { id?: string; name?: string }) => ({ id: cat?.id, name: cat?.name }))
           .filter((cat: { id?: string; name?: string }) => Boolean(cat.id && cat.name))
           .slice(0, 5);
         setPopularCuisines(cuisineNames);
@@ -81,7 +73,15 @@ export function Navbar() {
     loadMegaMenuData();
   }, []);
 
-  const navLinks = [
+  type NavLinkItem = {
+    name: string;
+    href: string;
+    hasDropdown?: boolean;
+    badge?: string;
+    protected?: boolean;
+  };
+
+  const navLinks: NavLinkItem[] = [
     { name: "Home", href: "/" },
     { 
       name: "Explore", 
@@ -91,8 +91,13 @@ export function Navbar() {
     },
     { name: "Restaurants", href: "/providers" },
     { name: "Offers", href: "/offers" },
-    { name: "Contact", href: "/contact" },
-    { name: "FAQ", href: "/faq" },
+    ...(user?.role !== 'ADMIN' && user?.role !== 'MANAGER' ? [
+      { name: "Blog", href: "/blog" },
+      { name: "Contact", href: "/contact" },
+      { name: "FAQ", href: "/faq" },
+    ] : user?.role === 'MANAGER' ? [
+      { name: "FAQ", href: "/faq" },
+    ] : []),
   ];
 
   return (

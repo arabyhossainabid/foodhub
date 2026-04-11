@@ -1,5 +1,6 @@
 'use client';
 
+import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { ManagementPage } from '@/components/dashboard/ManagementPage';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -8,17 +9,7 @@ import { cn, formatCurrency } from '@/lib/utils';
 import { adminService } from '@/services/adminService';
 import { Order } from '@/types';
 import { motion } from 'framer-motion';
-import {
-  Calendar,
-  Grid,
-  LayoutDashboard,
-  MapPin,
-  Search,
-  ShieldAlert,
-  ShoppingBag,
-  User,
-  Users,
-} from 'lucide-react';
+import { Calendar, MapPin, Search, ShoppingBag, User } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
 
@@ -63,6 +54,7 @@ export default function AdminOrdersPage() {
   });
 
   return (
+    <ProtectedRoute allowedRoles={['ADMIN', 'MANAGER']}>
     <ManagementPage
       title='Global Orders'
       description='Monitoring every transaction across the platform.'
@@ -201,5 +193,6 @@ export default function AdminOrdersPage() {
         )}
       </div>
     </ManagementPage>
+    </ProtectedRoute>
   );
 }

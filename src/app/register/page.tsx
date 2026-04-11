@@ -17,6 +17,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { getGoogleAuthUrl } from '@/lib/apiUrl';
 import { toast } from 'react-hot-toast';
 import * as z from 'zod';
 import { User, Mail, Lock, Building, MapPin, Utensils, Zap, ArrowRight } from "lucide-react";
@@ -50,27 +51,40 @@ export default function RegisterPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, loading } = useAuth();
-  const initialRole = (searchParams.get('role') as RegisterFormValues["role"]) || 'CUSTOMER';
+  const paramRole = searchParams.get('role');
+  const initialRole: RegisterFormValues['role'] =
+    paramRole === 'CUSTOMER' ||
+    paramRole === 'PROVIDER' ||
+    paramRole === 'MANAGER' ||
+    paramRole === 'ORGANIZER'
+      ? paramRole
+      : 'CUSTOMER';
 
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedRole, setSelectedRole] = useState<RegisterFormValues["role"]>(initialRole);
 
   const {
     register,
     handleSubmit,
     formState: { errors },
     setValue,
+    watch,
   } = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
     defaultValues: { role: initialRole },
   });
 
-  const handleRoleChange = (
-    role: 'CUSTOMER' | 'PROVIDER' | 'MANAGER' | 'ORGANIZER'
-  ) => {
-    setSelectedRole(role);
-    setValue('role', role);
-  };
+  const selectedRole = watch('role');
+
+  useEffect(() => {
+    if (
+      paramRole === 'CUSTOMER' ||
+      paramRole === 'PROVIDER' ||
+      paramRole === 'MANAGER' ||
+      paramRole === 'ORGANIZER'
+    ) {
+      setValue('role', paramRole);
+    }
+  }, [paramRole, setValue]);
 
   const onSubmit = async (data: RegisterFormValues) => {
     setIsLoading(true);
@@ -126,8 +140,7 @@ export default function RegisterPage() {
             <div className="space-y-2">
               <label className="text-xs font-bold uppercase tracking-widest text-gray-500">Role</label>
               <select
-                value={selectedRole}
-                onChange={(e) => handleRoleChange(e.target.value as RegisterFormValues["role"])}
+                {...register('role')}
                 className="w-full h-12 rounded-xl border border-gray-100 bg-gray-50 px-4 text-sm font-medium outline-none focus:border-orange-500"
               >
                 <option value="CUSTOMER">Customer</option>
@@ -197,6 +210,27 @@ export default function RegisterPage() {
                 Create Account <ArrowRight size={18} className="ml-2 group-hover:translate-x-1 transition-transform" />
               </Button>
             </form>
+
+            <div className='relative py-2'>
+              <div className='absolute inset-0 flex items-center'>
+                <span className='w-full border-t border-gray-100' />
+              </div>
+              <div className='relative flex justify-center text-[10px] uppercase font-bold tracking-widest text-gray-400'>
+                <span className='bg-white px-3'>Or connect with</span>
+              </div>
+            </div>
+
+            <Button
+              type='button'
+              variant='outline'
+              className='w-full h-12 rounded-xl border-gray-100 bg-gray-50 hover:bg-white font-bold flex gap-3 text-sm'
+              onClick={() => {
+                window.location.href = getGoogleAuthUrl({ role: selectedRole });
+              }}
+            >
+              <img src='https://www.google.com/favicon.ico' className='w-4 h-4' alt='' />
+              Google (uses selected role)
+            </Button>
 
             <div className='text-center pt-4'>
               <p className='text-gray-400 text-sm font-medium'>

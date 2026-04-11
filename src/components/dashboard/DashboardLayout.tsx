@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, Utensils, ShoppingCart, Settings, LogOut, ChevronRight, Menu as MenuIcon, X, User as UserIcon } from "lucide-react";
+import { LogOut, Menu as MenuIcon, X, User as UserIcon } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -99,7 +99,11 @@ export function DashboardLayout({ children, items }: { children: React.ReactNode
                   >
                     <div className="flex items-center space-x-3">
                       <span className={cn("transition-colors", isActive ? "text-white" : "text-gray-300 group-hover:text-orange-500")}>
-                        {React.cloneElement(item.icon as React.ReactElement, { size: 18 })}
+                        {React.isValidElement(item.icon)
+                          ? React.cloneElement(item.icon as React.ReactElement<{ size?: number }>, {
+                              size: 18,
+                            })
+                          : item.icon}
                       </span>
                       <span>{item.title}</span>
                     </div>

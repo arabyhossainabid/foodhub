@@ -2,48 +2,29 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
+import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
+import { useAuth } from '@/context/AuthContext';
 import { ManagementPage } from '@/components/dashboard/ManagementPage';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { adminService } from '@/services/adminService';
 import { motion } from 'framer-motion';
-import {
-  Calendar,
-  Grid,
-  LayoutDashboard,
-  MessageSquare,
-  ShieldAlert,
-  ShoppingBag,
-  Star,
-  Trash2,
-  User as UserIcon,
-  Users,
-} from 'lucide-react';
+import { Calendar, MessageSquare, Star, Trash2, User as UserIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
 
-const adminNavItems = [
-  {
-    title: 'Dashboard',
-    href: '/admin/dashboard',
-    icon: <LayoutDashboard size={20} />,
-  },
-  { title: 'User Management', href: '/admin/users', icon: <Users size={20} /> },
-  { title: 'Categories', href: '/admin/categories', icon: <Grid size={20} /> },
-  {
-    title: 'All Orders',
-    href: '/admin/orders',
-    icon: <ShoppingBag size={20} />,
-  },
-  {
-    title: 'Moderation',
-    href: '/admin/reviews',
-    icon: <ShieldAlert size={20} />,
-  },
-];
-
 export default function AdminReviewsPage() {
+  return (
+    <ProtectedRoute allowedRoles={['ADMIN', 'MANAGER']}>
+      <AdminReviewsPageContent />
+    </ProtectedRoute>
+  );
+}
+
+function AdminReviewsPageContent() {
+  const { user } = useAuth();
+  const canDeleteReviews = user?.role === 'ADMIN';
   const [reviews, setReviews] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -87,7 +68,6 @@ export default function AdminReviewsPage() {
     <ManagementPage
       title='Review Moderation'
       description='Oversee and manage customer feedback across the ecosystem.'
-      items={adminNavItems}
       loading={loading}
     >
       <div className='grid grid-cols-1 gap-6'>
@@ -148,17 +128,19 @@ export default function AdminReviewsPage() {
                     </div>
                   </div>
 
-                  {/* Actions */}
-                  <div className='p-8 lg:w-48 flex items-center justify-center lg:justify-end'>
-                    <Button
-                      variant='destructive'
-                      size='sm'
-                      className='rounded-md font-black px-6 shadow-lg shadow-red-500/10'
-                      onClick={() => handleDeleteReview(review.id)}
-                    >
-                      <Trash2 size={16} className='mr-2' /> Delete
-                    </Button>
-                  </div>
+                  {/* Actions (admin only) */}
+                  {canDeleteReviews && (
+                    <div className='p-8 lg:w-48 flex items-center justify-center lg:justify-end'>
+                      <Button
+                        variant='destructive'
+                        size='sm'
+                        className='rounded-md font-black px-6 shadow-lg shadow-red-500/10'
+                        onClick={() => handleDeleteReview(review.id)}
+                      >
+                        <Trash2 size={16} className='mr-2' /> Delete
+                      </Button>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </motion.div>

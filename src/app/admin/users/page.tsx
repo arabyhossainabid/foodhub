@@ -1,6 +1,7 @@
 "use client";
 
-import { Search, ShieldAlert, ShieldCheck, Mail, User as UserIcon, Users, LayoutDashboard, Grid, ShoppingBag } from "lucide-react";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { Search, ShieldCheck, Mail, User as UserIcon, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { adminService } from "@/services/adminService";
 import { User } from "@/types";
@@ -9,10 +10,22 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "react-hot-toast";
 import { cn } from "@/lib/utils";
+import { formatRoleLabel } from "@/lib/roleLabels";
 import { motion } from "framer-motion";
 import { ManagementPage } from "@/components/dashboard/ManagementPage";
+import { useAuth } from "@/context/AuthContext";
 
 export default function AdminUsersPage() {
+  return (
+    <ProtectedRoute allowedRoles={["ADMIN", "MANAGER"]}>
+      <AdminUsersPageContent />
+    </ProtectedRoute>
+  );
+}
+
+function AdminUsersPageContent() {
+  const { user: currentUser } = useAuth();
+  const canChangeAccess = currentUser?.role === "ADMIN";
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -47,6 +60,27 @@ export default function AdminUsersPage() {
         (error as { userMessage?: string })?.userMessage ||
         "Failed to modify user access.";
       console.error("User status update failed:", error);
+      toast.error(message);
+    }
+  };
+
+  const deleteAccount = async (userId: string, displayName: string) => {
+    if (
+      !window.confirm(
+        `Permanently delete "${displayName}" from the database? This cannot be undone. For providers, linked order lines, empty orders, reviews, and meals are removed first, then the account.`
+      )
+    ) {
+      return;
+    }
+    try {
+      await adminService.deleteUser(userId);
+      toast.success("Account deleted.");
+      fetchUsers();
+    } catch (error) {
+      const message =
+        (error as { userMessage?: string })?.userMessage ||
+        "Failed to delete account.";
+      console.error("User delete failed:", error);
       toast.error(message);
     }
   };
@@ -91,7 +125,15 @@ export default function AdminUsersPage() {
                       </div>
                       <div>
                         <h3 className="text-xl font-black text-gray-900 leading-tight">{user.name}</h3>
-                        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Joined Jan 2026</p>
+                        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">
+                          Joined{" "}
+                          {user.createdAt
+                            ? new Date(user.createdAt).toLocaleDateString(undefined, {
+                                month: "short",
+                                year: "numeric",
+                              })
+                            : "—"}
+                        </p>
                       </div>
                     </div>
                     <span className={cn(
@@ -112,24 +154,38 @@ export default function AdminUsersPage() {
                     <div className="space-y-1">
                       <p className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Platform Role</p>
                       <div className="flex items-center text-sm font-bold text-gray-700">
-                        <ShieldCheck size={14} className="mr-2 text-orange-500" /> {user.role}
+                        <ShieldCheck size={14} className="mr-2 text-orange-500" />{" "}
+                        {formatRoleLabel(user.role)}
                       </div>
                     </div>
                   </div>
 
-                  <div className="pt-4 flex items-center justify-between">
+                  <div className="pt-4 flex flex-wrap items-center justify-between gap-3">
                     <div className="flex -space-x-2">
                       {[1, 2, 3].map(i => <div key={i} className="h-8 w-8 rounded-full border-2 border-white bg-gray-100 flex items-center justify-center text-[8px] font-black">U{i}</div>)}
                     </div>
-                    {user.role !== 'ADMIN' && (
-                      <Button
-                        size="sm"
-                        variant={user.isActive ? "destructive" : "default"}
-                        className={cn("rounded-md font-black px-6", !user.isActive && "bg-green-600 hover:bg-green-700 shadow-lg shadow-green-500/20")}
-                        onClick={() => toggleStatus(user.id, user.isActive)}
-                      >
-                        {user.isActive ? "Revoke Access" : "Grant Access"}
-                      </Button>
+                    {canChangeAccess && user.role !== "ADMIN" && (
+                      <div className="flex flex-wrap gap-2 justify-end">
+                        <Button
+                          size="sm"
+                          variant={user.isActive ? "destructive" : "default"}
+                          className={cn("rounded-md font-black px-6", !user.isActive && "bg-green-600 hover:bg-green-700 shadow-lg shadow-green-500/20")}
+                          onClick={() => toggleStatus(user.id, user.isActive)}
+                        >
+                          {user.isActive ? "Revoke Access" : "Grant Access"}
+                        </Button>
+                        {currentUser?.id !== user.id && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="rounded-md font-black px-6 border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
+                            onClick={() => deleteAccount(user.id, user.name)}
+                          >
+                            <Trash2 size={14} className="mr-2" />
+                            Delete account
+                          </Button>
+                        )}
+                      </div>
                     )}
                   </div>
                 </CardContent>
@@ -145,3 +201,4 @@ export default function AdminUsersPage() {
     </ManagementPage>
   );
 }
+
