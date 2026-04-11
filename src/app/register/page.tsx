@@ -20,7 +20,7 @@ import { useForm } from 'react-hook-form';
 import { getGoogleAuthUrl } from '@/lib/apiUrl';
 import { toast } from 'react-hot-toast';
 import * as z from 'zod';
-import { User, Mail, Lock, Building, MapPin, Utensils, Zap, ArrowRight } from "lucide-react";
+import { User, Mail, Lock, Building, MapPin, Utensils, Zap, ArrowRight, Eye, EyeOff } from "lucide-react";
 
 const registerSchema = z
   .object({
@@ -61,6 +61,7 @@ export default function RegisterPage() {
       : 'CUSTOMER';
 
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const {
     register,
@@ -176,11 +177,18 @@ export default function RegisterPage() {
                 <div className="relative">
                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300" size={18} />
                    <Input 
-                    type="password"
+                    type={showPassword ? 'text' : 'password'}
                     placeholder='Password' 
-                    className="h-12 pl-12 rounded-xl border-gray-100 bg-gray-50 focus:bg-white transition-all font-medium"
+                    className="h-12 pl-12 pr-12 rounded-xl border-gray-100 bg-gray-50 focus:bg-white transition-all font-medium"
                     {...register('password')} 
                    />
+                   <button
+                     type='button'
+                     onClick={() => setShowPassword(!showPassword)}
+                     className='absolute right-4 top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-500 transition-colors'
+                   >
+                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                   </button>
                 </div>
                 {errors.password && <p className='text-[10px] text-red-500 font-bold uppercase ml-2'>{errors.password.message}</p>}
 
