@@ -168,31 +168,6 @@ npm start
 - **Mobile**: 100% responsive
 - **SEO**: 90+ optimized
 
-## 📝 Key APIs
-
-### Authentication
-```
-POST /api/auth/login
-POST /api/auth/register
-GET  /api/auth/me
-```
-
-### Meals
-```
-GET    /api/meals
-GET    /api/meals/:id
-POST   /api/meals (Provider)
-PUT    /api/meals/:id (Provider)
-```
-
-### Orders
-```
-GET    /api/orders
-POST   /api/orders
-GET    /api/orders/:id
-PUT    /api/orders/:id/status
-```
-
 ## 🎯 Future Plans
 
 - [ ] Real-time order tracking
@@ -208,12 +183,6 @@ PUT    /api/orders/:id/status
 3. Commit changes
 4. Push to branch
 5. Open Pull Request
-
-## 📄 License
-
-MIT License - see [LICENSE](LICENSE) file.
-
----
 
 <div align="center">
   <strong>🍕 Built with passion for food lovers 🍕</strong>
