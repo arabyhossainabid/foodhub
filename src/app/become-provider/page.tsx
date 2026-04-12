@@ -120,7 +120,7 @@ export default function BecomeProviderPage() {
                            Apply to Join
                         </Button>
                      </Link>
-                     <Button variant="outline" className="h-14 px-10 rounded-xl border-white/20 text-white hover:bg-white/10 transition-all">
+                     <Button variant="outline" className="h-14 px-10 rounded-xl bg-white text-orange-600 font-bold hover:bg-orange-50 transition-all shadow-xl">
                         Talk to an Agent
                      </Button>
                   </div>
