@@ -47,7 +47,7 @@ export function Testimonials() {
               data-aos="fade-up"
               data-aos-delay={index * 100}
             >
-              <Quote className="absolute top-6 right-8 w-10 h-10 text-orange-50 text-orange-50 transition-colors" />
+              <Quote className="absolute top-6 right-8 w-10 h-10 text-orange-50 transition-colors" />
               <div className="flex gap-1 mb-6">
                 {[...Array(5)].map((_, i) => (
                   <Star key={i} className={`w-3.5 h-3.5 ${i < item.rating ? 'fill-orange-500 text-orange-500' : 'text-gray-100'}`} />
